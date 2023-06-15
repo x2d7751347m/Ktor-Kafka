@@ -2,6 +2,7 @@ package com.aftertime.Service
 
 import com.aftertime.Entity.Address
 import com.aftertime.Entity.address
+import io.ktor.server.config.*
 import io.r2dbc.spi.ConnectionFactoryOptions
 import io.r2dbc.spi.Option
 import org.komapper.core.dsl.Meta
@@ -9,11 +10,24 @@ import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.first
 import org.komapper.r2dbc.R2dbcDatabase
 import java.util.Properties
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 class Service {
+    fun Application.module() {
+    val port = environment.config.propertyOrNull("ktor.deployment.port")?.getString() ?: "8080"
+    routing {
+        get {
+            call.respondText("Listening on port $port")
+        }
+    }
+}
     suspend fun a(): Int {
-        val b = Properties()
-        println(b.isEmpty)
+        fun Application.module() {
+            val port = environment.config.propertyOrNull("ktor.deployment.port")?.getString() ?: "8080"
+        }
+        println()
         println(Properties().getProperty("aaa.config"))
         // create a Database instance
         val options = ConnectionFactoryOptions.builder()
