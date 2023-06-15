@@ -8,6 +8,7 @@ import io.ktor.resources.*
 import io.ktor.server.resources.Resources
 import kotlinx.serialization.Serializable
 import io.ktor.server.application.*
+import io.ktor.server.plugins.swagger.*
 
 fun Application.configureRouting() {
     
@@ -24,6 +25,7 @@ fun Application.configureRouting() {
             // Get all articles ...
             call.respond("List of articles sorted starting from ${article.sort}")
         }
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
     }
 }
 @Serializable
