@@ -10,9 +10,11 @@ import io.ktor.resources.*
 import io.ktor.server.resources.Resources
 import kotlinx.serialization.Serializable
 import io.ktor.server.application.*
+import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.swagger.*
 
 fun Application.configureRouting() {
+    install(AutoHeadResponse)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             call.respondText(text = "500: $cause" , status = HttpStatusCode.InternalServerError)
