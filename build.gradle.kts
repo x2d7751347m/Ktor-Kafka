@@ -6,7 +6,8 @@ val prometeus_version : String by project
 plugins {
     kotlin("jvm") version "1.8.22"
     id("io.ktor.plugin") version "2.3.1"
-                id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("com.google.devtools.ksp") version "1.8.21-1.0.11"
 }
 
 group = "com.aftertime"
@@ -21,6 +22,8 @@ application {
 repositories {
     mavenCentral()
 }
+
+val komapperVersion = "1.10.0"
 
 dependencies {
     implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktor_version")
@@ -55,4 +58,13 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    platform("org.komapper:komapper-platform:$komapperVersion").let {
+        implementation(it)
+        ksp(it)
+    }
+    implementation("org.komapper:komapper-starter-jdbc")
+    implementation("org.komapper:komapper-dialect-h2-jdbc")
+    implementation("org.komapper:komapper-starter-r2dbc")
+    implementation("org.komapper:komapper-dialect-h2-r2dbc")
+    ksp("org.komapper:komapper-processor")
 }

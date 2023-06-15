@@ -1,5 +1,6 @@
 package com.aftertime.plugins
 
+import com.aftertime.Service.Service
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
 import io.ktor.server.plugins.statuspages.*
@@ -24,7 +25,7 @@ fun Application.configureRouting() {
     install(Resources)
     routing {
         get("/") {
-            call.respondText("Hello World!")
+            call.respondText("Hello World!"+ Service().a())
         }
         // Static plugin. Try to access `/static/index.html`
         static("/static") {
