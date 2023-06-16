@@ -1,20 +1,16 @@
 package com.aftertime.plugins
 
-import io.ktor.server.auth.*
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.http.*
-import io.ktor.server.sessions.*
-import io.ktor.server.response.*
-import io.ktor.server.auth.jwt.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.util.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.*
 
 fun Application.configureSecurity() {
-    
+
 //    authentication {
 //            oauth("auth-oauth-google") {
 //                urlProvider = { "http://localhost:8080/callback" }
@@ -58,7 +54,7 @@ fun Application.configureSecurity() {
             // pass="test", HA1=MD5("test:MyRealm:pass")="fb12475e62dedc5c2744d98eb73b8877"
             "test" to hex("fb12475e62dedc5c2744d98eb73b8877")
         )
-    
+
         digest("myDigestAuth") {
             digestProvider { userName, realm ->
                 usersInMyRealmToHA1[userName]
@@ -76,7 +72,7 @@ fun Application.configureSecurity() {
                 }
             }
         }
-    
+
         form(name = "myauth2") {
             userParamName = "user"
             passwordParamName = "password"
@@ -117,4 +113,5 @@ fun Application.configureSecurity() {
         }
     }
 }
+
 class UserSession(accessToken: String)

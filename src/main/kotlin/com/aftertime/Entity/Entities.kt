@@ -3,6 +3,7 @@ package com.aftertime.Entity
 import org.komapper.annotation.*
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class Address(
     val addressId: Int = 0,
@@ -19,23 +20,34 @@ data class AddressDef(
     val version: Nothing,
 )
 
-data class Employee(
-    val employeeId: Int,
-    val employeeNo: Int,
-    val employeeName: String,
-    val managerId: Int?,
-    val hiredate: LocalDate,
-    val salary: BigDecimal,
-    val departmentId: Int,
-    val addressId: Int,
-    val version: Int,
+data class User(
+    val uid: Long = 1,
+    val tribal: Int = 1,
+    val currentHead: Int? = null,
+    val currentTop: Int? = null,
+    val currentBottom: Int? = null,
+    val currentBoostNft: Int? = null,
+    val employeeNo: Int? = null,
+    val nickname: String? = null,
+    val managerId: Long? = null,
+    val hiredate: LocalDate? = null,
+    val rium: BigDecimal = BigDecimal.ZERO,
+    val departmentId: Int? = null,
+    val addressId: Int? = null,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
+    val version: Int = 0,
 )
 
-@KomapperEntityDef(Employee::class, ["employee", "manager"])
-data class EmployeeDef(
+@KomapperEntityDef(User::class, ["user", "manager", "admin"])
+data class UserDef(
     @KomapperId
     @KomapperAutoIncrement
-    val employeeId: Int,
+    val uid: Long,
+    @KomapperCreatedAt
+    val createdAt: LocalDateTime,
+    @KomapperUpdatedAt
+    val updatedAt: LocalDateTime,
     @KomapperVersion
     val version: Int,
 )

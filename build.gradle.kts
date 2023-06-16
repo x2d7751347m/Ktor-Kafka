@@ -1,7 +1,7 @@
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
-val prometeus_version : String by project
+val prometeus_version: String by project
 
 plugins {
     kotlin("jvm") version "1.8.22"
@@ -21,6 +21,7 @@ application {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 val komapperVersion = "1.10.0"
@@ -62,9 +63,11 @@ dependencies {
         implementation(it)
         ksp(it)
     }
-    implementation("org.komapper:komapper-starter-jdbc")
-    implementation("org.komapper:komapper-dialect-h2-jdbc")
     implementation("org.komapper:komapper-starter-r2dbc")
-    implementation("org.komapper:komapper-dialect-h2-r2dbc")
+    implementation("org.komapper:komapper-dialect-mariadb-r2dbc")
     ksp("org.komapper:komapper-processor")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+    
+    implementation("io.r2dbc:r2dbc-pool:1.0.0.RELEASE")
+    implementation("io.github.smiley4:ktor-swagger-ui:2.0.0")
 }
