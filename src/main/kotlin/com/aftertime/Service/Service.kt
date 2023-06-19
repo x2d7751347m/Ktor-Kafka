@@ -13,7 +13,7 @@ class Service {
         val userDef = Meta.user
         val db = r2dbcDatabase()
         db.runQuery {
-            QueryDsl.insert(userDef).single(User(nickname = user.nickname))
+            QueryDsl.insert(userDef).single(user)
         }
         return db.runQuery {
             QueryDsl.from(userDef).where { userDef.nickname eq user.nickname }
