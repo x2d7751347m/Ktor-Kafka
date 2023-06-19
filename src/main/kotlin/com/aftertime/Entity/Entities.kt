@@ -1,9 +1,10 @@
 package com.aftertime.Entity
 
+import com.aftertime.plugins.BigDecimalSerializer
+import kotlinx.datetime.*
+import kotlinx.serialization.Serializable
 import org.komapper.annotation.*
 import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class Address(
     val addressId: Int = 0,
@@ -20,22 +21,28 @@ data class AddressDef(
     val version: Nothing,
 )
 
+val userStorage = mutableListOf<User>()
+val currentMoment: Instant = Clock.System.now()
+val localDateTime1 = currentMoment.toLocalDateTime(TimeZone.UTC)
+
+@Serializable
 data class User(
-    val uid: Long = 1,
+    val id: Long = 1,
     val tribal: Int = 1,
     val currentHead: Int? = null,
     val currentTop: Int? = null,
     val currentBottom: Int? = null,
     val currentBoostNft: Int? = null,
     val employeeNo: Int? = null,
-    val nickname: String? = null,
     val managerId: Long? = null,
+    val nickname: String? = null,
     val hiredate: LocalDate? = null,
+    @Serializable(with = BigDecimalSerializer::class)
     val rium: BigDecimal = BigDecimal.ZERO,
     val departmentId: Int? = null,
     val addressId: Int? = null,
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-    val updatedAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
     val version: Int = 0,
 )
 
@@ -43,7 +50,7 @@ data class User(
 data class UserDef(
     @KomapperId
     @KomapperAutoIncrement
-    val uid: Long,
+    val id: Long,
     @KomapperCreatedAt
     val createdAt: LocalDateTime,
     @KomapperUpdatedAt

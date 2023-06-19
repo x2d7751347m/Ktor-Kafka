@@ -2,25 +2,25 @@ package com.aftertime.Service
 
 import com.aftertime.Entity.User
 import com.aftertime.Entity.user
-import io.r2dbc.spi.ConnectionFactoryOptions
-import io.r2dbc.spi.Option
+import com.aftertime.r2dbcDatabase
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.first
 import org.komapper.r2dbc.R2dbcDatabase
 
 class Service {
-    suspend fun a(url: String, port: Int, name: String, username: String, password: String): Long {
-        val options = ConnectionFactoryOptions.builder()
-            .option(ConnectionFactoryOptions.DRIVER, "mariadb")
-            .option(ConnectionFactoryOptions.DATABASE, name)
-            .option(ConnectionFactoryOptions.HOST, url)
-            .option(ConnectionFactoryOptions.PORT, port)
-            .option(ConnectionFactoryOptions.USER, username)
-            .option(ConnectionFactoryOptions.PASSWORD, password)
-            .option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
-            .build()
-        val db: R2dbcDatabase = R2dbcDatabase(options)
+    suspend fun createUser(user: User): Long {
+        val userDef = Meta.user
+        val db = r2dbcDatabase()
+        db.runQuery {
+            QueryDsl.insert(userDef).single(User(nickname = user.nickname))
+        }
+        return db.runQuery {
+            QueryDsl.from(userDef).where { userDef.nickname eq user.nickname }
+        }.last().id
+    }
+
+    suspend fun exampleService(db: R2dbcDatabase): Long {
         // get a metamodel
         val a = Meta.user
         // execute simple CRUD operations in a transaction
@@ -43,6 +43,6 @@ class Service {
 
         return db.runQuery {
             QueryDsl.from(a).where { a.nickname eq "aaaa" }
-        }.last().uid
+        }.last().id
     }
 }

@@ -18,12 +18,12 @@ class ExampleRepository(private val db: R2dbcDatabase) {
     private val ad = Meta.admin
     private val a = Meta.address
     private val onUserDepartment = on { u.departmentId eq d.departmentId }
-    private val onUserManager = on { u.managerId eq ad.uid }
+    private val onUserManager = on { u.managerId eq ad.id }
     private val onUserAddress = on { u.addressId eq a.addressId }
     private val isHighPerformer = where { u.rium greaterEq BigDecimal(3_000) }
 
-    suspend fun fetchUserById(uid: Long): User? {
-        val query = QueryDsl.from(u).where { u.uid eq uid }.firstOrNull()
+    suspend fun fetchUserById(id: Long): User? {
+        val query = QueryDsl.from(u).where { u.id eq id }.firstOrNull()
         return db.runQuery(query)
     }
 
@@ -33,7 +33,7 @@ class ExampleRepository(private val db: R2dbcDatabase) {
     }
 
     suspend fun fetchHighPerformers(): List<User> {
-        val query = QueryDsl.from(u).where(isHighPerformer).orderBy(u.uid)
+        val query = QueryDsl.from(u).where(isHighPerformer).orderBy(u.id)
         return db.runQuery(query)
     }
 
@@ -46,7 +46,7 @@ class ExampleRepository(private val db: R2dbcDatabase) {
     }
 
     suspend fun fetchAllUsers(): List<User> {
-        val query = QueryDsl.from(u).orderBy(u.uid)
+        val query = QueryDsl.from(u).orderBy(u.id)
         return db.runQuery(query)
     }
 
@@ -56,7 +56,7 @@ class ExampleRepository(private val db: R2dbcDatabase) {
             .where {
                 u.rium eq rium
                 d.departmentName eq departmentName
-            }.orderBy(u.uid)
+            }.orderBy(u.id)
         return db.runQuery(query)
     }
 
@@ -65,7 +65,7 @@ class ExampleRepository(private val db: R2dbcDatabase) {
             .leftJoin(u, onUserDepartment)
             .orderBy(d.departmentId)
             .groupBy(d.departmentName)
-            .select(d.departmentName, count(u.uid))
+            .select(d.departmentName, count(u.id))
         return db.runQuery(query)
     }
 
@@ -90,7 +90,7 @@ class ExampleRepository(private val db: R2dbcDatabase) {
     suspend fun fetchUserAddress(): Map<User, Address?> {
         val query = QueryDsl.from(u)
             .leftJoin(a, onUserAddress)
-            .orderBy(u.uid)
+            .orderBy(u.id)
             .includeAll()
         val store = db.runQuery(query)
         return store.oneToOne(u, a)

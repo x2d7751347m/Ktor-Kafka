@@ -1,27 +1,22 @@
 package com.aftertime.plugins
 
-import io.ktor.server.plugins.partialcontent.*
-import io.ktor.server.plugins.httpsredirect.*
-import io.ktor.server.plugins.forwardedheaders.*
-import io.ktor.server.plugins.conditionalheaders.*
-import io.ktor.server.plugins.cachingheaders.*
-import io.ktor.http.content.*
 import io.ktor.http.*
-import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.hsts.*
-import io.ktor.server.plugins.defaultheaders.*
-import io.ktor.server.plugins.compression.*
-import io.ktor.server.plugins.swagger.*
-import io.ktor.server.routing.*
-import io.ktor.server.plugins.openapi.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.cachingheaders.*
+import io.ktor.server.plugins.compression.*
+import io.ktor.server.plugins.conditionalheaders.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.defaultheaders.*
+import io.ktor.server.plugins.hsts.*
+import io.ktor.server.plugins.partialcontent.*
 
 fun Application.configureHTTP() {
     install(PartialContent) {
-            // Maximum number of ranges that will be accepted from a HTTP request.
-            // If the HTTP request specifies more ranges, they will all be merged into a single range.
-            maxRangeCount = 10
-        }
+        // Maximum number of ranges that will be accepted from a HTTP request.
+        // If the HTTP request specifies more ranges, they will all be merged into a single range.
+        maxRangeCount = 10
+    }
 //    install(HttpsRedirect) {
 //            // The port to redirect to. By default 443, the default HTTPS port.
 //            sslPort = 443
@@ -45,6 +40,7 @@ fun Application.configureHTTP() {
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
         allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
         allowHeader("MyCustomHeader")
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
     }
@@ -62,11 +58,5 @@ fun Application.configureHTTP() {
             priority = 10.0
             minimumSize(1024) // condition
         }
-    }
-    routing {
-        swaggerUI(path = "openapi")
-    }
-    routing {
-        openAPI(path = "openapi")
     }
 }
