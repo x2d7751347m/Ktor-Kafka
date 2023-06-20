@@ -67,7 +67,7 @@ dependencies {
     implementation("org.komapper:komapper-dialect-mariadb-r2dbc")
     ksp("org.komapper:komapper-processor")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-
     implementation("io.r2dbc:r2dbc-pool:1.0.0.RELEASE")
     implementation("io.github.smiley4:ktor-swagger-ui:2.2.0")
+    implementation("io.konform:konform:0.4.0")
 }

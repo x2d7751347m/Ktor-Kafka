@@ -12,12 +12,15 @@ import kotlinx.serialization.encoding.Encoder
 import java.math.BigDecimal
 
 fun Application.configureSerialization() {
-
     install(ContentNegotiation) {
-        json()
-
+        json(
+//            Json {
+//                prettyPrint = true
+//                isLenient = true
+//                encodeDefaults = true
+//            }
+        )
     }
-
 //    routing {
 //        get("/json/kotlinx-serialization") {
 //            call.respond(mapOf("hello" to "world"))

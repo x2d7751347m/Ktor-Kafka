@@ -9,7 +9,7 @@ import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
 
-fun r2dbcDatabase(): R2dbcDatabase {
+val r2dbcDatabase: () -> R2dbcDatabase = {
     val port =
         HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("ktor.deployment.db.port")!!.getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("ktor.deployment.db.host")!!.getString()
@@ -27,7 +27,7 @@ fun r2dbcDatabase(): R2dbcDatabase {
         .option(ConnectionFactoryOptions.PASSWORD, password)
         .option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
         .build()
-    return R2dbcDatabase(options)
+    R2dbcDatabase(options)
 }
 
 suspend fun initR2dbcDatabase() {

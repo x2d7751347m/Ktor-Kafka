@@ -9,7 +9,7 @@ import org.komapper.core.dsl.query.first
 import org.komapper.r2dbc.R2dbcDatabase
 
 class Service {
-    suspend fun createUser(user: User): Long {
+    suspend fun createUser(user: User): User {
         val userDef = Meta.user
         val db = r2dbcDatabase()
         db.runQuery {
@@ -17,7 +17,7 @@ class Service {
         }
         return db.runQuery {
             QueryDsl.from(userDef).where { userDef.nickname eq user.nickname }
-        }.last().id
+        }.last()
     }
 
     suspend fun exampleService(db: R2dbcDatabase): Long {

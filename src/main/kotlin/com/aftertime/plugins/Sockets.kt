@@ -1,13 +1,12 @@
 package com.aftertime.plugins
 
 import com.aftertime.Connection
-import io.ktor.websocket.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
-import java.time.*
+import io.ktor.websocket.*
+import java.time.Duration
 import java.util.*
-import kotlin.collections.LinkedHashSet
 
 fun Application.configureSockets() {
     install(WebSockets) {
@@ -45,6 +44,9 @@ fun Application.configureSockets() {
                         it.session.send(textWithUsername)
                     }
                     if (receivedText.equals("bye", ignoreCase = true)) {
+                        connections.forEach {
+                            it.session.send("Removing $textWithUsername user! ")
+                        }
                         close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                     }
                 }

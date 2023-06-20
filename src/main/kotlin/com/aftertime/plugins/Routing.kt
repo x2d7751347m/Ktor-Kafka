@@ -3,6 +3,7 @@ package com.aftertime.plugins
 import com.aftertime.routes.userRouting
 import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.dsl.get
+import io.konform.validation.ValidationError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.autohead.*
@@ -10,12 +11,88 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ExceptionResponse(
+    val message: String,
+    val code: Int,
+)
+
+class ValidationExceptions(val errors: List<io.konform.validation.ValidationError>) : Throwable()
+
+class ValidationException(
+    override val message: String,
+    val error: ValidationError? = null,
+) : Throwable()
+
+class ParsingException(override val message: String) : Throwable()
 
 fun Application.configureRouting() {
     install(AutoHeadResponse)
     install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
+        exception<Throwable> { call, throwable ->
+            when (throwable) {
+                is ValidationException -> {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        ExceptionResponse(
+                            throwable.message,
+                            HttpStatusCode.BadRequest.value
+                        )
+                    )
+                }
+
+                is ValidationExceptions -> {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        ExceptionResponse(
+                            throwable.errors.toString(),
+                            HttpStatusCode.BadRequest.value
+                        )
+                    )
+                }
+
+                is ParsingException -> {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        ExceptionResponse(
+                            throwable.message,
+                            HttpStatusCode.ExpectationFailed.value
+                        )
+                    )
+                }
+            }
+        }
+//        exception<Throwable> { call, cause ->
+//            call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
+//        }
+        status(
+            // any number of status codes can be mentioned
+            HttpStatusCode.InternalServerError,
+            HttpStatusCode.BadGateway,
+        ) { call, statusCode ->
+            when (statusCode) {
+                HttpStatusCode.InternalServerError -> {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ExceptionResponse(
+                            "Oops! internal server error at our end",
+                            HttpStatusCode.InternalServerError.value
+                        )
+                    )
+                }
+
+                HttpStatusCode.BadGateway -> {
+                    call.respond(
+                        HttpStatusCode.BadGateway,
+                        ExceptionResponse(
+                            "Oops! We got a bad gateway. Fixing it. Hold on!",
+                            HttpStatusCode.BadGateway.value
+                        )
+                    )
+                }
+            }
         }
     }
     install(SwaggerUI) {
@@ -35,6 +112,12 @@ fun Application.configureRouting() {
     }
     install(Resources)
     routing {
+        get("/parsing") {
+            throw ParsingException("this is a parsing exception")
+        }
+        get("/validation") {
+            throw ValidationException(message = "this is a validation exception")
+        }
         userRouting()
         get("/health", {
             description = "health check Endpoint."
@@ -54,13 +137,5 @@ fun Application.configureRouting() {
 //        static("/static") {
 //            resources("static")
 //        }
-//        get<Articles> { article ->
-//            // Get all articles ...
-//            call.respond("List of articles sorted starting from ${article.sort}")
-//        }
     }
 }
-
-//@Serializable
-//@Resource("/articles")
-//class Articles(val sort: String? = "new")

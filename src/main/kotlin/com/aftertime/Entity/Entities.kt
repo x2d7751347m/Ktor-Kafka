@@ -1,6 +1,10 @@
 package com.aftertime.Entity
 
 import com.aftertime.plugins.BigDecimalSerializer
+import io.konform.validation.Validation
+import io.konform.validation.jsonschema.maxLength
+import io.konform.validation.jsonschema.minLength
+import io.konform.validation.jsonschema.pattern
 import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
 import org.komapper.annotation.*
@@ -25,9 +29,21 @@ val userStorage = mutableListOf<User>()
 val currentMoment: Instant = Clock.System.now()
 val localDateTime1 = currentMoment.toLocalDateTime(TimeZone.UTC)
 
+val validateUser = Validation {
+    User::nickname ifPresent {
+        minLength(2)
+        maxLength(20)
+    }
+    User::password ifPresent {
+        pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid email address (optional)"
+    }
+}
+
 @Serializable
 data class User(
     val id: Long = 1,
+    val nickname: String = "",
+    val password: String = "",
     val tribal: Int = 1,
     val currentHead: Int? = null,
     val currentTop: Int? = null,
@@ -35,7 +51,6 @@ data class User(
     val currentBoostNft: Int? = null,
     val employeeNo: Int? = null,
     val managerId: Long? = null,
-    val nickname: String? = null,
     val hiredate: LocalDate? = null,
     @Serializable(with = BigDecimalSerializer::class)
     val rium: BigDecimal = BigDecimal.ZERO,

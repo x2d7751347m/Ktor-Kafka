@@ -2,7 +2,9 @@ package com.aftertime.routes
 
 import com.aftertime.Entity.User
 import com.aftertime.Entity.userStorage
+import com.aftertime.Entity.validateUser
 import com.aftertime.Service.Service
+import com.aftertime.plugins.ValidationException
 import io.github.smiley4.ktorswaggerui.dsl.delete
 import io.github.smiley4.ktorswaggerui.dsl.get
 import io.github.smiley4.ktorswaggerui.dsl.post
@@ -41,18 +43,6 @@ fun Route.userRouting() {
                     description = "id"
                 }
             }
-            response {
-                HttpStatusCode.OK to {
-                    description = "Successful Request"
-                    body<String> { description = "the response" }
-                }
-                HttpStatusCode.BadRequest to {
-                    description = "Not a valid request"
-                }
-                HttpStatusCode.InternalServerError to {
-                    description = "Something unexpected happened"
-                }
-            }
         }) {
             val id = call.parameters["id"]?.toLong() ?: return@get call.respondText(
                 "Missing id",
@@ -76,7 +66,7 @@ fun Route.userRouting() {
                     example("First", User(nickname = "aaa")) {
                         description = "aaa"
                     }
-                    example("Second", User(20, 7)) {
+                    example("Second", User(20, "nickname")) {
                         description = "Either an addition of 20 and 7 or a subtraction of 7 from 20"
                     }
                 }
@@ -86,34 +76,24 @@ fun Route.userRouting() {
                     description = "Successful Request"
                     body<String> { description = "the response" }
                 }
-                HttpStatusCode.BadRequest to {
-                    description = "Not a valid request"
-                }
-                HttpStatusCode.InternalServerError to {
-                    description = "Something unexpected happened"
-                }
             }
         }) {
             val user = call.receive<User>()
-            Service().createUser(user)
-            call.respondText("Customer stored correctly", status = HttpStatusCode.Created)
+
+            validateUser(user).errors.let {
+                if (it.isNotEmpty()) throw ValidationException(it.map {
+                    "${it.dataPath}-${it.message}"
+                }.reduce { acc, validationError ->
+                    acc + "\n" + validationError
+                })
+            }
+            val result = Service().createUser(user)
+            call.respond(status = HttpStatusCode.Created, User(nickname = "nick"))
         }
         delete("{id}", {
             request {
                 pathParameter<String>("id") {
                     description = "id"
-                }
-            }
-            response {
-                HttpStatusCode.OK to {
-                    description = "Successful Request"
-                    body<String> { description = "the response" }
-                }
-                HttpStatusCode.BadRequest to {
-                    description = "Not a valid request"
-                }
-                HttpStatusCode.InternalServerError to {
-                    description = "Something unexpected happened"
                 }
             }
         }) {
