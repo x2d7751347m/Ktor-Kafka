@@ -2,6 +2,8 @@ package com.aftertime.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.github.smiley4.ktorswaggerui.dsl.get
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -81,38 +83,90 @@ fun Application.configureSecurity() {
             }
         }
     }
+    // configure routes
     routing {
-//        authenticate("auth-oauth-google") {
-//            get("login") {
-//                call.respondRedirect("/callback")
-//            }
-//
-//            get("/callback") {
-//                val principal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
-//                call.sessions.set(UserSession(principal?.accessToken.toString()))
-//                val redirect = redirects[principal!!.state!!]
-//                call.respondRedirect(redirect!!)
-//            }
-//        }
-        authenticate("myDigestAuth") {
-            get("/protected/route/digest") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
+        authenticate {
+            // route is in an "authenticate"-block ->  default security scheme will be used (see plugin-config "defaultSecuritySchemeName")
+            get("hello", {
+                // Set the security schemes to be used by this route
+                securitySchemeNames = setOf("MyOtherSecurityScheme", "MySecurityScheme")
+                description = "Protected 'Hello World'-Route"
+                response {
+                    HttpStatusCode.OK to {
+                        description = "Successful Request"
+                        body<String> { description = "the response" }
+                    }
+                    // response for "401 Unauthorized" is automatically added (see plugin-config "defaultUnauthorizedResponse").
+                }
+            }) {
+                call.respondText("Hello World!")
             }
         }
-        authenticate("myauth1") {
-            get("/protected/route/basic") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
+        // route is not in an "authenticate"-block and does not set the `protected` property -> security schemes will be ignored
+        get("hello-unprotected", {
+            // Security scheme will be ignored since the operation is not protected
+            securitySchemeNames = setOf("MyOtherSecurityScheme", "MySecurityScheme")
+            description = "Unprotected 'Hello World'-Route"
+            response {
+                HttpStatusCode.OK to {
+                    description = "Successful Request"
+                    body<String> { description = "the response" }
+                }
+                // no response for "401 Unauthorized" is added
             }
+        }) {
+            call.respondText("Hello World!")
         }
-        authenticate("myauth2") {
-            get("/protected/route/form") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
+        // route is not in an "authenticate"-block but sets the `protected` property -> security scheme (or default security scheme) will be used
+        get("hello-externally-protected", {
+            // mark the route as protected even though there is no "authenticate"-block (e.g. because the route is protected by an external proxy)
+            protected = true
+            // Set the security scheme to be used by this route
+            securitySchemeName = "MyOtherSecurityScheme"
+            description = "Externally protected 'Hello World'-Route"
+            response {
+                HttpStatusCode.OK to {
+                    description = "Successful Request"
+                    body<String> { description = "the response" }
+                }
+                // response for "401 Unauthorized" is automatically added (see plugin-config "defaultUnauthorizedResponse").
             }
+        }) {
+            call.respondText("Hello World!")
         }
     }
+//    routing {
+////        authenticate("auth-oauth-google") {
+////            get("login") {
+////                call.respondRedirect("/callback")
+////            }
+////
+////            get("/callback") {
+////                val principal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
+////                call.sessions.set(UserSession(principal?.accessToken.toString()))
+////                val redirect = redirects[principal!!.state!!]
+////                call.respondRedirect(redirect!!)
+////            }
+////        }
+//        authenticate("myDigestAuth") {
+//            get("/protected/route/digest") {
+//                val principal = call.principal<UserIdPrincipal>()!!
+//                call.respondText("Hello ${principal.name}")
+//            }
+//        }
+//        authenticate("myauth1") {
+//            get("/protected/route/basic") {
+//                val principal = call.principal<UserIdPrincipal>()!!
+//                call.respondText("Hello ${principal.name}")
+//            }
+//        }
+//        authenticate("myauth2") {
+//            get("/protected/route/form") {
+//                val principal = call.principal<UserIdPrincipal>()!!
+//                call.respondText("Hello ${principal.name}")
+//            }
+//        }
+//    }
 }
 
 class UserSession(accessToken: String)

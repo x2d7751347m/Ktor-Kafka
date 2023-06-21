@@ -2,6 +2,8 @@ package com.aftertime.plugins
 
 import com.aftertime.routes.userRouting
 import io.github.smiley4.ktorswaggerui.SwaggerUI
+import io.github.smiley4.ktorswaggerui.dsl.AuthScheme
+import io.github.smiley4.ktorswaggerui.dsl.AuthType
 import io.github.smiley4.ktorswaggerui.dsl.get
 import io.konform.validation.ValidationError
 import io.ktor.http.*
@@ -15,15 +17,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ExceptionResponse(
-    val message: String,
+    val message: String?,
     val code: Int,
 )
 
-class ValidationExceptions(val errors: List<io.konform.validation.ValidationError>) : Throwable()
+class ValidationExceptions(val errors: List<ValidationError>) : Throwable()
+
+class BadRequestException(
+    override val message: String,
+) : Throwable()
+
+class NotFoundException(
+    override val message: String,
+) : Throwable()
 
 class ValidationException(
     override val message: String,
-    val error: ValidationError? = null,
 ) : Throwable()
 
 class ParsingException(override val message: String) : Throwable()
@@ -108,6 +117,22 @@ fun Application.configureRouting() {
         server {
             url = "http://localhost:8080"
             description = "Development Server"
+        }
+        // default value for "401 Unauthorized"-responses.
+        // the name of the security scheme (see below) to use for each route when nothing else is specified
+        defaultSecuritySchemeName = "MySecurityScheme"
+        defaultUnauthorizedResponse {
+            description = "Username or password is invalid."
+        }
+        // specify a security scheme
+        securityScheme("MySecurityScheme") {
+            type = AuthType.HTTP
+            scheme = AuthScheme.BASIC
+        }
+        // specify another security scheme
+        securityScheme("MyOtherSecurityScheme") {
+            type = AuthType.HTTP
+            scheme = AuthScheme.BASIC
         }
     }
     install(Resources)

@@ -50,6 +50,7 @@ fun Application.configureHTTP() {
     install(DefaultHeaders) {
         header("X-Engine", "Ktor") // will send this header with each response
     }
+    
     install(Compression) {
         gzip {
             priority = 1.0

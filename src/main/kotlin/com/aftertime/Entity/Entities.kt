@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 import org.komapper.annotation.*
 import java.math.BigDecimal
 
+@Serializable
 data class Address(
     val addressId: Int = 0,
     val street: String,
@@ -40,21 +41,31 @@ val validateUser = Validation {
 }
 
 @Serializable
+data class NetworkPacket(
+    val networkPacket: NetworkStatus,
+    val user: User,
+)
+
+enum class NetworkStatus(val status: String) {
+    ENTRY("entry"), EXIT("exit"), PlayerSync("PlayerSync"), PlayerArraySync("PlayerArraySync"),
+}
+
+@Serializable
 data class User(
     val id: Long = 1,
-    val nickname: String = "",
-    val password: String = "",
-    val tribal: Int = 1,
-    val currentHead: Int? = null,
-    val currentTop: Int? = null,
-    val currentBottom: Int? = null,
-    val currentBoostNft: Int? = null,
-    val employeeNo: Int? = null,
-    val managerId: Long? = null,
-    val hiredate: LocalDate? = null,
+    var nickname: String = "",
+    var password: String = "",
+    var tribal: Int = 1,
+    var currentHead: Int? = null,
+    var currentTop: Int? = null,
+    var currentBottom: Int? = null,
+    var currentBoostNft: Int? = null,
+    var employeeNo: Int? = null,
+    var managerId: Long? = null,
+    var hiredate: LocalDate? = null,
     @Serializable(with = BigDecimalSerializer::class)
-    val rium: BigDecimal = BigDecimal.ZERO,
-    val departmentId: Int? = null,
+    var rium: BigDecimal = BigDecimal.ZERO,
+    var departmentId: Int? = null,
     val addressId: Int? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,

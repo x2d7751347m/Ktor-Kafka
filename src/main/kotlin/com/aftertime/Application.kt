@@ -11,11 +11,11 @@ suspend fun main(args: Array<String>): Unit {
 // application.conf references the main function. This annotation prevents the IDE from marking it as unused.
 @Suppress("unused")
 fun Application.module() {
-    configureSecurity()
     configureHTTP()
     configureMonitoring()
     configureAdministration()
     configureSockets()
     configureSerialization()
     configureRouting()
+    configureSecurity()
 }

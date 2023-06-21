@@ -1,10 +1,16 @@
 package com.aftertime.plugins
 
 import com.aftertime.Connection
+import com.aftertime.Entity.NetworkPacket
+import com.aftertime.Entity.NetworkStatus
+import com.aftertime.Service.Service
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.encodeToJsonElement
 import java.time.Duration
 import java.util.*
 
@@ -15,6 +21,7 @@ fun Application.configureSockets() {
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
+    val service = Service()
     routing {
         val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
         webSocket("/ws") { // websocketSession
@@ -31,21 +38,30 @@ fun Application.configureSockets() {
         }
 
         webSocket("/chat") {
-            println("Adding user!")
+//            println("Adding user!")
             val thisConnection = Connection(this)
             connections += thisConnection
+            val user = service.findUser(1)!!
             try {
                 send("You are connected! There are ${connections.count()} users here.")
+                send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
-                    val receivedText = frame.readText()
+                    val receivedText = "${frame.readText()}"
                     val textWithUsername = "[${thisConnection.name}]: $receivedText"
                     connections.forEach {
-                        it.session.send(textWithUsername)
+                        it.session.send(receivedText)
                     }
-                    if (receivedText.equals("bye", ignoreCase = true)) {
+
+                    if (receivedText.startsWith("{") && Json.decodeFromJsonElement<NetworkPacket>(
+                            Json.decodeFromString(
+                                receivedText
+                            )
+                        ).networkPacket == NetworkStatus.EXIT
+                    ) {
                         connections.forEach {
-                            it.session.send("Removing $textWithUsername user! ")
+                            it.session.send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.EXIT, user))}")
+                            it.session.send("Removing ${thisConnection.name} user! ")
                         }
                         close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                     }
@@ -53,7 +69,7 @@ fun Application.configureSockets() {
             } catch (e: Exception) {
                 println(e.localizedMessage)
             } finally {
-                println("Removing $thisConnection!")
+//                println("Removing $thisConnection!")
                 connections -= thisConnection
             }
         }
