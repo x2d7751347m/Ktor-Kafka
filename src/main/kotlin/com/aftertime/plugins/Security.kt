@@ -18,7 +18,7 @@ import java.util.*
 
 fun Application.configureSecurity() {
     val service = Service()
-    val redirects = mutableMapOf<String, String>()
+//    val redirects = mutableMapOf<String, String>()
 //    authentication {
 //        oauth("auth-oauth-google") {
 //            urlProvider = { "http://localhost:8080/callback" }

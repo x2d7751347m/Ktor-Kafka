@@ -121,20 +121,20 @@ fun Application.configureRouting() {
         }
         // default value for "401 Unauthorized"-responses.
         // the name of the security scheme (see below) to use for each route when nothing else is specified
-        defaultSecuritySchemeName = "MySecurityScheme"
+        defaultSecuritySchemeName = "jwt"
         defaultUnauthorizedResponse {
             description = "Username or password is invalid."
         }
         // specify a security scheme
-        securityScheme("MySecurityScheme") {
+        securityScheme("jwt") {
             type = AuthType.HTTP
-            scheme = AuthScheme.BASIC
+            scheme = AuthScheme.BEARER
         }
-        // specify another security scheme
-        securityScheme("MyOtherSecurityScheme") {
-            type = AuthType.HTTP
-            scheme = AuthScheme.BASIC
-        }
+//        // specify another security scheme
+//        securityScheme("MyOtherSecurityScheme") {
+//            type = AuthType.HTTP
+//            scheme = AuthScheme.BASIC
+//        }
     }
     install(Resources)
     routing {
