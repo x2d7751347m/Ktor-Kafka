@@ -129,6 +129,7 @@ fun Application.configureRouting() {
         securityScheme("jwt") {
             type = AuthType.HTTP
             scheme = AuthScheme.BEARER
+            bearerFormat = "JWT"
         }
 //        // specify another security scheme
 //        securityScheme("MyOtherSecurityScheme") {
@@ -139,7 +140,6 @@ fun Application.configureRouting() {
     install(Resources)
     routing {
         userRouting()
-
         authenticate("auth-jwt") {
             get("/health", {
                 description = "health check Endpoint."
