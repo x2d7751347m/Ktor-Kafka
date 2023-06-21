@@ -70,4 +70,5 @@ dependencies {
     implementation("io.r2dbc:r2dbc-pool:1.0.0.RELEASE")
     implementation("io.github.smiley4:ktor-swagger-ui:2.2.0")
     implementation("io.konform:konform:0.4.0")
+    implementation("de.svenkubiak:jBCrypt:0.4.1")
 }

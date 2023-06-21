@@ -49,9 +49,6 @@ fun Application.configureSockets() {
                     frame as? Frame.Text ?: continue
                     val receivedText = "${frame.readText()}"
                     val textWithUsername = "[${thisConnection.name}]: $receivedText"
-                    connections.forEach {
-                        it.session.send(receivedText)
-                    }
 
                     if (receivedText.startsWith("{") && Json.decodeFromJsonElement<NetworkPacket>(
                             Json.decodeFromString(
@@ -64,6 +61,9 @@ fun Application.configureSockets() {
                             it.session.send("Removing ${thisConnection.name} user! ")
                         }
                         close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
+                    }
+                    connections.forEach {
+                        it.session.send(receivedText)
                     }
                 }
             } catch (e: Exception) {

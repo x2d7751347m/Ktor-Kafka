@@ -8,6 +8,7 @@ import io.github.smiley4.ktorswaggerui.dsl.get
 import io.konform.validation.ValidationError
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.resources.*
@@ -137,26 +138,23 @@ fun Application.configureRouting() {
     }
     install(Resources)
     routing {
-        get("/parsing") {
-            throw ParsingException("this is a parsing exception")
-        }
-        get("/validation") {
-            throw ValidationException(message = "this is a validation exception")
-        }
         userRouting()
-        get("/health", {
-            description = "health check Endpoint."
-            response {
-                HttpStatusCode.OK to {
-                    description = "Successful Request"
-                    body<String> { description = "the response" }
+
+        authenticate("auth-jwt") {
+            get("/health", {
+                description = "health check Endpoint."
+                response {
+                    HttpStatusCode.OK to {
+                        description = "Successful Request"
+                        body<String> { description = "the response" }
+                    }
+                    HttpStatusCode.InternalServerError to {
+                        description = "Something unexpected happened"
+                    }
                 }
-                HttpStatusCode.InternalServerError to {
-                    description = "Something unexpected happened"
-                }
+            }) {
+                call.respondText("Healthy!")
             }
-        }) {
-            call.respondText("Healthy!")
         }
 //        // Static plugin. Try to access `/static/index.html`
 //        static("/static") {

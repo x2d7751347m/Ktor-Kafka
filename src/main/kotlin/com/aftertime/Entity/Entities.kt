@@ -1,5 +1,6 @@
 package com.aftertime.Entity
 
+import com.aftertime.dto.GlobalDto
 import com.aftertime.plugins.BigDecimalSerializer
 import io.konform.validation.Validation
 import io.konform.validation.jsonschema.maxLength
@@ -31,11 +32,25 @@ val currentMoment: Instant = Clock.System.now()
 val localDateTime1 = currentMoment.toLocalDateTime(TimeZone.UTC)
 
 val validateUser = Validation {
+    User::username ifPresent {
+        minLength(2)
+        maxLength(20)
+    }
     User::nickname ifPresent {
         minLength(2)
         maxLength(20)
     }
     User::password ifPresent {
+        pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid email address (optional)"
+    }
+}
+
+val validateLoginForm = Validation {
+    GlobalDto.LoginForm::username ifPresent {
+        minLength(2)
+        maxLength(20)
+    }
+    GlobalDto.LoginForm::password ifPresent {
         pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid email address (optional)"
     }
 }
@@ -47,12 +62,13 @@ data class NetworkPacket(
 )
 
 enum class NetworkStatus(val status: String) {
-    ENTRY("entry"), EXIT("exit"), PlayerSync("PlayerSync"), PlayerArraySync("PlayerArraySync"),
+    ENTRY("entry"), EXIT("exit"), PLAYER_SYNC("PlayerSync"), PLAYER_ARRAY_SYNC("PlayerArraySync"),
 }
 
 @Serializable
 data class User(
     val id: Long = 1,
+    var username: String = "",
     var nickname: String = "",
     var password: String = "",
     var tribal: Int = 1,
@@ -72,7 +88,7 @@ data class User(
     val version: Int = 0,
 )
 
-@KomapperEntityDef(User::class, ["user", "manager", "admin"])
+@KomapperEntityDef(User::class, ["user", "admin"])
 data class UserDef(
     @KomapperId
     @KomapperAutoIncrement

@@ -19,13 +19,8 @@ import io.ktor.server.routing.*
 
 fun Route.userRouting() {
     val service = Service()
+
     route("/api/v1/users", {
-        request {
-            queryParameter<String>("query parameter") {
-                description = "query parameter description"
-                example = "query parameter example"
-            }
-        }
         response {
             HttpStatusCode.OK to {
                 description = "Successful Request"
@@ -40,8 +35,19 @@ fun Route.userRouting() {
             }
         }
     }) {
-        get {
-            service.findUsers(1, 1)
+        get({
+            request {
+                queryParameter<Int>("page") {
+                    example = 1
+                }
+                queryParameter<Int>("size") {
+                    example = 10
+                }
+            }
+        }) {
+            val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
+            val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
+            call.respond(service.findUsers(page, size))
         }
         get("{id}", {
             request {
@@ -58,10 +64,95 @@ fun Route.userRouting() {
         post({
             description = "create user."
             request {
-                queryParameter<String>("query parameter") {
-                    description = "query parameter description"
-                    example = "query parameter example"
+//                pathParameter<String>("operation") {
+//                    description = "the math operation to perform. Either 'add' or 'sub'"
+//                    example = "add"
+//                }
+                body<User> {
+                    example("First", User(nickname = "nickname", password = "Password12!")) {
+                        description = "nickname"
+                    }
+                    example("Second", User(nickname = "nickname2", password = "Password1234!")) {
+                        description = "nickname2"
+                    }
                 }
+            }
+            response {
+                HttpStatusCode.Created to {
+                    description = "Successful Request"
+                    body<User> {
+                        mediaType(ContentType.Application.Json)
+                        description = "the response"
+                    }
+                }
+            }
+        }) {
+            val user = call.receive<User>().apply { this.username = this.nickname }
+
+            validateUser(user).errors.let {
+                if (it.isNotEmpty()) throw ValidationExceptions(it)
+            }
+            call.respond(status = HttpStatusCode.Created, service.createUser(user))
+        }
+        delete("{id}", {
+            request {
+                pathParameter<String>("id") {
+                    description = "id"
+                }
+            }
+        }) {
+            val id = call.parameters["id"]?.toLong() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            if (userStorage.removeIf { it.id == id }) {
+                call.respondText("Customer removed correctly", status = HttpStatusCode.Accepted)
+            } else {
+                call.respondText("Not Found", status = HttpStatusCode.NotFound)
+            }
+        }
+    }
+    route("/api/v1/admins", {
+        response {
+            HttpStatusCode.OK to {
+                description = "Successful Request"
+            }
+            HttpStatusCode.BadRequest to {
+                description = "Not a valid request"
+                body<ExceptionResponse> { description = "the response" }
+            }
+            HttpStatusCode.InternalServerError to {
+                description = "Something unexpected happened"
+                body<ExceptionResponse> { description = "the response" }
+            }
+        }
+    }) {
+        get({
+            request {
+                queryParameter<Int>("page") {
+                    example = 1
+                }
+                queryParameter<Int>("size") {
+                    example = 10
+                }
+            }
+        }) {
+            val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
+            val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
+            call.respond(service.findUsers(page, size))
+        }
+        get("{id}", {
+            request {
+                pathParameter<String>("id") {
+                    description = "id"
+                }
+            }
+        }) {
+            val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
+            val user =
+                service.findUser(id) ?: throw NotFoundException()
+            call.respond(user)
+        }
+        post({
+            description = "create admin."
+            request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
 //                    example = "add"
@@ -90,7 +181,7 @@ fun Route.userRouting() {
             validateUser(user).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
-            call.respond(status = HttpStatusCode.Created, service.createUser(user))
+            call.respond(status = HttpStatusCode.Created, service.createAdmin(user))
         }
         delete("{id}", {
             request {
@@ -107,6 +198,4 @@ fun Route.userRouting() {
             }
         }
     }
-
-
 }
