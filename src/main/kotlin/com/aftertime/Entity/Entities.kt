@@ -62,7 +62,7 @@ data class NetworkPacket(
 )
 
 enum class NetworkStatus(val status: String) {
-    ENTRY("entry"), EXIT("exit"), PLAYER_SYNC("PlayerSync"), PLAYER_ARRAY_SYNC("PlayerArraySync"),
+    ENTRY("entry"), EXIT("exit"), PLAYER_SYNC("playerSync"), PLAYER_ARRAY_SYNC("playerArraySync"),
 }
 
 @Serializable
