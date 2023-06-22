@@ -71,7 +71,7 @@ data class User(
     var username: String = "",
     var nickname: String = "",
     var password: String = "",
-    var tribal: Int = 1,
+    var tribal: Int = 0,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
