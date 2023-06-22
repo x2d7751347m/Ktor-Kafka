@@ -76,16 +76,21 @@ data class User(
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
     var currentBoostNft: Int? = null,
-    var employeeNo: Int? = null,
-    var managerId: Long? = null,
-    var hiredate: LocalDate? = null,
+    var posX: Float = 0f,
+    var posY: Float = 0f,
+    var posZ: Float = 0f,
+    var rotX: Float = 0f,
+    var rotY: Float = 0f,
+    var rotZ: Float = 0f,
     @Serializable(with = BigDecimalSerializer::class)
     var rium: BigDecimal = BigDecimal.ZERO,
-    var departmentId: Int? = null,
-    val addressId: Int? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val version: Int = 0,
+    var departmentId: Int? = null,
+    val addressId: Int? = null,
+    var managerId: Long? = null,
+    var hiredate: LocalDate? = null,
 )
 
 @KomapperEntityDef(User::class, ["user", "admin"])

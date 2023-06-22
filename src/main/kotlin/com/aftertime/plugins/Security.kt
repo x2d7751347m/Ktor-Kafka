@@ -64,21 +64,6 @@ fun Application.configureSecurity() {
         }
     }
 //    authentication {
-//        jwt {
-//            realm = jwtRealm
-//            verifier(
-//                JWT
-//                    .require(Algorithm.HMAC256(jwtSecret))
-//                    .withAudience(jwtAudience)
-//                    .withIssuer(jwtIssuer)
-//                    .build()
-//            )
-//            validate { credential ->
-//                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
-//            }
-//        }
-//    }
-//    authentication {
 //        val myRealm = "MyRealm"
 //        val usersInMyRealmToHA1: Map<String, ByteArray> = mapOf(
 //            // pass="test", HA1=MD5("test:MyRealm:pass")="fb12475e62dedc5c2744d98eb73b8877"
@@ -146,7 +131,7 @@ fun Application.configureSecurity() {
                 .withAudience(jwtAudience)
                 .withIssuer(jwtIssuer)
                 .withClaim("id", user.id)
-                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
                 .sign(Algorithm.HMAC256(jwtSecret))
             call.response.headers.append(HttpHeaders.Authorization, token)
             call.response.status(HttpStatusCode.OK)
@@ -154,9 +139,9 @@ fun Application.configureSecurity() {
         authenticate("auth-jwt") {
             get("/hello") {
                 val principal = call.principal<JWTPrincipal>()
-                val username = principal!!.payload.getClaim("username").asString()
+                val id = principal!!.payload.getClaim("id").asString()
                 val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
-                call.respondText("Hello, $username! Token is expired at $expiresAt ms.")
+                call.respondText("Hello, $id! Token is expired at $expiresAt ms.")
             }
         }
     }
