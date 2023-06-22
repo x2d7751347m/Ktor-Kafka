@@ -5,7 +5,8 @@ import java.util.concurrent.atomic.*
 
 class Connection(val session: DefaultWebSocketSession) {
     companion object {
-        val lastId = AtomicInteger(0)
+        val lastId = AtomicLong(0)
     }
-    val name = "user${lastId.getAndIncrement()}"
+    val name = lastId.getAndIncrement()
+//        "user${lastId.getAndIncrement()}"
 }

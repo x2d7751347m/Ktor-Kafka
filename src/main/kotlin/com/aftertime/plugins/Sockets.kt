@@ -7,12 +7,18 @@ import com.aftertime.Service.Service
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import io.ktor.utils.io.*
 import io.ktor.websocket.*
+import io.r2dbc.spi.R2dbcNonTransientResourceException
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
+import java.io.IOException
 import java.time.Duration
 import java.util.*
+
 
 fun Application.configureSockets() {
     install(WebSockets) {
@@ -25,7 +31,7 @@ fun Application.configureSockets() {
 
 fun Route.socketRouting() {
     val service = Service()
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(1000))
+    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(800))
     webSocket("/ws") { // websocketSession
         send("You are connected!")
         for (frame in incoming) {
@@ -42,61 +48,102 @@ fun Route.socketRouting() {
 //    authenticate("auth-jwt") {
     webSocket("/chat") {
         val thisConnection = Connection(this)
-//        coroutineScope {
+        coroutineScope {
 
 //            val principal = call.principal<JWTPrincipal>()
 //            val id = principal!!.payload.getClaim("id").asLong()
 //            val user = service.findUser(id)!!
 //            println("Adding user!")
-        connections += thisConnection
-        val user = service.findUser(1)!!
-        try {
-            send("You are connected! There are ${connections.count()} users here.")
-            send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
-            connections.forEach {
-                it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
-            }
-            for (frame in incoming) {
-                when (frame) {
-                    is Frame.Binary -> {
-                        val receivedByteArray = frame.readBytes()
-
-                        connections.forEach {
-                            it.session.send(receivedByteArray)
-                        }
-                    }
-
-                    is Frame.Text -> {
-                        val receivedText = "${frame.readText()}"
-                        val textWithUsername = "[${thisConnection.name}]: $receivedText"
-
-                        if (receivedText.startsWith("{") && Json.decodeFromJsonElement<NetworkPacket>(
-                                Json.decodeFromString(
-                                    receivedText
-                                )
-                            ).networkPacket == NetworkStatus.EXIT
-                        ) {
+                try {
+                    connections += thisConnection
+                } catch (e: Exception) {
+                }
+                try {
+                    val user = service.findUser(1)!!.apply { id = thisConnection.name }
+                    send("You are connected! There are ${connections.count()} users here.")
+                    send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
+                    launch {
+                    try {
                             connections.forEach {
-                                it.session.send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.EXIT, user))}")
-                                it.session.send("Removing ${thisConnection.name} user! ")
+                                it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
                             }
-                            close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
-                        }
-                        connections.forEach {
-                            it.session.send(receivedText)
+                    } catch (_: Exception) {
+                    }
+                    }
+                    for (frame in incoming) {
+                        when (frame) {
+                            is Frame.Binary -> {
+                                val receivedByteArray = frame.readBytes()
+
+                                launch {
+                                try {
+                                        connections.forEach {
+                                            it.session.send(receivedByteArray)
+                                        }
+                                } catch (_: Exception) {
+                                }
+                                }
+                            }
+
+                            is Frame.Text -> {
+                                val receivedText = "${frame.readText()}"
+                                val textWithUsername = "[${thisConnection.name}]: $receivedText"
+
+                                if (receivedText.startsWith("{") && Json.decodeFromJsonElement<NetworkPacket>(
+                                        Json.decodeFromString(
+                                            receivedText
+                                        )
+                                    ).networkPacket == NetworkStatus.EXIT
+                                ) {
+                                    launch {
+                                    try {
+
+                                            connections.forEach {
+                                                it.session.send(
+                                                    "${
+                                                        Json.encodeToJsonElement(
+                                                            NetworkPacket(
+                                                                NetworkStatus.EXIT,
+                                                                user
+                                                            )
+                                                        )
+                                                    }"
+                                                )
+                                                it.session.send("Removing ${thisConnection.name} user! ")
+                                            }
+                                    } catch (_: Exception) {
+                                    }
+                                    }
+                                    close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
+                                }
+                                launch {
+                                try {
+                                        connections.forEach {
+                                            it.session.send(receivedText)
+                                        }
+                                } catch (_: Exception) {
+                                }
+                                }
+                            }
+
+                            else -> {
+                                throw BadRequestException("bad message format")
+                            }
                         }
                     }
-
-                    else -> {
-                        throw BadRequestException("bad message format")
+                } catch (e: R2dbcNonTransientResourceException) {
+                } catch (e: IOException) {
+                } catch (e: Exception) {
+                    if (e.localizedMessage != "ArrayChannel was cancelled")
+                    println(e.localizedMessage)
+                } finally {
+//                println("Removing $thisConnection!")
+                    try {
+                        connections -= thisConnection
+                    } catch (e: Exception) {
+                        println(e)
                     }
                 }
             }
-        } catch (e: Exception) {
-            println(e.localizedMessage)
-        } finally {
-//                println("Removing $thisConnection!")
-            connections -= thisConnection
         }
     }
-}

@@ -34,16 +34,16 @@ class ApplicationTest {
 
         val client = HttpClient(CIO) {
             engine {
-                endpoint.maxConnectionsPerRoute = 99999
+                endpoint.maxConnectionsPerRoute = 800
             }
             install(WebSockets) {
-                pingInterval = 15_000
+                pingInterval = 14_000
             }
         }
         coroutineScope {
-            (0..900).forEach {
+            repeat(500) {
                 launch {
-//                    delay(it.toLong() * 100)
+                    delay(it.toLong() * 500)
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         // this: DefaultClientWebSocketSession
                         while (true) {
@@ -54,7 +54,7 @@ class ApplicationTest {
                                 delay(100)
                                 val myMessage = "S"
                                 if (othersMessage != null) {
-//                                    send(myMessage)
+                                    send(myMessage)
                                 }
                             } catch (e: Exception) {
                                 break
