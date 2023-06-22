@@ -43,7 +43,7 @@ class ApplicationTest {
         coroutineScope {
             (0..900).forEach {
                 launch {
-                    delay(it.toLong() * 100)
+//                    delay(it.toLong() * 100)
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         // this: DefaultClientWebSocketSession
                         while (true) {
@@ -51,7 +51,7 @@ class ApplicationTest {
                                 val othersMessage = incoming.receive() as? Frame.Text
                                 println(othersMessage?.readText())
 ////                    val myMessage = Scanner(System.`in`).next()
-//                                delay(100)
+                                delay(100)
                                 val myMessage = "S"
                                 if (othersMessage != null) {
 //                                    send(myMessage)
