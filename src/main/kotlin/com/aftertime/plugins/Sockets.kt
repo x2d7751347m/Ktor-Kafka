@@ -10,7 +10,6 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.encodeToJsonElement
 import java.time.Duration
 import java.util.*
 
@@ -25,8 +24,8 @@ fun Application.configureSockets() {
 }
 
 fun Route.socketRouting() {
-    val service = Service()
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+//    val service = Service()
+    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(1100))
     webSocket("/ws") { // websocketSession
         send("You are connected!")
         for (frame in incoming) {
@@ -42,29 +41,34 @@ fun Route.socketRouting() {
 
 //    authenticate("auth-jwt") {
     webSocket("/chat") {
+        val thisConnection = Connection(this)
+//        coroutineScope {
 
 //            val principal = call.principal<JWTPrincipal>()
 //            val id = principal!!.payload.getClaim("id").asLong()
 //            val user = service.findUser(id)!!
 //            println("Adding user!")
-        val thisConnection = Connection(this)
         connections += thisConnection
+//        val user = service.findUser(1)!!
         try {
             send("You are connected! There are ${connections.count()} users here.")
-            send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, service.findUser(1)!!))}")
+//            send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
 //                send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
+            connections.forEach {
+                it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
+            }
             for (frame in incoming) {
                 when (frame) {
                     is Frame.Binary -> {
                         val receivedByteArray = frame.readBytes()
 
                         connections.forEach {
-                            (0 until 999).forEach() { sfdf -> it.session.send(receivedByteArray) }
+                            it.session.send(receivedByteArray)
                         }
+                    }
 //                        connections.forEach {
 //                            it.session.send(receivedByteArray)
 //                        }
-                    }
 
                     is Frame.Text -> {
                         val receivedText = "${frame.readText()}"
@@ -79,14 +83,15 @@ fun Route.socketRouting() {
                             connections.forEach {
 //                        it.session.send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.EXIT, user))}")
                                 it.session.send(
-                                    "${
-                                        Json.encodeToJsonElement(
-                                            NetworkPacket(
-                                                NetworkStatus.EXIT,
-                                                service.findUser(1)!!
-                                            )
-                                        )
-                                    }"
+//                                        "${
+//                                            Json.encodeToJsonElement(
+//                                                NetworkPacket(
+//                                                    NetworkStatus.EXIT,
+//                                                    service.findUser(1)!!
+//                                                )
+//                                            )
+//                                        }"
+                                    "bye"
                                 )
                                 it.session.send("Removing ${thisConnection.name} user! ")
                             }
@@ -108,6 +113,5 @@ fun Route.socketRouting() {
 //                println("Removing $thisConnection!")
             connections -= thisConnection
         }
-//        }
     }
 }
