@@ -3,7 +3,6 @@ package com.aftertime.plugins
 import com.aftertime.Connection
 import com.aftertime.Entity.NetworkPacket
 import com.aftertime.Entity.NetworkStatus
-import com.aftertime.Service.Service
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -20,7 +19,6 @@ fun Application.configureSockets() {
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
-    val service = Service()
 }
 
 fun Route.socketRouting() {
