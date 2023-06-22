@@ -21,6 +21,7 @@ fun Route.userRouting() {
     val service = Service()
 
     route("/api/v1/users", {
+        tags = listOf("user")
         response {
             HttpStatusCode.OK to {
                 description = "Successful Request"
