@@ -3,6 +3,7 @@ package com.aftertime.plugins
 import com.aftertime.Connection
 import com.aftertime.Entity.NetworkPacket
 import com.aftertime.Entity.NetworkStatus
+import com.aftertime.Entity.User
 import com.aftertime.Service.Service
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -22,7 +23,7 @@ import java.util.*
 
 fun Application.configureSockets() {
     install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(15)
+        pingPeriod = Duration.ofSeconds(6000)
         timeout = Duration.ofSeconds(15)
         maxFrameSize = Long.MAX_VALUE
         masking = false
@@ -30,7 +31,7 @@ fun Application.configureSockets() {
 }
 
 fun Route.socketRouting() {
-    val service = Service()
+//    val service = Service()
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(800))
     webSocket("/ws") { // websocketSession
         send("You are connected!")
@@ -59,7 +60,10 @@ fun Route.socketRouting() {
                 } catch (e: Exception) {
                 }
                 try {
-                    val user = service.findUser(1)!!.apply { id = thisConnection.name }
+                    val user =
+//                        service.findUser(1)!!
+                            User()
+                            .apply { id = thisConnection.name }
                     send("You are connected! There are ${connections.count()} users here.")
                     send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
                     launch {

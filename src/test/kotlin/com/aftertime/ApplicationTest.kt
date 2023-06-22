@@ -37,25 +37,33 @@ class ApplicationTest {
                 endpoint.maxConnectionsPerRoute = 800
             }
             install(WebSockets) {
-                pingInterval = 14_000
+                pingInterval = 15_000
             }
         }
         coroutineScope {
-            repeat(500) {
+            repeat(900) {
                 launch {
-                    delay(it.toLong() * 500)
+//                    delay(it.toLong() * 200)
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
+//                        timeoutMillis = 15000
+//                        pingIntervalMillis = 14000
                         // this: DefaultClientWebSocketSession
                         while (true) {
                             try {
-                                val othersMessage = incoming.receive() as? Frame.Text
-                                println(othersMessage?.readText())
+                                when(incoming.receive()){
+                                    is Frame.Text -> {
+                                        val othersMessage = incoming.receive() as? Frame.Text
+                                        println(othersMessage?.readText())
 ////                    val myMessage = Scanner(System.`in`).next()
-                                delay(100)
-                                val myMessage = "S"
-                                if (othersMessage != null) {
-                                    send(myMessage)
+                                        delay(100)
+                                        val myMessage = "S"
+                                        if (othersMessage != null) {
+                                            send(myMessage)
+                                        }
+                                    }
+                                    else -> {}
                                 }
+
                             } catch (e: Exception) {
                                 break
                             }
