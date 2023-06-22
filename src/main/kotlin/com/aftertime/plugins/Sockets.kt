@@ -3,12 +3,14 @@ package com.aftertime.plugins
 import com.aftertime.Connection
 import com.aftertime.Entity.NetworkPacket
 import com.aftertime.Entity.NetworkStatus
+import com.aftertime.Service.Service
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.encodeToJsonElement
 import java.time.Duration
 import java.util.*
 
@@ -22,7 +24,7 @@ fun Application.configureSockets() {
 }
 
 fun Route.socketRouting() {
-//    val service = Service()
+    val service = Service()
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(1100))
     webSocket("/ws") { // websocketSession
         send("You are connected!")
@@ -47,11 +49,10 @@ fun Route.socketRouting() {
 //            val user = service.findUser(id)!!
 //            println("Adding user!")
         connections += thisConnection
-//        val user = service.findUser(1)!!
+        val user = service.findUser(1)!!
         try {
             send("You are connected! There are ${connections.count()} users here.")
-//            send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
-//                send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
+            send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
             connections.forEach {
                 it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
             }
@@ -64,9 +65,6 @@ fun Route.socketRouting() {
                             it.session.send(receivedByteArray)
                         }
                     }
-//                        connections.forEach {
-//                            it.session.send(receivedByteArray)
-//                        }
 
                     is Frame.Text -> {
                         val receivedText = "${frame.readText()}"
@@ -79,18 +77,7 @@ fun Route.socketRouting() {
                             ).networkPacket == NetworkStatus.EXIT
                         ) {
                             connections.forEach {
-//                        it.session.send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.EXIT, user))}")
-                                it.session.send(
-//                                        "${
-//                                            Json.encodeToJsonElement(
-//                                                NetworkPacket(
-//                                                    NetworkStatus.EXIT,
-//                                                    service.findUser(1)!!
-//                                                )
-//                                            )
-//                                        }"
-                                    "bye"
-                                )
+                                it.session.send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.EXIT, user))}")
                                 it.session.send("Removing ${thisConnection.name} user! ")
                             }
                             close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
