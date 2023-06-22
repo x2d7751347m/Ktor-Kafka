@@ -41,24 +41,25 @@ class ApplicationTest {
             }
         }
         coroutineScope {
-            repeat(900) {
+            repeat(5) {
                 launch {
-//                    delay(it.toLong() * 200)
+                    delay(it.toLong() * 200)
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
-//                        timeoutMillis = 15000
-//                        pingIntervalMillis = 14000
-                        // this: DefaultClientWebSocketSession
+                        timeoutMillis = 15000
                         while (true) {
                             try {
+                                delay(100)
                                 when(incoming.receive()){
+//                                    is Frame.Ping -> {
+//                                        send(Frame.Pong(ByteArray(0)))
+//                                    }
                                     is Frame.Text -> {
                                         val othersMessage = incoming.receive() as? Frame.Text
                                         println(othersMessage?.readText())
 ////                    val myMessage = Scanner(System.`in`).next()
-                                        delay(100)
                                         val myMessage = "S"
                                         if (othersMessage != null) {
-                                            send(myMessage)
+//                                            send(myMessage)
                                         }
                                     }
                                     else -> {}

@@ -23,7 +23,7 @@ import java.util.*
 
 fun Application.configureSockets() {
     install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(6000)
+        pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
         maxFrameSize = Long.MAX_VALUE
         masking = false
@@ -32,7 +32,7 @@ fun Application.configureSockets() {
 
 fun Route.socketRouting() {
 //    val service = Service()
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(800))
+    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(300))
     webSocket("/ws") { // websocketSession
         send("You are connected!")
         for (frame in incoming) {
