@@ -5,8 +5,6 @@ import com.aftertime.Entity.NetworkPacket
 import com.aftertime.Entity.NetworkStatus
 import com.aftertime.Service.Service
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
@@ -24,35 +22,51 @@ fun Application.configureSockets() {
         masking = false
     }
     val service = Service()
-    routing {
-        val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
-        webSocket("/ws") { // websocketSession
-            send("You are connected!")
-            for (frame in incoming) {
-                if (frame is Frame.Text) {
-                    val text = frame.readText()
-                    outgoing.send(Frame.Text("YOU SAID: $text"))
-                    if (text.equals("bye", ignoreCase = true)) {
-                        close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
-                    }
+}
+
+fun Route.socketRouting() {
+    val service = Service()
+    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+    webSocket("/ws") { // websocketSession
+        send("You are connected!")
+        for (frame in incoming) {
+            if (frame is Frame.Text) {
+                val text = frame.readText()
+                outgoing.send(Frame.Text("YOU SAID: $text"))
+                if (text.equals("bye", ignoreCase = true)) {
+                    close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                 }
             }
         }
+    }
 
-        authenticate("auth-jwt") {
-            webSocket("/chat") {
+//    authenticate("auth-jwt") {
+    webSocket("/chat") {
 
-                val principal = call.principal<JWTPrincipal>()
-                val id = principal!!.payload.getClaim("id").asLong()
-                val user = service.findUser(id)!!
+//            val principal = call.principal<JWTPrincipal>()
+//            val id = principal!!.payload.getClaim("id").asLong()
+//            val user = service.findUser(id)!!
 //            println("Adding user!")
-                val thisConnection = Connection(this)
-                connections += thisConnection
-                try {
-                    send("You are connected! There are ${connections.count()} users here.")
-                    send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
-                    for (frame in incoming) {
-                        frame as? Frame.Text ?: continue
+        val thisConnection = Connection(this)
+        connections += thisConnection
+        try {
+            send("You are connected! There are ${connections.count()} users here.")
+            send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, service.findUser(1)!!))}")
+//                send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
+            for (frame in incoming) {
+                when (frame) {
+                    is Frame.Binary -> {
+                        val receivedByteArray = frame.readBytes()
+
+                        connections.forEach {
+                            (0 until 999).forEach() { sfdf -> it.session.send(receivedByteArray) }
+                        }
+//                        connections.forEach {
+//                            it.session.send(receivedByteArray)
+//                        }
+                    }
+
+                    is Frame.Text -> {
                         val receivedText = "${frame.readText()}"
                         val textWithUsername = "[${thisConnection.name}]: $receivedText"
 
@@ -63,7 +77,17 @@ fun Application.configureSockets() {
                             ).networkPacket == NetworkStatus.EXIT
                         ) {
                             connections.forEach {
-                                it.session.send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.EXIT, user))}")
+//                        it.session.send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.EXIT, user))}")
+                                it.session.send(
+                                    "${
+                                        Json.encodeToJsonElement(
+                                            NetworkPacket(
+                                                NetworkStatus.EXIT,
+                                                service.findUser(1)!!
+                                            )
+                                        )
+                                    }"
+                                )
                                 it.session.send("Removing ${thisConnection.name} user! ")
                             }
                             close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
@@ -72,13 +96,18 @@ fun Application.configureSockets() {
                             it.session.send(receivedText)
                         }
                     }
-                } catch (e: Exception) {
-                    println(e.localizedMessage)
-                } finally {
-//                println("Removing $thisConnection!")
-                    connections -= thisConnection
+
+                    else -> {
+                        throw BadRequestException("bad message format")
+                    }
                 }
             }
+        } catch (e: Exception) {
+            println(e.localizedMessage)
+        } finally {
+//                println("Removing $thisConnection!")
+            connections -= thisConnection
         }
+//        }
     }
 }

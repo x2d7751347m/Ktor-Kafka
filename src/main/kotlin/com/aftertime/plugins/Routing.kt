@@ -5,10 +5,10 @@ import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.dsl.AuthScheme
 import io.github.smiley4.ktorswaggerui.dsl.AuthType
 import io.github.smiley4.ktorswaggerui.dsl.get
+import io.github.smiley4.ktorswaggerui.dsl.route
 import io.konform.validation.ValidationError
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.resources.*
@@ -139,8 +139,24 @@ fun Application.configureRouting() {
     }
     install(Resources)
     routing {
-        userRouting()
-        authenticate("auth-jwt") {
+        route("", {
+            response {
+                HttpStatusCode.OK to {
+                    description = "Successful Request"
+                }
+                HttpStatusCode.BadRequest to {
+                    description = "Not a valid request"
+                    body<ExceptionResponse> { description = "the response" }
+                }
+                HttpStatusCode.InternalServerError to {
+                    description = "Something unexpected happened"
+                    body<ExceptionResponse> { description = "the response" }
+                }
+            }
+        }) {
+            securityRouting()
+            userRouting()
+            socketRouting()
             get("/health", {
                 description = "health check Endpoint."
                 response {
@@ -155,10 +171,10 @@ fun Application.configureRouting() {
             }) {
                 call.respondText("Healthy!")
             }
-        }
 //        // Static plugin. Try to access `/static/index.html`
 //        static("/static") {
 //            resources("static")
 //        }
+        }
     }
 }

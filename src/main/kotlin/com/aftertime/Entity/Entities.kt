@@ -67,7 +67,7 @@ enum class NetworkStatus(val status: String) {
 
 @Serializable
 data class User(
-    val id: Long = 1,
+    val id: Long = 100,
     var username: String = "",
     var nickname: String = "",
     var password: String = "",

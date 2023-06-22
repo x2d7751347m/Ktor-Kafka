@@ -2,20 +2,20 @@ package com.aftertime
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.server.testing.*
-import kotlin.test.*
 import io.ktor.http.*
-import com.aftertime.plugins.*
+import io.ktor.server.testing.*
+import junit.framework.TestCase.assertEquals
+import kotlin.test.Test
 
 class ApplicationTest {
     @Test
     fun testRoot() = testApplication {
-        application {
-            configureRouting()
-        }
-        client.get("/").apply {
+//        application {
+//            configureRouting()
+//        }
+        client.get("/health").apply {
             assertEquals(HttpStatusCode.OK, status)
-            assertEquals("Hello World!", bodyAsText())
+            assertEquals("Healthy!", bodyAsText())
         }
     }
 }

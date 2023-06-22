@@ -5,11 +5,14 @@ import com.aftertime.Service.Service
 import com.aftertime.dto.GlobalDto
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.typesafe.config.ConfigFactory
 import io.github.smiley4.ktorswaggerui.dsl.post
+import io.github.smiley4.ktorswaggerui.dsl.route
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.config.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -96,8 +99,30 @@ fun Application.configureSecurity() {
 //            }
 //        }
 //    }
+}
 
-    routing {
+
+fun Route.securityRouting() {
+    val service = Service()
+    val jwtSecret = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.secret")!!.getString()
+    val jwtIssuer = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.issuer")!!.getString()
+    val jwtAudience = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.audience")!!.getString()
+    val jwtRealm = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.realm")!!.getString()
+    route("", {
+        response {
+            HttpStatusCode.OK to {
+                description = "Successful Request"
+            }
+            HttpStatusCode.BadRequest to {
+                description = "Not a valid request"
+                body<ExceptionResponse> { description = "the response" }
+            }
+            HttpStatusCode.InternalServerError to {
+                description = "Something unexpected happened"
+                body<ExceptionResponse> { description = "the response" }
+            }
+        }
+    }) {
         post("/login", {
             description = "login"
             request {
@@ -137,7 +162,7 @@ fun Application.configureSecurity() {
             call.response.status(HttpStatusCode.OK)
         }
         authenticate("auth-jwt") {
-            get("/hello") {
+            get("/token/refresh") {
                 val principal = call.principal<JWTPrincipal>()
                 val id = principal!!.payload.getClaim("id").asString()
                 val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
