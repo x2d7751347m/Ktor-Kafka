@@ -25,7 +25,7 @@ fun Application.configureSockets() {
 
 fun Route.socketRouting() {
     val service = Service()
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(1100))
+    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(900))
     webSocket("/ws") { // websocketSession
         send("You are connected!")
         for (frame in incoming) {

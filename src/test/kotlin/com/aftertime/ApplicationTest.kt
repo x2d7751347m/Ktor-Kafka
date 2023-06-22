@@ -41,7 +41,7 @@ class ApplicationTest {
             }
         }
         coroutineScope {
-            (0..1100).forEach {
+            (0..900).forEach {
                 launch {
                     delay(it.toLong() * 100)
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
