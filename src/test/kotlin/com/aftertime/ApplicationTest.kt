@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -32,40 +33,47 @@ class ApplicationTest {
 //                testModule()
         }
 
+        val handler = CoroutineExceptionHandler { _, exception ->
+            println("CoroutineExceptionHandler got $exception")
+        }
         val client = HttpClient(CIO) {
             engine {
-                endpoint.maxConnectionsPerRoute = 800
+                endpoint.maxConnectionsPerRoute = 1100
+                endpoint.socketTimeout = 15000
+                endpoint.connectAttempts = 3
             }
             install(WebSockets) {
                 pingInterval = 15_000
             }
         }
         coroutineScope {
-            repeat(5) {
-                launch {
-                    delay(it.toLong() * 200)
+            repeat(100) {
+                launch(handler) {
+//                    delay(it.toLong() * 1)
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         timeoutMillis = 15000
                         while (true) {
                             try {
                                 delay(100)
-                                when(incoming.receive()){
+                                when (incoming.receive()) {
 //                                    is Frame.Ping -> {
 //                                        send(Frame.Pong(ByteArray(0)))
 //                                    }
                                     is Frame.Text -> {
                                         val othersMessage = incoming.receive() as? Frame.Text
-                                        println(othersMessage?.readText())
+//                                        println(othersMessage?.readText())
 ////                    val myMessage = Scanner(System.`in`).next()
-                                        val myMessage = "S"
+                                        val myMessage = "$it"
                                         if (othersMessage != null) {
-//                                            send(myMessage)
+                                            send(myMessage)
                                         }
                                     }
+
                                     else -> {}
                                 }
 
                             } catch (e: Exception) {
+                                println(e.localizedMessage)
                                 break
                             }
                         }
