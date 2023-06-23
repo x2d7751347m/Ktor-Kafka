@@ -40,7 +40,7 @@ fun Route.socketRouting() {
 //        connectionAvailability = true
 //    }
 //    val service = Service()
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(1100))
+    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(200))
     val connectionMutex = Mutex()
     suspend fun <Connection> MutableSet<Connection>.addConnection(connection: Connection) {
         while (true) {
@@ -76,7 +76,10 @@ fun Route.socketRouting() {
 
 //    authenticate("auth-jwt") {
     webSocket("/chat") {
-        val thisConnection = Connection(this)
+        val thisConnection: Connection
+        connectionMutex.withLock {
+            thisConnection = Connection(this)
+        }
 //            val principal = call.principal<JWTPrincipal>()
 //            val id = principal!!.payload.getClaim("id").asLong()
 //            val user = service.findUser(id)!!

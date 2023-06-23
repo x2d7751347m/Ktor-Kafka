@@ -10,9 +10,10 @@ import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.test.Test
 
 class ApplicationTest {
@@ -38,7 +39,7 @@ class ApplicationTest {
         }
         val client = HttpClient(CIO) {
             engine {
-                endpoint.maxConnectionsPerRoute = 1100
+                endpoint.maxConnectionsPerRoute = 200
                 endpoint.socketTimeout = 15000
                 endpoint.connectAttempts = 3
             }
@@ -46,27 +47,26 @@ class ApplicationTest {
                 pingInterval = 15_000
             }
         }
+
+        fun currentMoment(): Instant = Clock.System.now()
         coroutineScope {
             repeat(100) {
-                launch(handler) {
-//                    delay(it.toLong() * 1)
+                async(handler) {
+                    var lastSentTime = currentMoment()
+                    val myMessage = "$it"
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         timeoutMillis = 15000
                         while (true) {
                             try {
-                                delay(100)
+                                if (currentMoment().minus(lastSentTime).inWholeMilliseconds > 500) {
+                                    send(myMessage)
+                                    lastSentTime = currentMoment()
+                                }
                                 when (incoming.receive()) {
-//                                    is Frame.Ping -> {
-//                                        send(Frame.Pong(ByteArray(0)))
-//                                    }
                                     is Frame.Text -> {
                                         val othersMessage = incoming.receive() as? Frame.Text
 //                                        println(othersMessage?.readText())
 ////                    val myMessage = Scanner(System.`in`).next()
-                                        val myMessage = "$it"
-                                        if (othersMessage != null) {
-                                            send(myMessage)
-                                        }
                                     }
 
                                     else -> {}
