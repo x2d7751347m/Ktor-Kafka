@@ -12,6 +12,7 @@ import io.r2dbc.spi.R2dbcNonTransientResourceException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
@@ -95,7 +96,7 @@ fun Route.socketRouting() {
             var connectionsCopy = synchronized(connections) { connections.toSet() }
             coroutineScope {
                 connectionsCopy.forEach {
-                    async(sendCancelledChannelErrorHandler) {
+                    launch (sendCancelledChannelErrorHandler) {
                         try {
                             it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
                         } catch (e: Exception) {
@@ -112,7 +113,7 @@ fun Route.socketRouting() {
                         connectionsCopy = synchronized(connections) { connections.toSet() }
                         coroutineScope {
                             connectionsCopy.forEach {
-                                async(sendCancelledChannelErrorHandler) {
+                                launch(sendCancelledChannelErrorHandler) {
                                     try {
                                         it.session.send(receivedByteArray)
                                     } catch (e: Exception) {
@@ -136,7 +137,7 @@ fun Route.socketRouting() {
                             connectionsCopy = synchronized(connections) { connections.toSet() }
                             coroutineScope {
                                 connectionsCopy.forEach {
-                                    async(sendCancelledChannelErrorHandler) {
+                                    launch(sendCancelledChannelErrorHandler) {
                                         try {
                                             it.session.send(
                                                 "${
@@ -160,7 +161,7 @@ fun Route.socketRouting() {
                         connectionsCopy = synchronized(connections) { connections.toSet() }
                         coroutineScope {
                             connectionsCopy.forEach {
-                                async(sendCancelledChannelErrorHandler) {
+                                launch(sendCancelledChannelErrorHandler) {
 
                                     try {
                                         it.session.send(receivedText)

@@ -12,6 +12,7 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.test.Test
@@ -51,7 +52,7 @@ class ApplicationTest {
         fun currentMoment(): Instant = Clock.System.now()
         coroutineScope {
             repeat(100) {
-                async(handler) {
+                launch(handler) {
                     var lastSentTime = currentMoment()
                     val myMessage = "$it"
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
