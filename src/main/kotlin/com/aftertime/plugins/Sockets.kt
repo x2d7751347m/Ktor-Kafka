@@ -9,10 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import io.r2dbc.spi.R2dbcNonTransientResourceException
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
@@ -100,7 +97,7 @@ fun Route.socketRouting() {
                         try {
                             it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
                         } catch (e: Exception) {
-                            connections.removeConnection(thisConnection)
+//                            connections.removeConnection(thisConnection)
                         }
                     }
                 }
