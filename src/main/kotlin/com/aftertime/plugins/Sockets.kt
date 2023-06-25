@@ -40,23 +40,19 @@ fun Route.socketRouting() {
 //    val service = Service()
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(200))
     val connectionMutex = Mutex()
-    suspend fun <Connection> MutableSet<Connection>.addConnection(connection: Connection) {
-        while (true) {
-            connectionMutex.withLock {
-                if (this.contains(connection)) return
-                this += connection
+    fun <Connection> MutableSet<Connection>.addConnection(connection: Connection) {
+        synchronized(connections) {
+            if (!contains(connection)) {
+                add(connection)
             }
-            break
         }
     }
 
-    suspend fun <Connection> MutableSet<Connection>.removeConnection(connection: Connection) {
-        while (true) {
-            connectionMutex.withLock {
-                if (!this.contains(connection)) return
-                this -= connection
+    fun <Connection> MutableSet<Connection>.removeConnection(connection: Connection) {
+        synchronized(connections) {
+            if (contains(connection)) {
+                remove(connection)
             }
-            break
         }
     }
     webSocket("/ws") { // websocketSession
@@ -83,7 +79,6 @@ fun Route.socketRouting() {
 //            val user = service.findUser(id)!!
 //            println("Adding user!")
         connections.addConnection(thisConnection)
-        var connectionsCopy: Set<Connection>
         try {
             val user =
 //                        service.findUser(1)!!
@@ -92,9 +87,8 @@ fun Route.socketRouting() {
             send("You are connected! There are ${connections.count()} users here.")
             println("The User is connected! There are ${connections.count()} users here.")
             send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
-            connectionsCopy = connections.toSet()
             coroutineScope {
-                connectionsCopy.forEach {
+                synchronized(connections) { connections.toSet() }.forEach {
                     launch (sendCancelledChannelErrorHandler) {
                         try {
                             it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
@@ -109,9 +103,8 @@ fun Route.socketRouting() {
                     is Frame.Binary -> {
                         val receivedByteArray = frame.readBytes()
 
-                        connectionsCopy = connections.toSet()
                         coroutineScope {
-                            connectionsCopy.forEach {
+                            synchronized(connections) { connections.toSet() }.forEach {
                                 launch(sendCancelledChannelErrorHandler) {
                                     try {
                                         it.session.send(receivedByteArray)
@@ -133,9 +126,8 @@ fun Route.socketRouting() {
                                 )
                             ).networkPacket == NetworkStatus.EXIT
                         ) {
-                            connectionsCopy = connections.toSet()
                             coroutineScope {
-                                connectionsCopy.forEach {
+                                synchronized(connections) { connections.toSet() }.forEach {
                                     launch(sendCancelledChannelErrorHandler) {
                                         try {
                                             it.session.send(
@@ -157,9 +149,8 @@ fun Route.socketRouting() {
                             }
                             close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                         }
-                        connectionsCopy = connections.toSet()
                         coroutineScope {
-                            connectionsCopy.forEach {
+                            synchronized(connections) { connections.toSet() }.forEach {
                                 launch(sendCancelledChannelErrorHandler) {
 
                                     try {
