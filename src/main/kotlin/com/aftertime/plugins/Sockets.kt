@@ -89,6 +89,7 @@ fun Route.socketRouting() {
                 User()
                     .apply { id = thisConnection.name }
             send("You are connected! There are ${connections.count()} users here.")
+            println("User connected! There are ${connections.count()} users here.")
             send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
             var connectionsCopy = synchronized(connections) { connections.toSet() }
             coroutineScope {
@@ -184,7 +185,7 @@ fun Route.socketRouting() {
                 println(e.message)
             close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.message ?: "null"))
         } finally {
-//                println("Removing $thisConnection!")
+                println("Removing ${thisConnection.name} user by error! There are ${connections.count()} users here.")
             try {
                 connections.removeConnection(thisConnection)
             } catch (e: Exception) {
