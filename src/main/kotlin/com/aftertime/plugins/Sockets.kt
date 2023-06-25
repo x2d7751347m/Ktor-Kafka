@@ -89,7 +89,7 @@ fun Route.socketRouting() {
                 User()
                     .apply { id = thisConnection.name }
             send("You are connected! There are ${connections.count()} users here.")
-            println("User connected! There are ${connections.count()} users here.")
+            println("The User is connected! There are ${connections.count()} users here.")
             send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
             var connectionsCopy = synchronized(connections) { connections.toSet() }
             coroutineScope {
