@@ -83,6 +83,7 @@ fun Route.socketRouting() {
 //            val user = service.findUser(id)!!
 //            println("Adding user!")
         connections.addConnection(thisConnection)
+        var connectionsCopy: Set<Connection>
         try {
             val user =
 //                        service.findUser(1)!!
@@ -91,7 +92,7 @@ fun Route.socketRouting() {
             send("You are connected! There are ${connections.count()} users here.")
             println("The User is connected! There are ${connections.count()} users here.")
             send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
-            var connectionsCopy = synchronized(connections) { connections.toSet() }
+            connectionsCopy = connections.toSet()
             coroutineScope {
                 connectionsCopy.forEach {
                     launch (sendCancelledChannelErrorHandler) {
@@ -108,7 +109,7 @@ fun Route.socketRouting() {
                     is Frame.Binary -> {
                         val receivedByteArray = frame.readBytes()
 
-                        connectionsCopy = synchronized(connections) { connections.toSet() }
+                        connectionsCopy = connections.toSet()
                         coroutineScope {
                             connectionsCopy.forEach {
                                 launch(sendCancelledChannelErrorHandler) {
@@ -132,7 +133,7 @@ fun Route.socketRouting() {
                                 )
                             ).networkPacket == NetworkStatus.EXIT
                         ) {
-                            connectionsCopy = synchronized(connections) { connections.toSet() }
+                            connectionsCopy = connections.toSet()
                             coroutineScope {
                                 connectionsCopy.forEach {
                                     launch(sendCancelledChannelErrorHandler) {
@@ -156,7 +157,7 @@ fun Route.socketRouting() {
                             }
                             close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                         }
-                        connectionsCopy = synchronized(connections) { connections.toSet() }
+                        connectionsCopy = connections.toSet()
                         coroutineScope {
                             connectionsCopy.forEach {
                                 launch(sendCancelledChannelErrorHandler) {
