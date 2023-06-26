@@ -194,7 +194,7 @@ fun Route.securityRouting() {
         }) {
             when (Oauth.valueOf(call.parameters["platform"]!!)) {
                 Oauth.GOOGLE -> {
-                    val idTokenString = call.parameters["IdToken"]
+                    val idTokenString = call.request.headers["IdToken"]
                     val transport: HttpTransport = NetHttpTransport()
                     val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance()
                     val verifier = GoogleIdTokenVerifier.Builder(
