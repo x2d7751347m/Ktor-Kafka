@@ -50,6 +50,7 @@ fun Route.userRouting() {
                     example("Second", User(nickname = "nickname2", password = "Password1234!")) {
                         description = "nickname2"
                     }
+                    required = true
                 }
             }
             response {
@@ -117,6 +118,7 @@ fun Route.userRouting() {
                 request {
                     pathParameter<String>("id") {
                         description = "id"
+                        required = true
                     }
                 }
             }) {
@@ -148,9 +150,11 @@ fun Route.userRouting() {
             request {
                 queryParameter<Int>("page") {
                     example = 1
+//                    required = true
                 }
                 queryParameter<Int>("size") {
                     example = 10
+//                    required = true
                 }
             }
         }) {
@@ -162,6 +166,7 @@ fun Route.userRouting() {
             request {
                 pathParameter<String>("id") {
                     description = "id"
+                    required = true
                 }
             }
         }) {
@@ -184,6 +189,7 @@ fun Route.userRouting() {
                     example("Second", User(nickname = "nickname2", password = "Password1234!")) {
                         description = "nickname2"
                     }
+                    required = true
                 }
             }
             response {
@@ -207,6 +213,7 @@ fun Route.userRouting() {
             request {
                 pathParameter<String>("id") {
                     description = "id"
+                    required = true
                 }
             }
         }) {

@@ -76,12 +76,6 @@ data class User(
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
     var currentBoostNft: Int? = null,
-    var posX: Float = 0f,
-    var posY: Float = 0f,
-    var posZ: Float = 0f,
-    var rotX: Float = 0f,
-    var rotY: Float = 0f,
-    var rotZ: Float = 0f,
     @Serializable(with = BigDecimalSerializer::class)
     var rium: BigDecimal = BigDecimal.ZERO,
     val createdAt: LocalDateTime? = null,

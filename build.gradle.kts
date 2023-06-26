@@ -71,4 +71,7 @@ dependencies {
     implementation("io.github.smiley4:ktor-swagger-ui:2.2.0")
     implementation("io.konform:konform:0.4.0")
     implementation("de.svenkubiak:jBCrypt:0.4.1")
+    implementation("com.google.api-client:google-api-client:2.2.0")
+    implementation("com.google.api-client:google-api-client-jackson2:2.2.0")
+    implementation("com.google.api-client:google-api-client-gson:2.2.0")
 }

@@ -63,9 +63,19 @@ fun Application.configureRouting() {
                     )
                 }
 
-                is ParsingException -> {
+                is NotFoundException -> {
                     call.respond(
                         HttpStatusCode.NotFound,
+                        ExceptionResponse(
+                            throwable.message,
+                            HttpStatusCode.ExpectationFailed.value
+                        )
+                    )
+                }
+
+                is ParsingException -> {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
                         ExceptionResponse(
                             throwable.message,
                             HttpStatusCode.ExpectationFailed.value

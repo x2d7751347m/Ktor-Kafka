@@ -9,4 +9,9 @@ class GlobalDto {
         val username: String,
         val password: String,
     )
+
+    @Serializable
+    data class OauthIdToken(
+        val idToken: String,
+    )
 }

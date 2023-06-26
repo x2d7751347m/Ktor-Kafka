@@ -5,7 +5,15 @@ import com.aftertime.Service.Service
 import com.aftertime.dto.GlobalDto
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.http.HttpTransport
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.JsonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.typesafe.config.ConfigFactory
+import io.github.smiley4.ktorswaggerui.dsl.get
 import io.github.smiley4.ktorswaggerui.dsl.post
 import io.github.smiley4.ktorswaggerui.dsl.route
 import io.ktor.http.*
@@ -18,6 +26,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.mindrot.jbcrypt.BCrypt
 import java.util.*
+
 
 fun Application.configureSecurity() {
     val service = Service()
@@ -134,6 +143,7 @@ fun Route.securityRouting() {
                     example("First", GlobalDto.LoginForm(username = "nickname", password = "Password12!")) {
                         description = "nickname"
                     }
+                    required = true
                 }
             }
             response {
@@ -161,16 +171,98 @@ fun Route.securityRouting() {
             call.response.headers.append(HttpHeaders.Authorization, token)
             call.response.status(HttpStatusCode.OK)
         }
-        authenticate("auth-jwt") {
-            get("/token/refresh") {
-                val principal = call.principal<JWTPrincipal>()
-                val id = principal!!.payload.getClaim("id").asString()
-                val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
-                call.respondText("Hello, $id! Token is expired at $expiresAt ms.")
+        post("/oauth-login", {
+            description = "oauth login"
+            request {
+//                pathParameter<String>("operation") {
+//                    description = "the math operation to perform. Either 'add' or 'sub'"
+//                    example = "add"
+//                }
+                queryParameter<String>("platform") {
+                    description = "platform"
+                    example = "google"
+                    required = true
+                }
+                body<GlobalDto.OauthIdToken> {
+                    example("First", GlobalDto.OauthIdToken(idToken = "id token")) {
+                        description = "id token"
+                    }
+                    required = true
+                }
+            }
+            response {
+                HttpStatusCode.OK to {
+                    description = "Successful Request"
+                    header<String>(HttpHeaders.Authorization)
+                }
+            }
+        }) {
+            when (call.parameters["platform"]) {
+                "google" -> {
+                    val idTokenString = call.receive<GlobalDto.OauthIdToken>().idToken
+                    val transport: HttpTransport = NetHttpTransport()
+                    val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance()
+                    val verifier = GoogleIdTokenVerifier.Builder(
+                        transport,
+                        jsonFactory
+                    ) // Specify the CLIENT_ID of the app that accesses the backend:
+                        .setAudience(listOf<String>("CLIENT_ID")) // Or, if multiple clients access the backend:
+                        //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+                        .build()
+
+// (Receive idTokenString by HTTPS POST)
+                    val idToken: GoogleIdToken = verifier.verify(idTokenString)
+                    if (idToken != null) {
+                        val payload: Payload = idToken.payload
+
+                        // Print user identifier
+                        val userId: String = payload.getSubject()
+                        println("User ID: $userId")
+
+                        // Get profile information from payload
+                        val email: String = payload.getEmail()
+                        val emailVerified: Boolean = java.lang.Boolean.valueOf(payload.getEmailVerified())
+                        val name = payload.get("name")
+                        val pictureUrl = payload.get("picture")
+                        val locale = payload.get("locale")
+                        val familyName = payload.get("family_name")
+                        val givenName = payload.get("given_name")
+
+                        // Use or store profile information
+                        // ...
+                    } else {
+                        println("Invalid ID token.")
+                    }
+                }
+
+                "apple" -> {
+                }
+
+                else -> {
+                    throw BadRequestException("not a valid platform")
+                }
             }
         }
     }
-    // configure routes
+    authenticate("auth-jwt") {
+        get("/token/refresh", {
+            description = "token refresh"
+            response {
+                HttpStatusCode.OK to {
+                    description = "Successful Request"
+                    header<String>(HttpHeaders.Authorization)
+                }
+            }
+
+        }) {
+            val principal = call.principal<JWTPrincipal>()
+            val id = principal!!.payload.getClaim("id").asString()
+            val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
+            call.respondText("Hello, $id! Token is expired at $expiresAt ms.")
+        }
+    }
+}
+// configure routes
 //    routing {
 //        authenticate {
 //            // route is in an "authenticate"-block ->  default security scheme will be used (see plugin-config "defaultSecuritySchemeName")
@@ -254,6 +346,6 @@ fun Route.securityRouting() {
 //            }
 //        }
 //    }
-}
+
 
 class UserSession(accessToken: String)
