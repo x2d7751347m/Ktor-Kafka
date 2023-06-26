@@ -1,6 +1,6 @@
 package com.aftertime
 
-import com.aftertime.Entity.user
+import com.aftertime.entity.user
 import com.typesafe.config.ConfigFactory
 import io.ktor.server.config.*
 import io.r2dbc.spi.ConnectionFactoryOptions

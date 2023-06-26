@@ -1,8 +1,8 @@
 package com.aftertime.plugins
 
-import com.aftertime.Entity.validateLoginForm
-import com.aftertime.Service.Service
 import com.aftertime.dto.GlobalDto
+import com.aftertime.entity.validateLoginForm
+import com.aftertime.repository.Repository
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
@@ -29,7 +29,6 @@ import java.util.*
 
 
 fun Application.configureSecurity() {
-    val service = Service()
 //    val redirects = mutableMapOf<String, String>()
 //    authentication {
 //        oauth("auth-oauth-google") {
@@ -112,7 +111,7 @@ fun Application.configureSecurity() {
 
 
 fun Route.securityRouting() {
-    val service = Service()
+    val repository = Repository()
     val jwtSecret = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.secret")!!.getString()
     val jwtIssuer = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.issuer")!!.getString()
     val jwtAudience = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.audience")!!.getString()
@@ -154,12 +153,15 @@ fun Route.securityRouting() {
             }
         }) {
             val loginForm = call.receive<GlobalDto.LoginForm>()
-            val user = service.findUserByUsername(loginForm.username) ?: throw NotFoundException("user not found")
             validateLoginForm(loginForm).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
+            val user = repository.findUserByUsername(loginForm.username) ?: throw NotFoundException("user not found")
             // Check username and password
-            service.findUserByUsername(loginForm.username)?.run {
+            repository.findUserByUsername(loginForm.username)?.run {
+
+                // Check that an unencrypted password matches one that has
+                // previously been hashed
                 if (!BCrypt.checkpw(loginForm.password, password)) throw ValidationException("It does not match")
             }
             val token = JWT.create()
@@ -206,35 +208,32 @@ fun Route.securityRouting() {
                         .build()
 
 // (Receive idTokenString by HTTPS POST)
-                    val idToken: GoogleIdToken = verifier.verify(idTokenString)
-                    if (idToken != null) {
-                        val payload: Payload = idToken.payload
+                    val idToken: GoogleIdToken =
+                        verifier.verify(idTokenString) ?: throw BadRequestException("Invalid ID token.")
+                    val payload: Payload = idToken.payload
 
-                        // Print user identifier
-                        val userId: String = payload.getSubject()
-                        println("User ID: $userId")
+                    // Print user identifier
+                    val userId: String = payload.getSubject()
+                    println("User ID: $userId")
 
-                        // Get profile information from payload
-                        val email: String = payload.getEmail()
-                        val emailVerified: Boolean = java.lang.Boolean.valueOf(payload.getEmailVerified())
-                        val name = payload.get("name")
-                        val pictureUrl = payload.get("picture")
-                        val locale = payload.get("locale")
-                        val familyName = payload.get("family_name")
-                        val givenName = payload.get("given_name")
+                    // Get profile information from payload
+                    val email: String = payload.getEmail()
+                    val emailVerified: Boolean = java.lang.Boolean.valueOf(payload.getEmailVerified())
+                    val name = payload.get("name")
+                    val pictureUrl = payload.get("picture")
+                    val locale = payload.get("locale")
+                    val familyName = payload.get("family_name")
+                    val givenName = payload.get("given_name")
 
-                        // Use or store profile information
-                        // ...
-                    } else {
-                        println("Invalid ID token.")
-                    }
+                    // Use or store profile information
+                    // ...
                 }
 
                 Oauth.APPLE -> {
                 }
 
                 else -> {
-                    throw BadRequestException("not a valid platform")
+                    throw BadRequestException("invalid platform")
                 }
             }
         }

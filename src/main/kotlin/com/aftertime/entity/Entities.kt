@@ -1,10 +1,9 @@
-package com.aftertime.Entity
+package com.aftertime.entity
 
 import com.aftertime.dto.GlobalDto
 import com.aftertime.plugins.BigDecimalSerializer
 import io.konform.validation.Validation
 import io.konform.validation.jsonschema.maxLength
-import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.pattern
 import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
@@ -33,25 +32,26 @@ val localDateTime1 = currentMoment.toLocalDateTime(TimeZone.UTC)
 
 val validateUser = Validation {
     User::username ifPresent {
-        minLength(2)
-        maxLength(20)
+//        minLength(2)
+        maxLength(30)
     }
     User::nickname ifPresent {
-        minLength(2)
-        maxLength(20)
+//        minLength(2)
+        maxLength(30)
     }
     User::password ifPresent {
-        pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid email address (optional)"
+        pattern("^(?=.*[a-zA-Z])(?=.*\\d)[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,30}$") hint "Please provide a valid password that combination of numbers and letters. Also, special characters are allowed.)"
+//        pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid password"
     }
 }
 
 val validateLoginForm = Validation {
     GlobalDto.LoginForm::username ifPresent {
-        minLength(2)
-        maxLength(20)
+//        minLength(2)
+        maxLength(30)
     }
     GlobalDto.LoginForm::password ifPresent {
-        pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid email address (optional)"
+        pattern("^(?=.*[a-z])(?=.*\\d)[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,30}$") hint "Please provide a valid password that String between 8 and 30 characters that satisfies any combination of combination of numbers and letters. Also, special characters are allowed."
     }
 }
 
@@ -78,6 +78,7 @@ data class User(
     var currentBoostNft: Int? = null,
     @Serializable(with = BigDecimalSerializer::class)
     var rium: BigDecimal = BigDecimal.ZERO,
+    var userStatus: UserStatus = UserStatus.ACTIVE,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val version: Int = 0,
@@ -86,6 +87,33 @@ data class User(
     var managerId: Long? = null,
     var hiredate: LocalDate? = null,
 )
+
+@Serializable
+data class UserData(
+    var id: Long? = null,
+    var username: String? = null,
+    var nickname: String? = null,
+    var password: String? = null,
+    var tribal: Int? = null,
+    var currentHead: Int? = null,
+    var currentTop: Int? = null,
+    var currentBottom: Int? = null,
+    var currentBoostNft: Int? = null,
+    @Serializable(with = BigDecimalSerializer::class)
+    var rium: BigDecimal? = null,
+    var userStatus: UserStatus? = null,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
+    val version: Int? = null,
+    var departmentId: Int? = null,
+    val addressId: Int? = null,
+    var managerId: Long? = null,
+    var hiredate: LocalDate? = null,
+)
+
+enum class UserStatus {
+    ACTIVE, SLEEP, QUIT
+}
 
 @KomapperEntityDef(User::class, ["user", "admin"])
 data class UserDef(

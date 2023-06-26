@@ -1,15 +1,13 @@
 package com.aftertime.routes
 
-import com.aftertime.Entity.User
-import com.aftertime.Entity.userStorage
-import com.aftertime.Entity.validateUser
-import com.aftertime.Service.Service
+import com.aftertime.entity.User
+import com.aftertime.entity.UserData
+import com.aftertime.entity.userStorage
+import com.aftertime.entity.validateUser
 import com.aftertime.plugins.ExceptionResponse
 import com.aftertime.plugins.ValidationExceptions
-import io.github.smiley4.ktorswaggerui.dsl.delete
-import io.github.smiley4.ktorswaggerui.dsl.get
-import io.github.smiley4.ktorswaggerui.dsl.post
-import io.github.smiley4.ktorswaggerui.dsl.route
+import com.aftertime.repository.Repository
+import io.github.smiley4.ktorswaggerui.dsl.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -19,7 +17,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.userRouting() {
-    val service = Service()
+    val repository = Repository()
     route("/api/v1/users", {
         tags = listOf("user")
         response {
@@ -68,7 +66,7 @@ fun Route.userRouting() {
             validateUser(user).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
-            call.respond(status = HttpStatusCode.Created, service.createUser(user))
+            call.respond(status = HttpStatusCode.Created, repository.createUser(user))
         }
     }
     route("/api/v1/users", {
@@ -100,23 +98,46 @@ fun Route.userRouting() {
             }) {
                 val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
                 val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
-                call.respond(service.findUsers(page, size))
+                call.respond(repository.findUsers(page, size))
             }
             get("{id}", {
                 request {
-                    pathParameter<String>("id") {
+                    pathParameter<Long>("id") {
                         description = "id"
+                        required = true
                     }
                 }
             }) {
                 val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
                 val user =
-                    service.findUser(id) ?: throw NotFoundException()
+                    repository.findUser(id) ?: throw NotFoundException()
                 call.respond(user)
+            }
+            patch("{id}", {
+                request {
+                    pathParameter<Long>("id") {
+                        description = "id"
+                        required = true
+                    }
+                    body<UserData> {
+                        example("First", UserData(nickname = "nickname", password = "Password12!")) {
+                            description = "nickname"
+                        }
+                        example("Second", UserData(nickname = "nickname2", password = "Password1234!")) {
+                            description = "nickname2"
+                        }
+                        required = true
+                    }
+                }
+            }) {
+                call.respond(
+                    repository.patchUser(
+                        call.receive<UserData>().apply { id = call.parameters["id"]!!.toLong() })
+                )
             }
             delete("{id}", {
                 request {
-                    pathParameter<String>("id") {
+                    pathParameter<Long>("id") {
                         description = "id"
                         required = true
                     }
@@ -160,11 +181,11 @@ fun Route.userRouting() {
         }) {
             val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
             val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
-            call.respond(service.findUsers(page, size))
+            call.respond(repository.findUsers(page, size))
         }
         get("{id}", {
             request {
-                pathParameter<String>("id") {
+                pathParameter<Long>("id") {
                     description = "id"
                     required = true
                 }
@@ -172,7 +193,7 @@ fun Route.userRouting() {
         }) {
             val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
             val user =
-                service.findUser(id) ?: throw NotFoundException()
+                repository.findUser(id) ?: throw NotFoundException()
             call.respond(user)
         }
         post({
@@ -207,11 +228,11 @@ fun Route.userRouting() {
             validateUser(user).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
-            call.respond(status = HttpStatusCode.Created, service.createAdmin(user))
+            call.respond(status = HttpStatusCode.Created, repository.createAdmin(user))
         }
         delete("{id}", {
             request {
-                pathParameter<String>("id") {
+                pathParameter<Long>("id") {
                     description = "id"
                     required = true
                 }

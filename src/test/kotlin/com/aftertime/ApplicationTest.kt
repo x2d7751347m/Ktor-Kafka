@@ -1,5 +1,8 @@
 package com.aftertime
 
+import com.aftertime.entity.NetworkPacket
+import com.aftertime.entity.NetworkStatus
+import com.aftertime.entity.User
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.websocket.*
@@ -10,14 +13,27 @@ import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlin.test.Test
 
 class ApplicationTest {
+
+    @Test
+    fun test() =
+        println(
+            Json.encodeToJsonElement(
+                NetworkPacket(
+                    NetworkStatus.EXIT,
+                    user = User(nickname = "haha")
+                )
+            ).toString()
+        )
+
     @Test
     fun testRoot() = testApplication {
         application {

@@ -1,32 +1,63 @@
-package com.aftertime.Service
+package com.aftertime.repository
 
-import com.aftertime.Entity.User
-import com.aftertime.Entity.admin
-import com.aftertime.Entity.user
+import com.aftertime.entity.User
+import com.aftertime.entity.UserData
+import com.aftertime.entity.admin
+import com.aftertime.entity.user
 import com.aftertime.r2dbcDatabase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.last
+import kotlinx.serialization.json.Json
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.firstOrNull
 import org.mindrot.jbcrypt.BCrypt
 
-class Service {
+class Repository {
     suspend fun createUser(user: User): User {
         val userDef = Meta.user
         val db = r2dbcDatabase()
         db.runQuery {
             QueryDsl.insert(userDef).single(user.apply {
-                // gensalt's log_rounds parameter determines the complexity
-                // the work factor is 2**log_rounds, and the default is 10
-                val hashed = BCrypt.hashpw(password, BCrypt.gensalt(12))
-
-                // Check that an unencrypted password matches one that has
-                // previously been hashed
-                if (BCrypt.checkpw(password, hashed)) println("It matches") else println("It does not match")
-                password = hashed
+                password.let {
+                    // gensalt's log_rounds parameter determines the complexity
+                    // the work factor is 2**log_rounds, and the default is 10
+                    val hashed = BCrypt.hashpw(password, BCrypt.gensalt(12))
+                    password = hashed
+                }
             })
         }
         return db.runQuery {
             QueryDsl.from(userDef).where { userDef.nickname eq user.nickname }
+        }.last()
+    }
+
+    suspend fun patchUser(userData: UserData): User {
+        val userDef = Meta.user
+        val db = r2dbcDatabase()
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+        val encodedUser = json.encodeToString(UserData.serializer(), userData)
+        val user = json.decodeFromString<User>(encodedUser)
+        db.runQuery {
+            QueryDsl.update(userDef)
+                .set {
+                    userData.username?.run { userDef.username eq this }
+                    userData.nickname?.run { userDef.nickname eq this }
+                    userData.password?.run { userDef.password eq BCrypt.hashpw(this, BCrypt.gensalt(12)) }
+                    userData.tribal?.run { userDef.tribal eq this }
+                    userData.currentHead?.run { userDef.currentHead eq this }
+                    userData.currentTop?.run { userDef.currentTop eq this }
+                    userData.currentBottom?.run { userDef.currentBottom eq this }
+                    userData.currentBoostNft?.run { userDef.currentBoostNft eq this }
+                    userData.rium?.run { userDef.rium eq this }
+                    userData.userStatus?.run { userDef.userStatus eq this }
+                }
+                .where { userDef.id eq userData.id }
+        }
+        return db.flowQuery {
+            QueryDsl.from(userDef).where { userDef.id eq userData.id }
         }.last()
     }
 
@@ -41,31 +72,31 @@ class Service {
                 password = hashed
             })
         }
-        return db.runQuery {
+        return db.flowQuery {
             QueryDsl.from(adminDef).where { adminDef.nickname eq admin.nickname }
         }.last()
     }
 
-    suspend fun findUsers(page: Int, size: Int): List<User> {
+    suspend fun findUsers(page: Int, size: Int): Flow<User> {
 
         val userDef = Meta.user
         val db = r2dbcDatabase()
 
         // SELECT
-        val user = db.runQuery {
+        val user = db.flowQuery {
             QueryDsl.from(userDef).offset((page - 1).times(size)).limit(size)
         }
         return user
     }
 
-    suspend fun findUser(uid: Long): User? {
+    suspend fun findUser(id: Long): User? {
 
         val userDef = Meta.user
         val db = r2dbcDatabase()
 
         // SELECT
         val user = db.runQuery {
-            QueryDsl.from(userDef).where { userDef.id eq uid }.firstOrNull()
+            QueryDsl.from(userDef).where { userDef.id eq id }.firstOrNull()
         }
         return user
     }

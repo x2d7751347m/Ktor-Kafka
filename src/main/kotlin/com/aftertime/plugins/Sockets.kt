@@ -1,15 +1,17 @@
 package com.aftertime.plugins
 
 import com.aftertime.Connection
-import com.aftertime.Entity.NetworkPacket
-import com.aftertime.Entity.NetworkStatus
-import com.aftertime.Entity.User
+import com.aftertime.entity.NetworkPacket
+import com.aftertime.entity.NetworkStatus
+import com.aftertime.entity.User
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import io.r2dbc.spi.R2dbcNonTransientResourceException
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
@@ -86,10 +88,10 @@ fun Route.socketRouting() {
                     .apply { id = thisConnection.name }
             send("You are connected! There are ${connections.count()} users here.")
             println("The User is connected! There are ${connections.count()} users here.")
-            send("${Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user))}")
+            send(Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user)).toString())
             coroutineScope {
                 synchronized(connections) { connections.toSet() }.forEach {
-                    launch (sendCancelledChannelErrorHandler) {
+                    launch(sendCancelledChannelErrorHandler) {
                         try {
                             it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
                         } catch (e: Exception) {
@@ -131,14 +133,12 @@ fun Route.socketRouting() {
                                     launch(sendCancelledChannelErrorHandler) {
                                         try {
                                             it.session.send(
-                                                "${
-                                                    Json.encodeToJsonElement(
-                                                        NetworkPacket(
-                                                            NetworkStatus.EXIT,
-                                                            user
-                                                        )
+                                                Json.encodeToJsonElement(
+                                                    NetworkPacket(
+                                                        NetworkStatus.EXIT,
+                                                        user
                                                     )
-                                                }"
+                                                ).toString()
                                             )
                                             it.session.send("Removing ${thisConnection.name} user! ")
                                         } catch (e: Exception) {
@@ -177,7 +177,7 @@ fun Route.socketRouting() {
                 println(e.message)
             close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.message ?: "null"))
         } finally {
-                println("Removing ${thisConnection.name} user by error! There are ${connections.count()} users here.")
+            println("Removing ${thisConnection.name} user by error! There are ${connections.count()} users here.")
             try {
                 connections.removeConnection(thisConnection)
             } catch (e: Exception) {

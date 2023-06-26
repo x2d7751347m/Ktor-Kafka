@@ -1,6 +1,6 @@
-package com.aftertime.Repository
+package com.aftertime.repository
 
-import com.aftertime.Entity.*
+import com.aftertime.entity.*
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.operator.count

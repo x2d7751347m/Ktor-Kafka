@@ -7,7 +7,7 @@ plugins {
     kotlin("jvm") version "1.8.22"
     id("io.ktor.plugin") version "2.3.1"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
-    id("com.google.devtools.ksp") version "1.8.21-1.0.11"
+    id("com.google.devtools.ksp") version "1.8.22-1.0.11"
 }
 
 group = "com.aftertime"
@@ -24,7 +24,7 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
-val komapperVersion = "1.10.0"
+val komapperVersion = "1.11.0"
 
 dependencies {
     implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktor_version")
@@ -72,6 +72,5 @@ dependencies {
     implementation("io.konform:konform:0.4.0")
     implementation("de.svenkubiak:jBCrypt:0.4.1")
     implementation("com.google.api-client:google-api-client:2.2.0")
-    implementation("com.google.api-client:google-api-client-jackson2:2.2.0")
     implementation("com.google.api-client:google-api-client-gson:2.2.0")
 }
