@@ -178,17 +178,12 @@ fun Route.securityRouting() {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
 //                    example = "add"
 //                }
-                queryParameter<String>("platform") {
+                queryParameter<Oauth>("platform") {
                     description = "platform"
-                    example = "google"
+                    example = Oauth.GOOGLE
                     required = true
                 }
-                body<GlobalDto.OauthIdToken> {
-                    example("First", GlobalDto.OauthIdToken(idToken = "id token")) {
-                        description = "id token"
-                    }
-                    required = true
-                }
+                headerParameter<String>("IdToken")
             }
             response {
                 HttpStatusCode.OK to {
@@ -197,9 +192,9 @@ fun Route.securityRouting() {
                 }
             }
         }) {
-            when (call.parameters["platform"]) {
-                "google" -> {
-                    val idTokenString = call.receive<GlobalDto.OauthIdToken>().idToken
+            when (Oauth.valueOf(call.parameters["platform"]!!)) {
+                Oauth.GOOGLE -> {
+                    val idTokenString = call.parameters["IdToken"]
                     val transport: HttpTransport = NetHttpTransport()
                     val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance()
                     val verifier = GoogleIdTokenVerifier.Builder(
@@ -235,7 +230,7 @@ fun Route.securityRouting() {
                     }
                 }
 
-                "apple" -> {
+                Oauth.APPLE -> {
                 }
 
                 else -> {
@@ -347,5 +342,8 @@ fun Route.securityRouting() {
 //        }
 //    }
 
+enum class Oauth {
+    GOOGLE, APPLE
+}
 
 class UserSession(accessToken: String)
