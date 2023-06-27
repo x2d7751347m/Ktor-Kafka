@@ -8,8 +8,11 @@ plugins {
     id("io.ktor.plugin") version "2.3.1"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.google.devtools.ksp") version "1.8.22-1.0.11"
+    kotlin("kapt") version "1.8.20"
 }
-
+kapt {
+    correctErrorTypes = true
+}
 group = "com.aftertime"
 version = "0.0.1"
 application {
@@ -73,4 +76,7 @@ dependencies {
     implementation("de.svenkubiak:jBCrypt:0.4.1")
     implementation("com.google.api-client:google-api-client:2.2.0")
     implementation("com.google.api-client:google-api-client-gson:2.2.0")
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    kapt("org.mapstruct:mapstruct-processor:1.5.5.Final")
+    kaptTest("org.mapstruct:mapstruct-processor:1.5.5.Final")
 }

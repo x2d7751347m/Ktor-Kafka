@@ -2,7 +2,7 @@ package com.aftertime.plugins
 
 import com.aftertime.dto.GlobalDto
 import com.aftertime.entity.validateLoginForm
-import com.aftertime.repository.Repository
+import com.aftertime.repository.UserRepository
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
@@ -111,7 +111,7 @@ fun Application.configureSecurity() {
 
 
 fun Route.securityRouting() {
-    val repository = Repository()
+    val userRepository = UserRepository()
     val jwtSecret = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.secret")!!.getString()
     val jwtIssuer = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.issuer")!!.getString()
     val jwtAudience = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.audience")!!.getString()
@@ -156,9 +156,10 @@ fun Route.securityRouting() {
             validateLoginForm(loginForm).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
-            val user = repository.findUserByUsername(loginForm.username) ?: throw NotFoundException("user not found")
+            val user =
+                userRepository.findUserByUsername(loginForm.username) ?: throw NotFoundException("user not found")
             // Check username and password
-            repository.findUserByUsername(loginForm.username)?.run {
+            userRepository.findUserByUsername(loginForm.username)?.run {
 
                 // Check that an unencrypted password matches one that has
                 // previously been hashed

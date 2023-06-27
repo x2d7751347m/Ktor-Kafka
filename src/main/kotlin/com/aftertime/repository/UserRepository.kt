@@ -7,16 +7,17 @@ import com.aftertime.entity.user
 import com.aftertime.r2dbcDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
-import kotlinx.serialization.json.Json
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.firstOrNull
 import org.mindrot.jbcrypt.BCrypt
 
-class Repository {
+class UserRepository {
+
+    val userDef = Meta.user
+    val adminDef = Meta.admin
+    val db = r2dbcDatabase()
     suspend fun createUser(user: User): User {
-        val userDef = Meta.user
-        val db = r2dbcDatabase()
         db.runQuery {
             QueryDsl.insert(userDef).single(user.apply {
                 password.let {
@@ -33,13 +34,11 @@ class Repository {
     }
 
     suspend fun patchUser(userData: UserData): User {
-        val userDef = Meta.user
-        val db = r2dbcDatabase()
-        val json = Json {
-            ignoreUnknownKeys = true
-        }
-        val encodedUser = json.encodeToString(UserData.serializer(), userData)
-        val user = json.decodeFromString<User>(encodedUser)
+//        val json = Json {
+//            ignoreUnknownKeys = true
+//        }
+//        val encodedUser = json.encodeToString(UserData.serializer(), userData)
+//        val user = json.decodeFromString<User>(encodedUser)
         db.runQuery {
             QueryDsl.update(userDef)
                 .set {
@@ -62,8 +61,6 @@ class Repository {
     }
 
     suspend fun createAdmin(admin: User): User {
-        val adminDef = Meta.admin
-        val db = r2dbcDatabase()
         db.runQuery {
             QueryDsl.insert(adminDef).single(admin.apply {
                 // gensalt's log_rounds parameter determines the complexity
@@ -79,9 +76,6 @@ class Repository {
 
     suspend fun findUsers(page: Int, size: Int): Flow<User> {
 
-        val userDef = Meta.user
-        val db = r2dbcDatabase()
-
         // SELECT
         val user = db.flowQuery {
             QueryDsl.from(userDef).offset((page - 1).times(size)).limit(size)
@@ -90,9 +84,6 @@ class Repository {
     }
 
     suspend fun findUser(id: Long): User? {
-
-        val userDef = Meta.user
-        val db = r2dbcDatabase()
 
         // SELECT
         val user = db.runQuery {
@@ -103,9 +94,6 @@ class Repository {
 
     suspend fun findUserByUsername(username: String): User? {
 
-        val userDef = Meta.user
-        val db = r2dbcDatabase()
-
         // SELECT
         val user = db.runQuery {
             QueryDsl.from(userDef).where { userDef.username eq username }.firstOrNull()
@@ -114,9 +102,6 @@ class Repository {
     }
 
     suspend fun findUserByNickName(nickname: String): User? {
-
-        val userDef = Meta.user
-        val db = r2dbcDatabase()
 
         // SELECT
         val user = db.runQuery {
@@ -127,13 +112,14 @@ class Repository {
 
     suspend fun findUserByNickName02(nickname: String): User? {
 
-        val userDef = Meta.user
-        val db = r2dbcDatabase()
-
         // SELECT
         val user = db.runQuery {
             QueryDsl.from(userDef).where { userDef.nickname eq nickname }.firstOrNull()
         }
         return user
+    }
+
+    suspend fun deleteUser(id: Long) {
+        db.runQuery { QueryDsl.delete(userDef).where { userDef.id eq id } }
     }
 }
