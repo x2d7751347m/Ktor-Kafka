@@ -28,7 +28,8 @@ repositories {
 }
 
 val komapperVersion = "1.11.0"
-
+val testcontainersVersion = "1.18.3"
+val kafkaApiVersion = "3.5.0"
 dependencies {
     implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
@@ -79,4 +80,10 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     kapt("org.mapstruct:mapstruct-processor:1.5.5.Final")
     kaptTest("org.mapstruct:mapstruct-processor:1.5.5.Final")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
+    testImplementation("org.testcontainers:kafka:$testcontainersVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaApiVersion")
+    implementation("org.apache.kafka:kafka-streams:$kafkaApiVersion")
+    testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaApiVersion")
 }
