@@ -155,7 +155,6 @@ fun Route.userRouting() {
             }
             delete({
             }) {
-
                 val principal = call.principal<JWTPrincipal>()
                 val id = principal!!.payload.getClaim("id").asLong()
                 userRepository.deleteUser(id)
