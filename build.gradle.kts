@@ -24,13 +24,32 @@ application {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://jitpack.io") }
+//    maven { url = uri("https://jitpack.io")
+    maven("https://repository.mulesoft.org/nexus/content/repositories/public/") {
+        content {
+            includeModule("com.github.everit-org.json-schema", "org.everit.json.schema")
+        }
+    }
+    maven("https://packages.confluent.io/maven") {
+        content {
+            includeGroup("io.confluent")
+            includeModule("org.apache.kafka", "kafka-clients")
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 val komapperVersion = "1.11.0"
-val testcontainersVersion = "1.18.3"
-val kafkaApiVersion = "3.5.0"
+val testcontainers_version: String by project
+val ak_version: String by project
+val confluent_version: String by project
 dependencies {
+    implementation(project(":plugin"))
     implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
@@ -63,6 +82,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    //junit5
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
     platform("org.komapper:komapper-platform:$komapperVersion").let {
         implementation(it)
         ksp(it)
@@ -80,10 +102,17 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     kapt("org.mapstruct:mapstruct-processor:1.5.5.Final")
     kaptTest("org.mapstruct:mapstruct-processor:1.5.5.Final")
-    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
-    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
-    testImplementation("org.testcontainers:kafka:$testcontainersVersion")
-    implementation("org.apache.kafka:kafka-clients:$kafkaApiVersion")
-    implementation("org.apache.kafka:kafka-streams:$kafkaApiVersion")
-    testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaApiVersion")
+    testImplementation("org.testcontainers:testcontainers:$testcontainers_version")
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainers_version")
+    testImplementation("org.testcontainers:kafka:$testcontainers_version")
+    implementation("org.apache.kafka:kafka-clients:$ak_version")
+    implementation("org.apache.kafka:kafka-streams:$ak_version")
+    testImplementation("org.apache.kafka:kafka-streams-test-utils:$ak_version")
+    implementation("io.confluent:kafka-json-schema-serializer:$confluent_version") {
+        exclude("maven", "commons-collections")
+    }
+    implementation("io.confluent:kafka-streams-json-schema-serde:$confluent_version") {
+        exclude("org.apache.kafka", "kafka-clients")
+    }
+    testImplementation("org.assertj:assertj-core:3.24.2")
 }

@@ -4,6 +4,7 @@ import com.aftertime.dto.GlobalDto
 import com.aftertime.plugins.BigDecimalSerializer
 import io.konform.validation.Validation
 import io.konform.validation.jsonschema.maxLength
+import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.pattern
 import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
@@ -36,8 +37,9 @@ val validateUser = Validation {
         maxLength(30)
     }
     User::nickname ifPresent {
-//        minLength(2)
-        maxLength(30)
+        pattern("[a-z\\d_]$") hint "Please provide a valid nickname that combination of numbers.)"
+        minLength(4)
+        maxLength(16)
     }
     User::password ifPresent {
         pattern("^(?=.*[a-zA-Z])(?=.*\\d)[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,30}$") hint "Please provide a valid password that combination of numbers and letters. Also, special characters are allowed.)"

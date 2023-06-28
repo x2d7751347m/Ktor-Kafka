@@ -28,19 +28,6 @@ fun Route.userRouting() {
     val userMapper = Mappers.getMapper(UserMapper::class.java)
     route("/api/v1/users", {
         tags = listOf("user")
-        response {
-            HttpStatusCode.OK to {
-                description = "Successful Request"
-            }
-            HttpStatusCode.BadRequest to {
-                description = "Not a valid request"
-                body<ExceptionResponse> { description = "the response" }
-            }
-            HttpStatusCode.InternalServerError to {
-                description = "Something unexpected happened"
-                body<ExceptionResponse> { description = "the response" }
-            }
-        }
     }) {
         post({
             description = "create user."

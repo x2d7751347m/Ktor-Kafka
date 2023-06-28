@@ -164,6 +164,7 @@ fun Application.configureRouting() {
                 }
             }
         }) {
+//            streamRouting()
             securityRouting()
             userRouting()
             socketRouting()

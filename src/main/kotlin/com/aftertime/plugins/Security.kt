@@ -24,6 +24,7 @@ import io.ktor.server.config.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import org.mindrot.jbcrypt.BCrypt
 import java.util.*
 
@@ -195,7 +196,7 @@ fun Route.securityRouting() {
                 }
             }
         }) {
-            when (Oauth.valueOf(call.parameters["platform"]!!)) {
+            when (Oauth.valueOf(call.parameters.getOrFail("platform"))) {
                 Oauth.GOOGLE -> {
                     val idTokenString = call.request.headers["IdToken"]
                     val transport: HttpTransport = NetHttpTransport()
