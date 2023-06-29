@@ -1,6 +1,5 @@
 package com.aftertime.plugins
 
-import com.aftertime.routes.streamRouting
 import com.aftertime.routes.userRouting
 import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.dsl.AuthScheme
@@ -165,7 +164,6 @@ fun Application.configureRouting() {
                 }
             }
         }) {
-            streamRouting()
             securityRouting()
             userRouting()
             socketRouting()

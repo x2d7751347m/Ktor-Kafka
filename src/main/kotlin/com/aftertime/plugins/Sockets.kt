@@ -37,6 +37,26 @@ fun Application.configureSockets() {
         masking = false
     }
 
+    // load properties
+    val kafkaConfigPath = "src/main/resources/kafka.conf"
+    //region Kafka
+    install(Kafka) {
+        configurationPath = kafkaConfigPath
+//        topics = listOf(
+//            newTopic(ratingTopicName) {
+//                partitions = 3
+//                replicas = 1    // for docker
+//                //replicas = 3  // for cloud
+//            },
+//            newTopic(ratingsAvgTopicName) {
+//                partitions = 3
+//                replicas = 1    // for docker
+//                //replicas = 3  // for cloud
+//            }
+//        )
+    }
+    //endregion
+
 }
 
 fun Route.socketRouting() {
