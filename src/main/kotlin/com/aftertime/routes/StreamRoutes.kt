@@ -1,4 +1,4 @@
-package com.aftertime
+package com.aftertime.routes
 
 import com.aftertime.kstreams.Rating
 import com.aftertime.kstreams.ratingTopicName
@@ -34,10 +34,6 @@ fun Route.streamRouting(testing: Boolean = false) {
         post("rating", {
             description = "post rating."
             request {
-//                pathParameter<String>("operation") {
-//                    description = "the math operation to perform. Either 'add' or 'sub'"
-//                    example = "add"
-//                }
                 body<Rating> {
                     example("First", Rating(movieId = 1, rating = 1.1)) {
                         description = "rating 1"

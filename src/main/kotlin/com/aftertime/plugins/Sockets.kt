@@ -177,6 +177,7 @@ fun Route.socketRouting() {
             }
         }
     }
+
     webSocket("/messages/{group}") {
 
         val group = call.parameters.getOrFail("group")

@@ -37,7 +37,7 @@ val validateUser = Validation {
         maxLength(30)
     }
     User::nickname ifPresent {
-        pattern("[a-z\\d_]$") hint "Please provide a valid nickname that combination of numbers.)"
+        pattern("[a-z\\d_]{4,16}$") hint "Please provide a valid nickname that combination of numbers or letters.)"
         minLength(4)
         maxLength(16)
     }
@@ -73,7 +73,7 @@ data class User(
     var username: String = "",
     var nickname: String = "",
     var password: String = "",
-    var tribal: Int = 0,
+    var tribe: Int = 0,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
@@ -96,7 +96,7 @@ data class UserData(
     var username: String? = null,
     var nickname: String? = null,
     var password: String? = null,
-    var tribal: Int? = null,
+    var tribe: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,

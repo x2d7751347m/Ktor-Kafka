@@ -19,7 +19,6 @@ import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.mapstruct.factory.Mappers
 
@@ -38,21 +37,17 @@ fun Route.userRouting() {
 //                }
                 body<UserPost> {
                     example("First", UserPost(nickname = "nickname", password = "Password12!")) {
-                        description = "nickname"
+                        description = "first example"
                     }
                     example("Second", UserPost(nickname = "nickname2", password = "Password1234!")) {
-                        description = "nickname2"
+                        description = "second example"
                     }
                     required = true
                 }
             }
             response {
                 HttpStatusCode.Created to {
-                    description = "Successful Request"
-                    body<UserResponse> {
-                        mediaType(ContentType.Application.Json)
-                        description = "the response"
-                    }
+                    description = "Created"
                 }
             }
         }) {
@@ -61,7 +56,8 @@ fun Route.userRouting() {
             validateUser(user).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
-            call.respond(status = HttpStatusCode.Created, userRepository.createUser(user))
+            userRepository.createUser(user)
+            call.response.status(HttpStatusCode.Created)
         }
     }
     route("/api/v1/users", {
@@ -93,7 +89,7 @@ fun Route.userRouting() {
                 response {
                     HttpStatusCode.OK to {
                         description = "Successful Request"
-                        body<Flow<UserResponse>> {
+                        body<List<UserResponse>> {
                             mediaType(ContentType.Application.Json)
                             description = "the response"
                         }
@@ -102,7 +98,11 @@ fun Route.userRouting() {
             }) {
                 val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
                 val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
-                call.respond(userMapper.userListToUserResponseList(userRepository.findUsers(page, size).toList()))
+                call.respond(
+                    userMapper.userListToUserResponseList(
+                        userRepository.findUsers(page, size).toList()
+                    )
+                )
             }
             get("{id}", {
                 request {
