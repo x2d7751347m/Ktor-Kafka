@@ -111,6 +111,14 @@ fun Route.userRouting() {
                         required = true
                     }
                 }
+                response {
+                    HttpStatusCode.OK to {
+                        body<UserResponse> {
+                            mediaType(ContentType.Application.Json)
+                            description = "the response"
+                        }
+                    }
+                }
             }) {
                 val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
                 val user =

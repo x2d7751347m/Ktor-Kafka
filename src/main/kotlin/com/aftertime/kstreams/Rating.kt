@@ -1,8 +1,11 @@
 package com.aftertime.kstreams
 
+import kotlinx.serialization.Serializable
+
 /**
  * Rating class for storing a movie rating
  */
+@Serializable
 data class Rating(val movieId: Long = 1L, val rating: Double = 0.0)
 
 /**

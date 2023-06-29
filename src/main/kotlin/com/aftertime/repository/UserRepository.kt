@@ -110,15 +110,6 @@ class UserRepository {
         return user
     }
 
-    suspend fun findUserByNickName02(nickname: String): User? {
-
-        // SELECT
-        val user = db.runQuery {
-            QueryDsl.from(userDef).where { userDef.nickname eq nickname }.firstOrNull()
-        }
-        return user
-    }
-
     suspend fun deleteUser(id: Long) {
         db.runQuery { QueryDsl.delete(userDef).where { userDef.id eq id } }
     }

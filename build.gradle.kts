@@ -4,10 +4,13 @@ val logback_version: String by project
 val prometeus_version: String by project
 
 plugins {
+//    application
     kotlin("jvm") version "1.8.22"
     id("io.ktor.plugin") version "2.3.1"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.google.devtools.ksp") version "1.8.22-1.0.11"
+    id("com.avast.gradle.docker-compose") version "0.16.12"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("kapt") version "1.8.20"
 }
 kapt {
@@ -24,7 +27,6 @@ application {
 
 repositories {
     mavenCentral()
-//    maven { url = uri("https://jitpack.io")
     maven("https://repository.mulesoft.org/nexus/content/repositories/public/") {
         content {
             includeModule("com.github.everit-org.json-schema", "org.everit.json.schema")
@@ -115,4 +117,16 @@ dependencies {
         exclude("org.apache.kafka", "kafka-clients")
     }
     testImplementation("org.assertj:assertj-core:3.24.2")
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+}
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs>().configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
 }
