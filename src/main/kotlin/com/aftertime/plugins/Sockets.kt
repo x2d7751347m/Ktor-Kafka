@@ -40,21 +40,21 @@ fun Application.configureSockets() {
     // load properties
     val kafkaConfigPath = "src/main/resources/kafka.conf"
     //region Kafka
-    install(Kafka) {
-        configurationPath = kafkaConfigPath
-//        topics = listOf(
-//            newTopic(ratingTopicName) {
-//                partitions = 3
-//                replicas = 1    // for docker
-//                //replicas = 3  // for cloud
-//            },
-//            newTopic(ratingsAvgTopicName) {
-//                partitions = 3
-//                replicas = 1    // for docker
-//                //replicas = 3  // for cloud
-//            }
-//        )
-    }
+//    install(Kafka) {
+//        configurationPath = kafkaConfigPath
+////        topics = listOf(
+////            newTopic(ratingTopicName) {
+////                partitions = 3
+////                replicas = 1    // for docker
+////                //replicas = 3  // for cloud
+////            },
+////            newTopic(ratingsAvgTopicName) {
+////                partitions = 3
+////                replicas = 1    // for docker
+////                //replicas = 3  // for cloud
+////            }
+////        )
+//    }
     //endregion
 
 }
@@ -71,18 +71,6 @@ fun Route.socketRouting() {
         connectionMutex.withLock {
             if (contains(connection)) {
                 remove(connection)
-            }
-        }
-    }
-    webSocket("/ws") { // websocketSession
-        send("You are connected!")
-        for (frame in incoming) {
-            if (frame is Frame.Text) {
-                val text = frame.readText()
-                outgoing.send(Frame.Text("YOU SAID: $text"))
-                if (text.equals("bye", ignoreCase = true)) {
-                    close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
-                }
             }
         }
     }
@@ -258,16 +246,16 @@ fun Route.socketRouting() {
                         }
                     }
                 }
-//                launch {
-//                    while (true) {
-//                        poll(binaryConsumer)
-//                    }
-//                }
                 launch {
                     while (true) {
-                        textPoll(textConsumer)
+                        poll(binaryConsumer)
                     }
                 }
+//                launch {
+//                    while (true) {
+//                        textPoll(textConsumer)
+//                    }
+//                }
             }
         } finally {
             binaryConsumer.apply {
