@@ -62,7 +62,7 @@ fun Route.userRouting() {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
             userRepository.createUser(user)
-            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
+//            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
             call.response.status(HttpStatusCode.Created)
         }
     }
