@@ -57,6 +57,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-apache-jvm:$ktor_version")
+    implementation("jakarta.mail:jakarta.mail-api:2.1.2")
     implementation("io.ktor:ktor-server-partial-content-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-http-redirect-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-forwarded-header-jvm:$ktor_version")
@@ -84,7 +85,6 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    //junit5
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
     platform("org.komapper:komapper-platform:$komapperVersion").let {
