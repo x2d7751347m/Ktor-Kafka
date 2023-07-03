@@ -1,5 +1,7 @@
 package com.aftertime.plugins
 
+import com.typesafe.config.ConfigFactory
+import io.ktor.server.config.*
 import jakarta.mail.*
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
@@ -18,17 +20,20 @@ class Mail {
         this["mail.smtp.auth"] = "true"
         this["mail.smtp.starttls.enable"] = "true"
     }
-    private val emailUsername = System.getenv("EMAIL_USERNAME") ?: throw IllegalStateException("EMAIL_USERNAME env should not be null.")
-    private val emailPassword = System.getenv("EMAIL_PASSWORD") ?: throw IllegalStateException("EMAIL_PASSWORD env should not be null.")
-    private val fromEmail = System.getenv("FROM_EMAIL") ?: emailUsername
+    private val emailUsername = HoconApplicationConfig(ConfigFactory.load()).property("mail.username").getString()
+        ?: throw IllegalStateException("EMAIL_USERNAME env should not be null.")
+    private val emailPassword = HoconApplicationConfig(ConfigFactory.load()).property("mail.password").getString()
+        ?: throw IllegalStateException("EMAIL_PASSWORD env should not be null.")
+    private val fromEmail = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("mail.from")?.getString() ?: emailUsername
 
     private val session: Session = Session.getInstance(props, object : Authenticator() {
         override fun getPasswordAuthentication(): PasswordAuthentication {
             val username = emailUsername
             val password = emailPassword
-            return PasswordAuthentication(username, password)
+            return PasswordAuthentication(username, password.toString())
         }
     })
+
     suspend fun sendEmail(emailMessage: String): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
             val message = MimeMessage(session)
@@ -36,11 +41,12 @@ class Mail {
             message.setFrom(InternetAddress(from))
             message.setRecipients(
                 Message.RecipientType.TO,
-                "emailMessage.to.lowercase().trim()"
+                "x2d7751347m@gmail.com"
+//                "emailMessage.to.lowercase().trim()"
             )
             message.subject = "emailMessage.subject"
             message.sentDate = Date()
-            message.setText("emailMessage.body")
+            message.setText(emailMessage)
             Transport.send(message)
             true
         } catch (mex: MessagingException) {

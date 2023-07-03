@@ -8,6 +8,7 @@ import com.aftertime.entity.userStorage
 import com.aftertime.entity.validateUser
 import com.aftertime.mapper.UserMapper
 import com.aftertime.plugins.ExceptionResponse
+import com.aftertime.plugins.Mail
 import com.aftertime.plugins.ValidationExceptions
 import com.aftertime.repository.UserRepository
 import io.github.smiley4.ktorswaggerui.dsl.*
@@ -19,7 +20,11 @@ import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import org.mapstruct.factory.Mappers
 
 fun Route.userRouting() {
@@ -57,6 +62,7 @@ fun Route.userRouting() {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
             userRepository.createUser(user)
+            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
             call.response.status(HttpStatusCode.Created)
         }
     }

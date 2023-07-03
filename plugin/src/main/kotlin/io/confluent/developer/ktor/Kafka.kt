@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory
 import io.confluent.developer.extension.configMap
 import io.confluent.developer.extension.logger
 import io.ktor.server.application.*
+import io.ktor.server.config.*
 import io.ktor.util.*
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.CreateTopicsResult
@@ -40,7 +41,7 @@ class Kafka(configuration: Configuration) {
         val config: Config = ConfigFactory.parseFile(configFile)
 
         val bootstrapServers = config.getList("ktor.kafka.bootstrap.servers")
-        val commonConfig = configMap(config, "ktor.kafka.properties")
+        val commonConfig = HoconApplicationConfig(config).toMap()
 
         return Properties().apply {
             putAll(commonConfig)

@@ -58,6 +58,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-apache-jvm:$ktor_version")
     implementation("jakarta.mail:jakarta.mail-api:2.1.2")
+    implementation("org.eclipse.angus:jakarta.mail:2.0.2")
     implementation("io.ktor:ktor-server-partial-content-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-http-redirect-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-forwarded-header-jvm:$ktor_version")
