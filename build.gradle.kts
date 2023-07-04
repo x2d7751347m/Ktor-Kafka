@@ -6,7 +6,7 @@ val prometeus_version: String by project
 plugins {
 //    application
     kotlin("jvm") version "1.8.22"
-    id("io.ktor.plugin") version "2.3.1"
+    id("io.ktor.plugin") version "2.3.2"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.google.devtools.ksp") version "1.8.22-1.0.11"
     id("com.avast.gradle.docker-compose") version "0.16.12"

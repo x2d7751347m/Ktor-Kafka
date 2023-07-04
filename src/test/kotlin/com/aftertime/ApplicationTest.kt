@@ -26,7 +26,6 @@ class ApplicationTest {
 
     @Test
     fun test() {
-//        client()
     }
 
 //    companion object {
@@ -36,8 +35,9 @@ class ApplicationTest {
 //    }
 
     // pure socket test
-    private fun client() {
-        val client = Socket("127.0.0.1", 9999)
+    @Test
+    fun socketClient() {
+        val client = Socket("127.0.0.1", 9002)
         val output = PrintWriter(client.getOutputStream(), true)
         val input = BufferedReader(InputStreamReader(client.inputStream))
 
