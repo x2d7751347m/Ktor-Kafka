@@ -43,27 +43,31 @@ services:
           listenPort: 9080
         kafka:
           brokers: ["broker:9092"]
-          schemaRegistry:
-            enabled: true
-            urls: ["http://schema-registry:8081"]
         connect:
           enabled: false
     ports:
       - "9080:9080"
     depends_on:
       - broker
-      - schema-registry
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:latest
-    hostname: schema-registry
-    container_name: schema-registry
-    depends_on:
-      - broker
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:9092'
-      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: WARN
+        # add below 3 lines to below kafka: \n 'brokers:' line
+
+      #          schemaRegistry:
+      #            enabled: true
+      #            urls: ["http://schema-registry:8081"]
+
+#      - schema-registry
+#
+#  schema-registry:
+#    image: confluentinc/cp-schema-registry:latest
+#    hostname: schema-registry
+#    container_name: schema-registry
+#    depends_on:
+#      - broker
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:9092'
+#      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: WARN
 
