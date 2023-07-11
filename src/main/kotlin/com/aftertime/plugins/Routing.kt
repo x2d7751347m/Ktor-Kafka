@@ -115,6 +115,7 @@ fun Application.configureRouting() {
             }
         }
     }
+    val port = environment.config.property("ktor.deployment.port").getString()
     install(SwaggerUI) {
         swagger {
             swaggerUrl = "swagger-ui"
@@ -126,7 +127,7 @@ fun Application.configureRouting() {
             description = "Pararium API for testing and demonstration purposes."
         }
         server {
-            url = "http://localhost:8080"
+            url = "http://localhost:$port"
             description = "Development Server"
         }
         // default value for "401 Unauthorized"-responses.
