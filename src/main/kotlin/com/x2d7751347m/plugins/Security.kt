@@ -64,13 +64,14 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim("username").asString() != "") {
+                if (credential.payload.getClaim("id").asString() != "") {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
                 }
             }
             challenge { defaultScheme, realm ->
+                if (!this.call.request.headers.contains("Upgrade"))
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
             }
         }
