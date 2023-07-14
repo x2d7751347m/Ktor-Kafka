@@ -15,36 +15,18 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Test
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
 
 
-//@Testcontainers
+@Testcontainers
 class ApplicationTest {
 
     @Test
     fun test() {
-    }
-
-//    companion object {
-//        @JvmStatic
-//        @Container
-//        val kafka = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))
-//    }
-
-    // pure socket test
-    @Test
-    fun socketClient() {
-        val client = Socket("127.0.0.1", 9002)
-        val output = PrintWriter(client.getOutputStream(), true)
-        val input = BufferedReader(InputStreamReader(client.inputStream))
-
-        println("Client sending [Hello]")
-        output.println("Hello")
-        println("Client receiving [${input.readLine()}]")
-        client.close()
     }
 
     @Test
@@ -80,28 +62,25 @@ class ApplicationTest {
 
         fun currentMoment(): Instant = Clock.System.now()
         coroutineScope {
-            repeat(100) {
+            repeat(1000) {
                 launch(handler) {
-                    var lastSentTime = currentMoment()
+                    var lastSentTime = mutableMapOf(Pair(it, currentMoment().toEpochMilliseconds()))
                     val myMessage = "$it"
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         timeoutMillis = 15000
                         while (true) {
                             try {
-                                if (currentMoment().minus(lastSentTime).inWholeMilliseconds > 500) {
-                                    send(myMessage)
-                                    lastSentTime = currentMoment()
+                                        if (currentMoment().minus(Instant.fromEpochMilliseconds(lastSentTime[it]!!)).inWholeMilliseconds > 1000) {
+                                            send(myMessage)
+                                            lastSentTime[it] = currentMoment().toEpochMilliseconds()
+                                        when (incoming.receive()) {
+                                            is Frame.Text -> {
+                                                val othersMessage = incoming.receive() as? Frame.Text
+                                                println(othersMessage?.readText())
+                                            }
+                                            else -> {}
+                                        }
                                 }
-                                when (incoming.receive()) {
-                                    is Frame.Text -> {
-                                        val othersMessage = incoming.receive() as? Frame.Text
-//                                        println(othersMessage?.readText())
-////                    val myMessage = Scanner(System.`in`).next()
-                                    }
-
-                                    else -> {}
-                                }
-
                             } catch (e: Exception) {
                                 println(e.localizedMessage)
                                 break
@@ -111,5 +90,18 @@ class ApplicationTest {
                 }
             }
         }
+    }
+
+    // normal socket test
+    @Test
+    fun socketClient() {
+        val client = Socket("127.0.0.1", 9002)
+        val output = PrintWriter(client.getOutputStream(), true)
+        val input = BufferedReader(InputStreamReader(client.inputStream))
+
+        println("Client sending [Hello]")
+        output.println("Hello")
+        println("Client receiving [${input.readLine()}]")
+        client.close()
     }
 }

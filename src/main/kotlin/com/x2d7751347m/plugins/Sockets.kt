@@ -82,7 +82,6 @@ fun Route.socketRouting() {
         }
     }
 
-    authenticate("auth-jwt") {
         webSocket("/chat") {
 
             val thisConnection: Connection
@@ -94,14 +93,10 @@ fun Route.socketRouting() {
             val principal = call.principal<JWTPrincipal>()
             var id: Long
             var user = User()
-            principal?.run {
-                id = principal.payload.getClaim("id").asLong()
-                user = userRepository.findUser(id)!!
-            } ?: run {
                 user =
                     User()
                         .apply { this.id = Random(currentMoment.epochSeconds).nextLong() }
-            }
+//            }
             println("Adding user!")
             try {
                 send("You are connected! There are ${connections.count()} users here.")
@@ -202,7 +197,6 @@ fun Route.socketRouting() {
                     println(e)
                 }
             }
-        }
     }
 
 
@@ -226,8 +220,6 @@ fun Route.socketRouting() {
                         .apply { this.id = Random(currentMoment.epochSeconds).nextLong() }
             }
             println("Adding user!")
-            send("You are connected! There are ${connections.count()} users here.")
-            println("The User is connected! There are ${connections.count()} users here.")
             send(Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user)).toString())
 
             val config = ApplicationConfig("kafka.conf")
