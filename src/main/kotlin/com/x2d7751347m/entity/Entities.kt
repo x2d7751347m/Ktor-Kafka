@@ -81,6 +81,7 @@ data class User(
     // Highly Inflationary Currency
     @Serializable(with = BigDecimalSerializer::class)
     var rium: BigDecimal = BigDecimal.ZERO,
+    var userRole: UserRole = UserRole.USER,
     var userStatus: UserStatus = UserStatus.ACTIVE,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
@@ -104,6 +105,7 @@ data class UserData(
     var currentBoostNft: Int? = null,
     @Serializable(with = BigDecimalSerializer::class)
     var rium: BigDecimal? = null,
+    var userRole: UserRole? = null,
     var userStatus: UserStatus? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
@@ -113,6 +115,10 @@ data class UserData(
     var managerId: Long? = null,
     var hiredate: LocalDate? = null,
 )
+
+enum class UserRole {
+    ADMIN, USER,
+}
 
 enum class UserStatus {
     ACTIVE, SLEEP, QUIT

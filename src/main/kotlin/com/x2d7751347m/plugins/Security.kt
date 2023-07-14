@@ -1,8 +1,5 @@
 package com.x2d7751347m.plugins
 
-import com.x2d7751347m.dto.GlobalDto
-import com.x2d7751347m.entity.validateLoginForm
-import com.x2d7751347m.repository.UserRepository
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
@@ -13,6 +10,10 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.gson.GsonFactory
 import com.typesafe.config.ConfigFactory
+import com.x2d7751347m.dto.GlobalDto
+import com.x2d7751347m.entity.UserRole
+import com.x2d7751347m.entity.validateLoginForm
+import com.x2d7751347m.repository.UserRepository
 import io.github.smiley4.ktorswaggerui.dsl.get
 import io.github.smiley4.ktorswaggerui.dsl.post
 import io.github.smiley4.ktorswaggerui.dsl.route
@@ -64,7 +65,11 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim("id").asString() != "") {
+                if (credential.payload.getClaim("id").asString() != "" && !(this.request.path()
+                        .contains("/admins") && UserRole.valueOf(
+                        credential.payload.getClaim("role").asString()
+                    ) != UserRole.ADMIN)
+                ) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
@@ -72,7 +77,7 @@ fun Application.configureSecurity() {
             }
             challenge { defaultScheme, realm ->
                 if (!this.call.request.headers.contains("Upgrade"))
-                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
+                    call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
             }
         }
     }
@@ -171,6 +176,7 @@ fun Route.securityRouting() {
                 .withAudience(jwtAudience)
                 .withIssuer(jwtIssuer)
                 .withClaim("id", user.id)
+                .withClaim("role", user.userRole.name)
                 .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
                 .sign(Algorithm.HMAC256(jwtSecret))
             call.response.headers.append(HttpHeaders.Authorization, token)
