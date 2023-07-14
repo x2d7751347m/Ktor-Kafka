@@ -71,7 +71,7 @@ fun Route.socketRouting() {
         println("CoroutineExceptionHandler got $exception")
     }
     val userRepository = UserRepository();
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(200))
+    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(2000))
     val connectionMutex = Mutex()
 
     suspend fun <Connection> MutableSet<Connection>.removeConnection(connection: Connection) {
@@ -161,6 +161,9 @@ fun Route.socketRouting() {
                                     }
                                 }
                                 close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
+                            }
+                            else if (receivedText.lowercase() == "connections") {
+                                send("There are ${connections.count()} users here.")
                             }
                             coroutineScope {
                                 connectionMutex.withLock { connections.toSet() }.forEach {

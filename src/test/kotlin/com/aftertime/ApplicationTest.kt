@@ -51,9 +51,10 @@ class ApplicationTest {
         }
         val client = HttpClient(CIO) {
             engine {
-                endpoint.maxConnectionsPerRoute = 200
+                endpoint.maxConnectionsPerRoute = 2000
                 endpoint.socketTimeout = 15000
                 endpoint.connectAttempts = 3
+                endpoint.connectTimeout = 15000
             }
             install(WebSockets) {
                 pingInterval = 15_000
@@ -64,23 +65,23 @@ class ApplicationTest {
         coroutineScope {
             repeat(1000) {
                 launch(handler) {
-                    var lastSentTime = mutableMapOf(Pair(it, currentMoment().toEpochMilliseconds()))
-                    val myMessage = "$it"
+//                    var lastSentTime = mutableMapOf(Pair(it, currentMoment().toEpochMilliseconds()))
+//                    val myMessage = "$it"
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         timeoutMillis = 15000
                         while (true) {
                             try {
-                                        if (currentMoment().minus(Instant.fromEpochMilliseconds(lastSentTime[it]!!)).inWholeMilliseconds > 1000) {
-                                            send(myMessage)
-                                            lastSentTime[it] = currentMoment().toEpochMilliseconds()
-                                        when (incoming.receive()) {
-                                            is Frame.Text -> {
-                                                val othersMessage = incoming.receive() as? Frame.Text
-                                                println(othersMessage?.readText())
-                                            }
-                                            else -> {}
+//                                    if (currentMoment().minus(Instant.fromEpochMilliseconds(lastSentTime[it]!!)).inWholeMilliseconds > 1000) {
+//                                        send(myMessage)
+//                                        lastSentTime[it] = currentMoment().toEpochMilliseconds()
+//                                    }
+                                    when (incoming.receive()) {
+                                        is Frame.Text -> {
+                                            val othersMessage = incoming.receive() as? Frame.Text
+                                            println("$it+${othersMessage?.readText()}")
                                         }
-                                }
+                                        else -> {}
+                                    }
                             } catch (e: Exception) {
                                 println(e.localizedMessage)
                                 break
