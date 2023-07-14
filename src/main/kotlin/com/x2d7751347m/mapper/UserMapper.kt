@@ -1,10 +1,10 @@
-package com.aftertime.mapper
+package com.x2d7751347m.mapper
 
-import com.aftertime.dto.UserPatch
-import com.aftertime.dto.UserPost
-import com.aftertime.dto.UserResponse
-import com.aftertime.entity.User
-import com.aftertime.entity.UserData
+import com.x2d7751347m.dto.UserPatch
+import com.x2d7751347m.dto.UserPost
+import com.x2d7751347m.dto.UserResponse
+import com.x2d7751347m.entity.User
+import com.x2d7751347m.entity.UserData
 import org.mapstruct.Mapper
 import org.mapstruct.ReportingPolicy
 import org.mapstruct.factory.Mappers

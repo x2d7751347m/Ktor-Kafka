@@ -1,6 +1,6 @@
-package com.aftertime.plugins
+package com.x2d7751347m.plugins
 
-import com.aftertime.routes.userRouting
+import com.x2d7751347m.routes.userRouting
 import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.dsl.AuthScheme
 import io.github.smiley4.ktorswaggerui.dsl.AuthType
@@ -122,9 +122,9 @@ fun Application.configureRouting() {
             forwardRoot = true
         }
         info {
-            title = "Pararium API"
+            title = "Ktor-sample API"
             version = "latest"
-            description = "Pararium API for testing and demonstration purposes."
+            description = "Ktor-sample API for testing and demonstration purposes."
         }
         server {
             url = "http://localhost:$port"

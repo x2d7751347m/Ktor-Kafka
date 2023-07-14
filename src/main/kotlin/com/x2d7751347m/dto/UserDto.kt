@@ -1,7 +1,7 @@
-package com.aftertime.dto
+package com.x2d7751347m.dto
 
-import com.aftertime.entity.UserStatus
-import com.aftertime.plugins.BigDecimalSerializer
+import com.x2d7751347m.entity.UserStatus
+import com.x2d7751347m.plugins.BigDecimalSerializer
 import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable

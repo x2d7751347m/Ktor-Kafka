@@ -1,10 +1,10 @@
-package com.aftertime.repository
+package com.x2d7751347m.repository
 
-import com.aftertime.entity.User
-import com.aftertime.entity.UserData
-import com.aftertime.entity.admin
-import com.aftertime.entity.user
-import com.aftertime.r2dbcDatabase
+import com.x2d7751347m.entity.User
+import com.x2d7751347m.entity.UserData
+import com.x2d7751347m.entity.admin
+import com.x2d7751347m.entity.user
+import com.x2d7751347m.r2dbcDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
 import org.komapper.core.dsl.Meta
@@ -29,7 +29,7 @@ class UserRepository {
             })
         }
         return db.runQuery {
-            QueryDsl.from(userDef).where { userDef.nickname eq user.nickname }
+            QueryDsl.from(userDef).where { userDef.username eq user.username }
         }.last()
     }
 

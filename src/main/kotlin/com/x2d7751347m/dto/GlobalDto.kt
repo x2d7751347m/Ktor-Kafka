@@ -1,4 +1,4 @@
-package com.aftertime.dto
+package com.x2d7751347m.dto
 
 import kotlinx.serialization.Serializable
 

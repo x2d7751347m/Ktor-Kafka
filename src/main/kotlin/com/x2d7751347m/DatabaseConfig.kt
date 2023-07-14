@@ -1,6 +1,6 @@
-package com.aftertime
+package com.x2d7751347m
 
-import com.aftertime.entity.user
+import com.x2d7751347m.entity.user
 import com.typesafe.config.ConfigFactory
 import io.ktor.server.config.*
 import io.r2dbc.spi.ConnectionFactoryOptions
@@ -56,7 +56,7 @@ suspend fun initR2dbcDatabase() {
     // create a schema
     try {
         initialR2dbcDatabase().runQuery {
-            QueryDsl.executeScript("CREATE DATABASE `pararium` /*!40100 COLLATE 'utf8mb4_general_ci' */;")
+            QueryDsl.executeScript("CREATE DATABASE `ktor-sample` /*!40100 COLLATE 'utf8mb4_general_ci' */;")
         }
     } catch (_: R2dbcTransientResourceException){}
     db.runQuery {

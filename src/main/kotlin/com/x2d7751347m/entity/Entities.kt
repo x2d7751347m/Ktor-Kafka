@@ -1,7 +1,7 @@
-package com.aftertime.entity
+package com.x2d7751347m.entity
 
-import com.aftertime.dto.GlobalDto
-import com.aftertime.plugins.BigDecimalSerializer
+import com.x2d7751347m.dto.GlobalDto
+import com.x2d7751347m.plugins.BigDecimalSerializer
 import io.konform.validation.Validation
 import io.konform.validation.jsonschema.maxLength
 import io.konform.validation.jsonschema.minLength

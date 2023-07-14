@@ -1,4 +1,4 @@
-package com.aftertime.plugins
+package com.x2d7751347m.plugins
 
 import io.ktor.http.*
 import io.ktor.http.content.*

@@ -1,4 +1,4 @@
-package com.aftertime.kstreams
+package com.x2d7751347m.kstreams
 
 import io.confluent.developer.ktor.buildProducer
 import io.confluent.developer.ktor.send

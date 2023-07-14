@@ -1,9 +1,9 @@
-package com.aftertime.plugins
+package com.x2d7751347m.plugins
 
-import com.aftertime.Connection
-import com.aftertime.entity.NetworkPacket
-import com.aftertime.entity.NetworkStatus
-import com.aftertime.entity.User
+import com.x2d7751347m.Connection
+import com.x2d7751347m.entity.NetworkPacket
+import com.x2d7751347m.entity.NetworkStatus
+import com.x2d7751347m.entity.User
 import io.confluent.developer.extension.logger
 import io.confluent.developer.ktor.*
 import io.ktor.network.selector.*

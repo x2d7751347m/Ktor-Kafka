@@ -1,8 +1,8 @@
-package com.aftertime.plugins
+package com.x2d7751347m.plugins
 
-import com.aftertime.dto.GlobalDto
-import com.aftertime.entity.validateLoginForm
-import com.aftertime.repository.UserRepository
+import com.x2d7751347m.dto.GlobalDto
+import com.x2d7751347m.entity.validateLoginForm
+import com.x2d7751347m.repository.UserRepository
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
@@ -176,7 +176,8 @@ fun Route.securityRouting() {
             call.response.status(HttpStatusCode.OK)
         }
         post("/oauth-login", {
-            description = "oauth login"
+            description = "oauth login" +
+                    "not implemented"
             request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"

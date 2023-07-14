@@ -1,4 +1,4 @@
-package com.aftertime.plugins
+package com.x2d7751347m.plugins
 
 import com.typesafe.config.ConfigFactory
 import io.ktor.server.config.*

@@ -16,7 +16,7 @@ plugins {
 kapt {
     correctErrorTypes = true
 }
-group = "com.aftertime"
+group = "com.x2d7751347m"
 version = "0.0.1"
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")

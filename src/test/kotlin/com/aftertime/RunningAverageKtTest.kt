@@ -1,6 +1,6 @@
-//package com.aftertime
+//package com.x2d7751347m
 //
-//import com.aftertime.kstreams.*
+//import com.x2d7751347m.kstreams.*
 //import io.confluent.kafka.streams.serdes.json.KafkaJsonSchemaSerde
 //import org.apache.kafka.common.serialization.DoubleDeserializer
 //import org.apache.kafka.common.serialization.LongDeserializer

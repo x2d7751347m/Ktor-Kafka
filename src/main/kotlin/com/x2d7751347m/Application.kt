@@ -1,6 +1,6 @@
-package com.aftertime
+package com.x2d7751347m
 
-import com.aftertime.plugins.*
+import com.x2d7751347m.plugins.*
 import io.ktor.server.application.*
 
 suspend fun main(args: Array<String>): Unit {

@@ -1,16 +1,16 @@
-package com.aftertime.routes
+package com.x2d7751347m.routes
 
-import com.aftertime.dto.UserPatch
-import com.aftertime.dto.UserPost
-import com.aftertime.dto.UserResponse
-import com.aftertime.entity.User
-import com.aftertime.entity.userStorage
-import com.aftertime.entity.validateUser
-import com.aftertime.mapper.UserMapper
-import com.aftertime.plugins.ExceptionResponse
-import com.aftertime.plugins.Mail
-import com.aftertime.plugins.ValidationExceptions
-import com.aftertime.repository.UserRepository
+import com.x2d7751347m.dto.UserPatch
+import com.x2d7751347m.dto.UserPost
+import com.x2d7751347m.dto.UserResponse
+import com.x2d7751347m.entity.User
+import com.x2d7751347m.entity.userStorage
+import com.x2d7751347m.entity.validateUser
+import com.x2d7751347m.mapper.UserMapper
+import com.x2d7751347m.plugins.ExceptionResponse
+import com.x2d7751347m.plugins.Mail
+import com.x2d7751347m.plugins.ValidationExceptions
+import com.x2d7751347m.repository.UserRepository
 import io.github.smiley4.ktorswaggerui.dsl.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -41,10 +41,10 @@ fun Route.userRouting() {
 //                    example = "add"
 //                }
                 body<UserPost> {
-                    example("First", UserPost(nickname = "nickname", password = "Password12!")) {
+                    example("First", UserPost(username = "username", nickname = "nickname", password = "Password12!")) {
                         description = "first example"
                     }
-                    example("Second", UserPost(nickname = "nickname2", password = "Password1234!")) {
+                    example("Second", UserPost(username = "username2", nickname = "nickname2", password = "Password1234!")) {
                         description = "second example"
                     }
                     required = true
