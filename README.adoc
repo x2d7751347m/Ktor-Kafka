@@ -1,6 +1,17 @@
-= example
+= ktor websocket sample
 
-== streams example
+== how to tune
+
+. change parameters in `src/main/resources`
+. set aws environmental variables and github actions secrets in `.github/workflows/aws.yml`
+
+== architecture
+. aws
+(picture)
+
+== example
+
+utube video
 
 . run `docker-compose up -d`
 . run `RunningAverage`
