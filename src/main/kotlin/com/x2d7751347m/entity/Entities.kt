@@ -78,6 +78,7 @@ data class User(
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
     var currentBoostNft: Int? = null,
+    // Highly Inflationary Currency
     @Serializable(with = BigDecimalSerializer::class)
     var rium: BigDecimal = BigDecimal.ZERO,
     var userStatus: UserStatus = UserStatus.ACTIVE,

@@ -53,10 +53,11 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
 suspend fun initR2dbcDatabase() {
     val db: R2dbcDatabase = r2dbcDatabase()
     val userDef = Meta.user
+    val name = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.name").getString()
     // create a schema
     try {
         initialR2dbcDatabase().runQuery {
-            QueryDsl.executeScript("CREATE DATABASE `ktor-sample` /*!40100 COLLATE 'utf8mb4_general_ci' */;")
+            QueryDsl.executeScript("CREATE DATABASE `$name` /*!40100 COLLATE 'utf8mb4_general_ci' */;")
         }
     } catch (_: R2dbcTransientResourceException){}
     db.runQuery {
