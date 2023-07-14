@@ -56,7 +56,7 @@ fun Route.userRouting() {
                 }
             }
         }) {
-            val user = userMapper.userPostToUser(call.receive<UserPost>().apply { this.username = this.nickname })
+            val user = userMapper.userPostToUser(call.receive<UserPost>())
 
             validateUser(user).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
@@ -215,10 +215,10 @@ fun Route.userRouting() {
 //                    example = "add"
 //                }
                 body<User> {
-                    example("First", User(nickname = "nickname", password = "Password12!")) {
+                    example("First", User(username = "username", nickname = "nickname", password = "Password12!")) {
                         description = "nickname"
                     }
-                    example("Second", User(nickname = "nickname2", password = "Password1234!")) {
+                    example("Second", User(username = "username", nickname = "nickname2", password = "Password1234!")) {
                         description = "nickname2"
                     }
                     required = true

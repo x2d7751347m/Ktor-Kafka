@@ -70,7 +70,7 @@ class UserRepository {
             })
         }
         return db.flowQuery {
-            QueryDsl.from(adminDef).where { adminDef.nickname eq admin.nickname }
+            QueryDsl.from(adminDef).where { adminDef.username eq admin.username }
         }.last()
     }
 

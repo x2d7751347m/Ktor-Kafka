@@ -140,7 +140,7 @@ fun Route.securityRouting() {
 //                    example = "add"
 //                }
                 body<GlobalDto.LoginForm> {
-                    example("First", GlobalDto.LoginForm(username = "nickname", password = "Password12!")) {
+                    example("First", GlobalDto.LoginForm(username = "username", password = "Password12!")) {
                         description = "nickname"
                     }
                     required = true

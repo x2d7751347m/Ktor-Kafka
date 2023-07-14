@@ -39,9 +39,12 @@ fun Application.configureHTTP() {
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
         allowHeader(HttpHeaders.Authorization)
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader("MyCustomHeader")
+        allowNonSimpleContentTypes = true
+        allowCredentials = true
+        exposeHeader(HttpHeaders.Authorization)
+        exposeHeader("X-Engine")
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
     }
     install(HSTS) {
