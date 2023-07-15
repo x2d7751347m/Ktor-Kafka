@@ -32,7 +32,6 @@ class ApplicationTest {
     @Test
     fun testRoot() = testApplication {
         application {
-//            configureRouting()
         }
         client.get("/health").apply {
             assertEquals(HttpStatusCode.OK, status)
@@ -93,7 +92,7 @@ class ApplicationTest {
         }
     }
 
-    // normal socket test
+    // for test raw socket
     @Test
     fun socketClient() {
         val client = Socket("127.0.0.1", 9002)

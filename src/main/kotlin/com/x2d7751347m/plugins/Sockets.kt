@@ -305,6 +305,8 @@ suspend fun DefaultWebSocketServerSession.textPoll(consumer: KafkaConsumer<Long,
             }
     }
 
+//raw socket
+
 /**
  * Two mains are provided, you must first start EchoApp.Server, and then EchoApp.Client.
  * You can also start EchoApp.Server and then use a telnet client to connect to the echo server.
