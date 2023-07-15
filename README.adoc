@@ -1,5 +1,12 @@
 = ktor websocket sample
 
+== swagger ui
+http://127.0.0.1:8080
+
+... if you running it on your local server
+
+http://localhost:8080
+
 == How to tune
 
 . change parameters in `src/main/resources`
@@ -10,14 +17,16 @@
 === Cloud Architecture of AWS ECS with ALB
 image::Cloud Architecture of AWS ECS with ALB.jpg[]
 
-=== Producers and consumers writing and reading events from Kafka topics (/messages/{group})
+=== Producers and consumers writing and reading events from Kafka topics ( /messages/{group} )
 image::kafka-producers-consumers-topics.jpg[]
-
 
 /chat consists of connections only within one server.
 
 === Ci/cd pipeline
 image::aws_architecture.jpg[]
+
+== Database's table columns
+image::Db Table.PNG[]
 
 == Example
 
