@@ -26,22 +26,21 @@ http://localhost:9080
 docker compose up
 ----
 
-
 == Architecture
 
 === Cloud Architecture of AWS ECS with ALB
-image::Cloud Architecture of AWS ECS with ALB.jpg[]
+image::.doc-images/Cloud Architecture of AWS ECS with ALB.jpg[]
 
 === Producers and consumers writing and reading events from Kafka topics ( /messages/{group} )
-image::kafka-producers-consumers-topics.jpg[]
+image::.doc-images/kafka-producers-consumers-topics.jpg[]
 
 /chat consists of connections only within one server.
 
 === Ci/cd pipeline
-image::aws_architecture.jpg[]
+image::.doc-images/aws_architecture.jpg[]
 
 == Database's table columns
-image::Db Table.PNG[]
+image::.doc-images/Db Table.PNG[]
 
 == How to use
 . Post a user
