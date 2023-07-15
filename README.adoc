@@ -1,16 +1,31 @@
-= ktor websocket sample
+= Ktor web & websocket sample
 
-== swagger ui
+== Swagger ui
 http://127.0.0.1:8080
 
-... if you running it on your local server
+... If running on a local server
 
 http://localhost:8080
 
+== Kafka topic console
+http://127.0.0.1:9080
+
+... If running on a local server
+
+http://localhost:9080
+
 == How to tune
 
-. change parameters in `src/main/resources`
-. set aws environmental variables and github actions secrets in `.github/workflows/aws.yml`
+. Change parameters in `src/main/resources`
+. Set aws environmental variables and github actions secrets in `.github/workflows/aws.yml`
+. Run kafka server infrastructure using `docker compose up`
+
+[source,bash]
+.docker compose up command
+----
+docker compose up
+----
+
 
 == Architecture
 
@@ -28,18 +43,17 @@ image::aws_architecture.jpg[]
 == Database's table columns
 image::Db Table.PNG[]
 
+== How to use
+. Post a user
+. Login via /login path to acquire `Authorization` key
+. Set `Authorization` key to `Authorization` header
+. Now you can access every apis!
+
+=== Notice
+.../admins/... paths can only be accessed by admins(set your role to `ADMIN`.)
+
 == Example
 
-utube video
+Youtube video link
 
-. run `docker-compose up -d`
-. run `RunningAverage`
-. produce some data with `ConsoleProducer`
-
-[source,bash]
-.Consume from result topic
-----
-docker exec -it broker /usr/bin/kafka-console-consumer --topic rating-averages --bootstrap-server broker:9092 --property "print.key=true"\
- --property "key.deserializer=org.apache.kafka.common.serialization.LongDeserializer" --property "value.deserializer=org.apache.kafka.common.serialization.DoubleDeserializer" --from-beginning
-----
 

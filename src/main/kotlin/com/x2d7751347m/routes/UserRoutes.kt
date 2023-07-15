@@ -7,6 +7,7 @@ import com.x2d7751347m.entity.User
 import com.x2d7751347m.entity.userStorage
 import com.x2d7751347m.entity.validateUser
 import com.x2d7751347m.mapper.UserMapper
+import com.x2d7751347m.plugins.ConflictException
 import com.x2d7751347m.plugins.ExceptionResponse
 import com.x2d7751347m.plugins.ValidationExceptions
 import com.x2d7751347m.repository.UserRepository

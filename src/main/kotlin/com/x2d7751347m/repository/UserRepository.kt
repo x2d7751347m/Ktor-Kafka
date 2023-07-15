@@ -4,6 +4,7 @@ import com.x2d7751347m.entity.User
 import com.x2d7751347m.entity.UserData
 import com.x2d7751347m.entity.admin
 import com.x2d7751347m.entity.user
+import com.x2d7751347m.plugins.ConflictException
 import com.x2d7751347m.r2dbcDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
@@ -18,6 +19,7 @@ class UserRepository {
     val adminDef = Meta.admin
     val db = r2dbcDatabase()
     suspend fun createUser(user: User): User {
+        findUserByUsername(user.username) ?: throw ConflictException("This username is already in use.")
         db.runQuery {
             QueryDsl.insert(userDef).single(user.apply {
                 password.let {
@@ -34,15 +36,13 @@ class UserRepository {
     }
 
     suspend fun patchUser(userData: UserData): User {
-//        val json = Json {
-//            ignoreUnknownKeys = true
-//        }
-//        val encodedUser = json.encodeToString(UserData.serializer(), userData)
-//        val user = json.decodeFromString<User>(encodedUser)
+        userData.username ?: run { findUserByUsername(userData.username!!) ?: throw ConflictException("This username is already in use.")}
         db.runQuery {
             QueryDsl.update(userDef)
                 .set {
-                    userData.username?.run { userDef.username eq this }
+                    userData.username?.run {
+
+                        userDef.username eq this }
                     userData.nickname?.run { userDef.nickname eq this }
                     userData.password?.run { userDef.password eq BCrypt.hashpw(this, BCrypt.gensalt(12)) }
                     userData.tribe?.run { userDef.tribe eq this }
@@ -61,6 +61,7 @@ class UserRepository {
     }
 
     suspend fun createAdmin(admin: User): User {
+        findUserByUsername(admin.username) ?: throw ConflictException("This username is already in use.")
         db.runQuery {
             QueryDsl.insert(adminDef).single(admin.apply {
                 // gensalt's log_rounds parameter determines the complexity

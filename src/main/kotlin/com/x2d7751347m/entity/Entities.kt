@@ -40,6 +40,7 @@ val validateUser = Validation {
         pattern("[a-z\\d_]{4,16}$") hint "Please provide a valid nickname that combination of numbers or letters.)"
         minLength(4)
         maxLength(16)
+
     }
     User::password ifPresent {
         pattern("^(?=.*[a-zA-Z])(?=.*\\d)[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,30}$") hint "Please provide a valid password that combination of numbers and letters. Also, special characters are allowed.)"

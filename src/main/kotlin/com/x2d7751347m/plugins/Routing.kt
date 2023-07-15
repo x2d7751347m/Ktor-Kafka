@@ -36,6 +36,10 @@ class ValidationException(
     override val message: String,
 ) : Throwable()
 
+class ConflictException(
+    override val message: String,
+) : Throwable()
+
 class ParsingException(override val message: String) : Throwable()
 
 fun Application.configureRouting() {
@@ -69,6 +73,16 @@ fun Application.configureRouting() {
                         ExceptionResponse(
                             throwable.message,
                             HttpStatusCode.NotFound.value
+                        )
+                    )
+                }
+
+                is ConflictException -> {
+                    call.respond(
+                        HttpStatusCode.Conflict,
+                        ExceptionResponse(
+                            throwable.message,
+                            HttpStatusCode.Conflict.value
                         )
                     )
                 }
