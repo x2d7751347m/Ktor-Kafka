@@ -19,7 +19,7 @@ class UserRepository {
     val adminDef = Meta.admin
     val db = r2dbcDatabase()
     suspend fun createUser(user: User): User {
-        findUserByUsername(user.username) ?: throw ConflictException("This username is already in use.")
+        findUserByUsername(user.username)?.run { throw ConflictException("This username is already in use.") }
         db.runQuery {
             QueryDsl.insert(userDef).single(user.apply {
                 password.let {
@@ -36,7 +36,7 @@ class UserRepository {
     }
 
     suspend fun patchUser(userData: UserData): User {
-        userData.username ?: run { findUserByUsername(userData.username!!) ?: throw ConflictException("This username is already in use.")}
+        userData.username?.run { findUserByUsername(userData.username!!)?.run { throw ConflictException("This username is already in use.")} }
         db.runQuery {
             QueryDsl.update(userDef)
                 .set {
@@ -61,7 +61,7 @@ class UserRepository {
     }
 
     suspend fun createAdmin(admin: User): User {
-        findUserByUsername(admin.username) ?: throw ConflictException("This username is already in use.")
+        findUserByUsername(admin.username)?.run { throw ConflictException("This username is already in use.") }
         db.runQuery {
             QueryDsl.insert(adminDef).single(admin.apply {
                 // gensalt's log_rounds parameter determines the complexity
