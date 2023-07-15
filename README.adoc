@@ -1,15 +1,25 @@
 = ktor websocket sample
 
-== how to tune
+== How to tune
 
 . change parameters in `src/main/resources`
 . set aws environmental variables and github actions secrets in `.github/workflows/aws.yml`
 
-== architecture
-. aws
-(picture)
+== Architecture
 
-== example
+=== Cloud Architecture of AWS ECS with ALB
+image::Cloud Architecture of AWS ECS with ALB.jpg[]
+
+=== Producers and consumers writing and reading events from Kafka topics (/messages/{group})
+image::kafka-producers-consumers-topics.jpg[]
+
+
+/chat consists of connections only within one server.
+
+=== Ci/cd pipeline
+image::aws_architecture.jpg[]
+
+== Example
 
 utube video
 
