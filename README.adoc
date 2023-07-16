@@ -8,9 +8,9 @@ video::inZTW69HVk8[youtube]
 
 == Testing video
 
-https://youtu.be/T0Kbp3GGOg4
+https://youtu.be/izDngUzWbrI
 
-video::T0Kbp3GGOg4[youtube]
+video::izDngUzWbrI[youtube]
 
 == Swagger ui
 
@@ -67,7 +67,16 @@ image::.adoc/images/Db Table.PNG[]
 . Set `Authorization` key to `Authorization` header
 ... Don't forget the prefix `Bearer `
 ... e.g) `Bearer eyJhbGciOiJIU....`
-. Now you can access every apis!
+. Now you can access every apis and websocket!
+.. websocket url e.g) ws://localhost:8080/chat
+
+[source,bash]
+.websocket commands
+----
+connections // Shows the number of connections
+did you still alive? // As long as the connection is still alive they will respond to your commands!
+bye // command for disconnect
+----
 
 === Notice
 
