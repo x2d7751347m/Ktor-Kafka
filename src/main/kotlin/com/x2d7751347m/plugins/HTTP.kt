@@ -44,14 +44,13 @@ fun Application.configureHTTP() {
         allowNonSimpleContentTypes = true
         allowCredentials = true
         exposeHeader(HttpHeaders.Authorization)
-        exposeHeader("X-Engine")
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
     }
     install(HSTS) {
         includeSubDomains = true
     }
     install(DefaultHeaders) {
-        header("X-Engine", "Ktor") // will send this header with each response
+//        header("X-Engine", "Ktor") // will send this header with each response
     }
     
     install(Compression) {
