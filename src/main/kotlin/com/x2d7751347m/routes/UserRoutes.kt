@@ -210,7 +210,7 @@ fun Route.userRouting() {
                 call.respond(user)
             }
             post({
-                description = "create admin."
+                description = "create account."
                 request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"

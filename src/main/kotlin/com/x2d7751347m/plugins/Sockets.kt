@@ -202,9 +202,6 @@ fun Route.socketRouting() {
             }
     }
 
-
-    val lastId = AtomicLong(0)
-
     authenticate("auth-jwt") {
         webSocket("/messages/{group}") {
 
@@ -220,21 +217,22 @@ fun Route.socketRouting() {
             } ?: run {
                 user =
                     User()
-                        .apply { this.id = Random(currentMoment.epochSeconds).nextLong() }
+                        .apply { this.id = Random(currentMoment.epochSeconds).nextLong()
+                            this.nickname = this.id.toString() }
             }
             println("Adding user!")
             send(Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user)).toString())
 
             val config = ApplicationConfig("kafka.conf")
-            val binaryProducer: KafkaProducer<Long, ByteArray> = buildProducer(config)
-            val textProducer: KafkaProducer<Long, String> = buildTextProducer(config)
+            val binaryProducer: KafkaProducer<String, ByteArray> = buildProducer(config)
+            val textProducer: KafkaProducer<String, String> = buildTextProducer(config)
 
 
             val clientId = user.id
 //        val clientId = call.parameters["clientId"] ?: "¯\\_(ツ)_/¯"
-            val binaryConsumer: KafkaConsumer<Long, ByteArray> =
+            val binaryConsumer: KafkaConsumer<String, ByteArray> =
                 createKafkaConsumer(config, group, "ws-consumer-$clientId")
-            val textConsumer: KafkaConsumer<Long, String> =
+            val textConsumer: KafkaConsumer<String, String> =
                 createKafkaTextConsumer(config, group, "ws-consumer-$clientId")
             try {
                 coroutineScope {
@@ -244,13 +242,13 @@ fun Route.socketRouting() {
                                 is Frame.Text -> {
                                     val receivedText = "${frame.readText()}"
 
-                                    textProducer.send(group, user.id, receivedText)
+                                    textProducer.send(group, user.nickname, receivedText)
                                 }
 
                                 is Frame.Binary -> {
                                     val receivedByteArray = frame.readBytes()
 
-                                    binaryProducer.send(group, user.id, receivedByteArray)
+                                    binaryProducer.send(group, user.nickname, receivedByteArray)
                                 }
 
                                 else -> {
@@ -295,7 +293,7 @@ suspend fun DefaultWebSocketServerSession.poll(consumer: KafkaConsumer<Long, Byt
             }
     }
 
-suspend fun DefaultWebSocketServerSession.textPoll(consumer: KafkaConsumer<Long, String>) =
+suspend fun DefaultWebSocketServerSession.textPoll(consumer: KafkaConsumer<String, String>) =
     withContext(Dispatchers.IO) {
         consumer.poll(Duration.ofMillis(100))
             .forEach {
