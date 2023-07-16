@@ -64,8 +64,3 @@ image::.adoc/images/Db Table.PNG[]
 
 .../admins/... paths can only be accessed by admins(set your role to `ADMIN`.)
 
-== Example
-
-Youtube video link
-
-
