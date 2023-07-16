@@ -2,6 +2,10 @@
 
 == tutorial movie
 
+link
+
+https://www.youtube.com/watch?v=inZTW69HVk8
+
 video::inZTW69HVk8[youtube]
 
 == Swagger ui
