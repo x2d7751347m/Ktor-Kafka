@@ -24,7 +24,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -32,7 +31,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.time.Duration
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 
@@ -82,124 +80,124 @@ fun Route.socketRouting() {
         }
     }
 
-        webSocket("/chat") {
+    webSocket("/chat") {
 
-            val thisConnection: Connection
-            connectionMutex.withLock {
-                thisConnection = Connection(this)
-                connections.add(thisConnection)
-            }
-            val currentMoment: Instant = kotlinx.datetime.Clock.System.now()
-            val principal = call.principal<JWTPrincipal>()
-            var id: Long
-            var user = User()
-                user =
-                    User()
-                        .apply { this.id = Random(currentMoment.epochSeconds).nextLong() }
+        val thisConnection: Connection
+        connectionMutex.withLock {
+            thisConnection = Connection(this)
+            connections.add(thisConnection)
+        }
+        val currentMoment: Instant = kotlinx.datetime.Clock.System.now()
+        val principal = call.principal<JWTPrincipal>()
+        var id: Long
+        var user = User()
+        user =
+            User()
+                .apply { this.id = Random(currentMoment.epochSeconds).nextLong() }
 //            }
-            println("Adding user!")
-            try {
-                send("You are connected! There are ${connections.count()} users here.")
-                println("The User is connected! There are ${connections.count()} users here.")
-                send(Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user)).toString())
-                coroutineScope {
-                    connectionMutex.withLock { connections.toSet() }.forEach {
-                        launch(sendCancelledChannelErrorHandler) {
-                            try {
-                                it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
-                            } catch (e: Exception) {
-                                connections.removeConnection(thisConnection)
-                            }
+        println("Adding user!")
+        try {
+            send("You are connected! There are ${connections.count()} users here.")
+            println("The User is connected! There are ${connections.count()} users here.")
+            send(Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user)).toString())
+            coroutineScope {
+                connectionMutex.withLock { connections.toSet() }.forEach {
+                    launch(sendCancelledChannelErrorHandler) {
+                        try {
+                            it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
+                        } catch (e: Exception) {
+                            connections.removeConnection(thisConnection)
                         }
                     }
-                }
-                for (frame in incoming) {
-                    when (frame) {
-                        is Frame.Binary -> {
-                            val receivedByteArray = frame.readBytes()
-
-                            coroutineScope {
-                                connectionMutex.withLock { connections.toSet() }.forEach {
-                                    launch(sendCancelledChannelErrorHandler) {
-                                        try {
-                                            it.session.send(receivedByteArray)
-                                        } catch (e: Exception) {
-                                            connections.removeConnection(thisConnection)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        is Frame.Text -> {
-                            val receivedText = "${frame.readText()}"
-                            val textWithUsername = "[${thisConnection.name}]: $receivedText"
-
-                            if (receivedText.startsWith("{") && Json.decodeFromJsonElement<NetworkPacket>(
-                                    Json.decodeFromString(
-                                        receivedText
-                                    )
-                                ).networkPacket == NetworkStatus.EXIT
-                            ) {
-                                coroutineScope {
-                                    connectionMutex.withLock { connections.toSet() }.forEach {
-                                        launch(sendCancelledChannelErrorHandler) {
-                                            try {
-                                                it.session.send(
-                                                    Json.encodeToJsonElement(
-                                                        NetworkPacket(
-                                                            NetworkStatus.EXIT,
-                                                            user
-                                                        )
-                                                    ).toString()
-                                                )
-                                                it.session.send("Removing ${thisConnection.name} user! ")
-                                            } catch (e: Exception) {
-                                                connections.removeConnection(thisConnection)
-                                            }
-                                        }
-                                    }
-                                }
-                                close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
-                            }
-                            else if (receivedText.lowercase() == "connections") {
-                                send("There are ${connections.count()} users here.")
-                            }
-                            coroutineScope {
-                                connectionMutex.withLock { connections.toSet() }.forEach {
-                                    launch(sendCancelledChannelErrorHandler) {
-
-                                        try {
-                                            it.session.send(receivedText)
-                                        } catch (e: Exception) {
-                                            connections.removeConnection(thisConnection)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        else -> {
-                            throw BadRequestException("bad message format")
-                        }
-                    }
-                }
-            } catch (e: R2dbcNonTransientResourceException) {
-                close(CloseReason(CloseReason.Codes.TRY_AGAIN_LATER, e.message ?: "null"))
-            } catch (e: IOException) {
-                close(CloseReason(CloseReason.Codes.NOT_CONSISTENT, e.message ?: "null"))
-            } catch (e: Exception) {
-                if (e.localizedMessage != "ArrayChannel was cancelled")
-                    println(e.message)
-                close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.message ?: "null"))
-            } finally {
-                println("Removing ${thisConnection.name} user by error! There are ${connections.count()} users here.")
-                try {
-                    connections.removeConnection(thisConnection)
-                } catch (e: Exception) {
-                    println(e)
                 }
             }
+            for (frame in incoming) {
+                when (frame) {
+                    is Frame.Binary -> {
+                        val receivedByteArray = frame.readBytes()
+
+                        coroutineScope {
+                            connectionMutex.withLock { connections.toSet() }.forEach {
+                                launch(sendCancelledChannelErrorHandler) {
+                                    try {
+                                        it.session.send(receivedByteArray)
+                                    } catch (e: Exception) {
+                                        connections.removeConnection(thisConnection)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    is Frame.Text -> {
+                        val receivedText = "${frame.readText()}"
+                        val textWithUsername = "[${thisConnection.name}]: $receivedText"
+
+//                            if (receivedText.startsWith("{") && Json.decodeFromJsonElement<NetworkPacket>(
+//                                    Json.decodeFromString(
+//                                        receivedText
+//                                    )
+//                                ).networkPacket == NetworkStatus.EXIT
+                        if (receivedText.lowercase().startsWith("bye")
+                        ) {
+                            coroutineScope {
+                                connectionMutex.withLock { connections.toSet() }.forEach {
+                                    launch(sendCancelledChannelErrorHandler) {
+                                        try {
+                                            it.session.send(
+                                                Json.encodeToJsonElement(
+                                                    NetworkPacket(
+                                                        NetworkStatus.EXIT,
+                                                        user
+                                                    )
+                                                ).toString()
+                                            )
+                                            it.session.send("Removing ${thisConnection.name} user! ")
+                                        } catch (e: Exception) {
+                                            connections.removeConnection(thisConnection)
+                                        }
+                                    }
+                                }
+                            }
+                            close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
+                        } else if (receivedText.lowercase() == "connections") {
+                            send("There are ${connections.count()} users here.")
+                        }
+                        coroutineScope {
+                            connectionMutex.withLock { connections.toSet() }.forEach {
+                                launch(sendCancelledChannelErrorHandler) {
+
+                                    try {
+                                        it.session.send(receivedText)
+                                    } catch (e: Exception) {
+                                        connections.removeConnection(thisConnection)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    else -> {
+                        throw BadRequestException("bad message format")
+                    }
+                }
+            }
+        } catch (e: R2dbcNonTransientResourceException) {
+            close(CloseReason(CloseReason.Codes.TRY_AGAIN_LATER, e.message ?: "null"))
+        } catch (e: IOException) {
+            close(CloseReason(CloseReason.Codes.NOT_CONSISTENT, e.message ?: "null"))
+        } catch (e: Exception) {
+            if (e.localizedMessage != "ArrayChannel was cancelled")
+                println(e.message)
+            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.message ?: "null"))
+        } finally {
+            println("Removing ${thisConnection.name} user by error! There are ${connections.count()} users here.")
+            try {
+                connections.removeConnection(thisConnection)
+            } catch (e: Exception) {
+                println(e)
+            }
+        }
     }
 
     authenticate("auth-jwt") {
@@ -212,13 +210,16 @@ fun Route.socketRouting() {
             val principal = call.principal<JWTPrincipal>()
             var id: Long
             var user = User()
-            principal?.run { id = principal.payload.getClaim("id").asLong()
+            principal?.run {
+                id = principal.payload.getClaim("id").asLong()
                 user = userRepository.findUser(id)!!
             } ?: run {
                 user =
                     User()
-                        .apply { this.id = Random(currentMoment.epochSeconds).nextLong()
-                            this.nickname = this.id.toString() }
+                        .apply {
+                            this.id = Random(currentMoment.epochSeconds).nextLong()
+                            this.nickname = this.id.toString()
+                        }
             }
             println("Adding user!")
             send(Json.encodeToJsonElement(NetworkPacket(NetworkStatus.ENTRY, user)).toString())
@@ -241,7 +242,9 @@ fun Route.socketRouting() {
                             when (frame) {
                                 is Frame.Text -> {
                                     val receivedText = "${frame.readText()}"
-
+                                    if (receivedText.lowercase().startsWith("bye")) {
+                                        close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
+                                    }
                                     textProducer.send(group, user.nickname, receivedText)
                                 }
 
@@ -262,11 +265,11 @@ fun Route.socketRouting() {
 //                            poll(binaryConsumer)
 //                        }
 //                    }
-                launch {
-                    while (true) {
-                        textPoll(textConsumer)
+                    launch {
+                        while (true) {
+                            textPoll(textConsumer)
+                        }
                     }
-                }
                 }
             } finally {
                 binaryConsumer.apply {

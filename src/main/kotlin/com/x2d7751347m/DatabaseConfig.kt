@@ -66,7 +66,7 @@ suspend fun initR2dbcDatabase() {
     db.runQuery {
         QueryDsl.executeScript(
             "ALTER TABLE `user`\n" +
-                    "\tCHANGE COLUMN `rium` `rium` DECIMAL(65,0) NOT NULL AFTER `current_boost_nft`;"
+                    "\tCHANGE COLUMN `credit` `credit` DECIMAL(65,0) NOT NULL DEFAULT 0 AFTER `password`;"
         )
     }
 }

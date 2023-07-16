@@ -20,7 +20,7 @@ class ExampleRepository(private val db: R2dbcDatabase) {
     private val onUserDepartment = on { u.departmentId eq d.departmentId }
     private val onUserManager = on { u.managerId eq ad.id }
     private val onUserAddress = on { u.addressId eq a.addressId }
-    private val isHighPerformer = where { u.rium greaterEq BigDecimal(3_000) }
+    private val isHighPerformer = where { u.credit greaterEq BigDecimal(3_000) }
 
     suspend fun fetchUserById(id: Long): User? {
         val query = QueryDsl.from(u).where { u.id eq id }.firstOrNull()
@@ -50,11 +50,11 @@ class ExampleRepository(private val db: R2dbcDatabase) {
         return db.runQuery(query)
     }
 
-    suspend fun fetchUsers(rium: BigDecimal? = null, departmentName: String? = null): List<User> {
+    suspend fun fetchUsers(credit: BigDecimal? = null, departmentName: String? = null): List<User> {
         val query = QueryDsl.from(u)
             .innerJoin(d, onUserDepartment)
             .where {
-                u.rium eq rium
+                u.credit eq credit
                 d.departmentName eq departmentName
             }.orderBy(u.id)
         return db.runQuery(query)
@@ -115,9 +115,9 @@ class ExampleRepository(private val db: R2dbcDatabase) {
         return db.runQuery(query)
     }
 
-    suspend fun updateRiumOfHighPerformers(raise: BigDecimal): Long {
+    suspend fun updateCreditOfHighPerformers(raise: BigDecimal): Long {
         val query = QueryDsl.update(u).set {
-            u.rium eq u.rium + raise
+            u.credit eq u.credit + raise
         }.where(isHighPerformer)
         return db.runQuery(query)
     }

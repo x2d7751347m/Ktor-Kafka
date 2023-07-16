@@ -45,12 +45,7 @@ class UserRepository {
                         userDef.username eq this }
                     userData.nickname?.run { userDef.nickname eq this }
                     userData.password?.run { userDef.password eq BCrypt.hashpw(this, BCrypt.gensalt(12)) }
-                    userData.tribe?.run { userDef.tribe eq this }
-                    userData.currentHead?.run { userDef.currentHead eq this }
-                    userData.currentTop?.run { userDef.currentTop eq this }
-                    userData.currentBottom?.run { userDef.currentBottom eq this }
-                    userData.currentBoostNft?.run { userDef.currentBoostNft eq this }
-                    userData.rium?.run { userDef.rium eq this }
+                    userData.credit?.run { userDef.credit eq this }
                     userData.userStatus?.run { userDef.userStatus eq this }
                 }
                 .where { userDef.id eq userData.id }

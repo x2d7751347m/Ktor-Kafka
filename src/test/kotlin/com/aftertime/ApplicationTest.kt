@@ -9,9 +9,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Test
@@ -61,30 +59,50 @@ class ApplicationTest {
         }
 
         fun currentMoment(): Instant = Clock.System.now()
+        // Fps of Client
+        val framePerSecond = 60.0
+        val sendingInterval = (1000 / framePerSecond)
         coroutineScope {
-            repeat(1000) {
-                launch(handler) {
-//                    var lastSentTime = mutableMapOf(Pair(it, currentMoment().toEpochMilliseconds()))
-//                    val myMessage = "$it"
+            // Number of Clients
+            repeat(10) {
+                launch(Dispatchers.Default) {
+//                    var lastSentTime = mutableMapOf(Pair(it, currentMom  nt().toEpochMilliseconds()))
+                    var lastSentTime = currentMoment()
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         timeoutMillis = 15000
-                        while (true) {
-                            try {
-//                                    if (currentMoment().minus(Instant.fromEpochMilliseconds(lastSentTime[it]!!)).inWholeMilliseconds > 1000) {
-//                                        send(myMessage)
-//                                        lastSentTime[it] = currentMoment().toEpochMilliseconds()
-//                                    }
-                                    when (incoming.receive()) {
-                                        is Frame.Text -> {
-                                            val othersMessage = incoming.receive() as? Frame.Text
-                                            println("$it+${othersMessage?.readText()}")
+                        try {
+                            runBlocking {
+                                launch(Dispatchers.IO) {
+                                    while (true) {
+                                        when (incoming.receive()) {
+                                            is Frame.Text -> {
+                                                val othersMessage = incoming.receive() as? Frame.Text
+//                                            println("[$it]: ${othersMessage?.readText()}")
+                                                if (othersMessage?.readText()?.lowercase()
+                                                        ?.startsWith("did you still alive") == true
+                                                ) {
+                                                    send("[$it]: Yeah")
+                                                    println("[$it]: Yeah")
+                                                }
+                                            }
+
+                                            else -> {}
                                         }
-                                        else -> {}
                                     }
-                            } catch (e: Exception) {
-                                println(e.localizedMessage)
-                                break
+                                }
+                                launch(Dispatchers.IO) {
+                                    while (true) {
+                                        if (currentMoment().minus(lastSentTime).inWholeMilliseconds > sendingInterval) {
+                                            send("[$it]: $lastSentTime")
+                                            lastSentTime = currentMoment()
+                                        }
+                                    }
+                                }
+
+
                             }
+                        } catch (e: Exception) {
+                            println(e.localizedMessage)
                         }
                     }
                 }

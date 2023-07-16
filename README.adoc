@@ -1,14 +1,19 @@
 = Ktor web & websocket sample
 
-== tutorial movie
-
-link
+== Tutorial movie
 
 https://youtu.be/inZTW69HVk8
 
 video::inZTW69HVk8[youtube]
 
+== Testing video
+
+https://youtu.be/T0Kbp3GGOg4
+
+video::T0Kbp3GGOg4[youtube]
+
 == Swagger ui
+
 http://127.0.0.1:8080
 
 ... If running on a local server
@@ -16,6 +21,7 @@ http://127.0.0.1:8080
 http://localhost:8080
 
 == Kafka topic console
+
 http://127.0.0.1:9080
 
 ... If running on a local server
@@ -37,20 +43,25 @@ docker compose up
 == Architecture
 
 === Cloud Architecture of AWS ECS with ALB
+
 image::.adoc/images/Cloud Architecture of AWS ECS with ALB.jpg[]
 
 === Producers and consumers writing and reading events from Kafka topics ( /messages/{group} )
+
 image::.adoc/images/kafka-producers-consumers-topics.jpg[]
 
-/chat consists of connections only within one server.
+/chat consists of connections only within one server without kafka.
 
 === Ci/cd pipeline
+
 image::.adoc/images/aws_architecture.jpg[]
 
 == Database's table columns
+
 image::.adoc/images/Db Table.PNG[]
 
 == How to use
+
 . Post a user
 . Login via /login path to acquire `Authorization` key
 . Set `Authorization` key to `Authorization` header
@@ -59,6 +70,7 @@ image::.adoc/images/Db Table.PNG[]
 . Now you can access every apis!
 
 === Notice
+
 ... You don't need to create a user when connecting to `/messages/{group}`.
 ... If you connected with `Authorization` header, the server shows your nickname.
 
