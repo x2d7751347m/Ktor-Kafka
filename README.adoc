@@ -2,7 +2,7 @@
 
 == tutorial movie
 
-video::.adoc/videos/ktor-websocket-tutorial-movie.mp4[width=640,start=0,opts=autoplay]
+video::inZTW69HVk8[youtube]
 
 == Swagger ui
 http://127.0.0.1:8080
