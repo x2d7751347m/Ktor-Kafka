@@ -4,7 +4,7 @@
 
 link
 
-https://www.youtube.com/watch?v=inZTW69HVk8
+https://youtu.be/inZTW69HVk8
 
 video::inZTW69HVk8[youtube]
 
