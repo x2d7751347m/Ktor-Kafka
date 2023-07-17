@@ -4,7 +4,7 @@
 
 https://youtu.be/inZTW69HVk8
 
-video::inZTW69HVk8[youtube]
+video::6pRl7A75_-4[youtube]
 
 == Testing video
 
@@ -74,8 +74,7 @@ image::.adoc/images/Db Table.PNG[]
 [source,bash]
 .websocket commands
 ----
-connections // Shows the number of connections
-did you still alive? // As long as the connection is still alive they will respond to your commands!
+connections // Shows the number of connections (/chat path)
 bye // command for disconnect
 ----
 
