@@ -37,7 +37,7 @@ val validateUser = Validation {
         maxLength(30)
     }
     User::nickname ifPresent {
-        pattern("[a-z\\d_]{4,16}$") hint "Please provide a valid nickname that combination of numbers or letters.)"
+        pattern("[a-z\\d_]{2,20}$") hint "Please provide a valid nickname that combination of numbers or letters.)"
         minLength(4)
         maxLength(16)
 
