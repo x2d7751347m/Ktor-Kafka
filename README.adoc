@@ -2,19 +2,19 @@
 
 == Tutorial movie
 
-https://youtu.be/6pRl7A75_-4
-
 image::.adoc/images/tutorial1.PNG[link="https://youtu.be/6pRl7A75_-4"]
 
-video::6pRl7A75_-4[youtube]
+▲ Click!
+
+// video::6pRl7A75_-4[youtube]
 
 == Testing video
 
-https://youtu.be/izDngUzWbrI
-
 image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI"]
 
-video::izDngUzWbrI[youtube]
+▲ Click!
+
+// video::izDngUzWbrI[youtube]
 
 == Swagger ui
 
