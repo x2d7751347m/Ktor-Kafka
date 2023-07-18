@@ -16,7 +16,7 @@ image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI"]
 
 // video::izDngUzWbrI[youtube]
 
-== Swagger ui
+== Swagger ui (Check out available API here!)
 
 http://127.0.0.1:8080
 
