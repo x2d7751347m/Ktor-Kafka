@@ -100,7 +100,7 @@ dependencies {
     }
     implementation("org.komapper:komapper-starter-r2dbc")
     implementation("org.komapper:komapper-dialect-mariadb-r2dbc")
-    testImplementation("org.mariadb:r2dbc-mariadb:1.1.4")
+    testImplementation("org.mariadb:r2dbc-mariadb")
     ksp("org.komapper:komapper-processor")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
     implementation("io.r2dbc:r2dbc-pool:1.0.0.RELEASE")

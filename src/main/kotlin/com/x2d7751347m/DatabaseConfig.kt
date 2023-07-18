@@ -28,7 +28,7 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
         .option(ConnectionFactoryOptions.PASSWORD, password)
         .option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
         .build()
-    R2dbcDatabase(options)
+    R2dbcDatabase("r2dbc:mariadb://admin01:aftertime01@localhost:3306")
 }
 
 val r2dbcDatabase: () -> R2dbcDatabase = {
@@ -51,7 +51,7 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
         .option(ConnectionFactoryOptions.PASSWORD, password)
         .option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
         .build()
-    R2dbcDatabase(options)
+    R2dbcDatabase("r2dbc:mariadb://admin01:aftertime01@localhost:3306/ktor-kafka")
 }
 
 suspend fun initR2dbcDatabase() {
