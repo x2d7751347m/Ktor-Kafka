@@ -31,6 +31,7 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
 }
 
 val r2dbcDatabase: () -> R2dbcDatabase = {
+    val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.host").getString()
@@ -40,7 +41,7 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+        .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.DATABASE, name)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
