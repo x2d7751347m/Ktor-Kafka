@@ -50,6 +50,12 @@ image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI",window=_blank]
 
 . Note) Swagger does not support WebSockets
 
+== Server operating environment
+
+1 vCPU, 2 GB per instance on AWS
+
+image::.adoc/images/task definition.PNG[]
+
 == Kafka topic console
 
  http://127.0.0.1:9080
@@ -105,7 +111,6 @@ image::.adoc/images/Db Table.PNG[]
 connections // Shows the number of connections (/chat path)
 bye // command for disconnect
 did you still alive? // It is not a server command, but written in the mock client test code in `src/test/kotlin/com/aftertime/ApplicationTest.kt`.
-
 ----
 
 === Notice
