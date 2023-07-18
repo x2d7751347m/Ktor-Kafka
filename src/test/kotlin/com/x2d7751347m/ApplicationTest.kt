@@ -20,12 +20,12 @@ import java.io.PrintWriter
 import java.net.Socket
 
 
-@Testcontainers
+//@Testcontainers
 class ApplicationTest {
 
-    @Test
-    fun test() {
-    }
+//    @Test
+//    fun test() {
+//    }
 
 //    @Test
 //    fun testRoot() = testApplication {
