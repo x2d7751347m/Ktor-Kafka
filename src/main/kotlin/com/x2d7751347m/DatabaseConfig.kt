@@ -1,7 +1,7 @@
 package com.x2d7751347m
 
-import com.x2d7751347m.entity.user
 import com.typesafe.config.ConfigFactory
+import com.x2d7751347m.entity.user
 import io.ktor.server.config.*
 import io.r2dbc.spi.ConnectionFactoryOptions
 import io.r2dbc.spi.Option
@@ -11,6 +11,7 @@ import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
 
 private val initialR2dbcDatabase: () -> R2dbcDatabase = {
+    val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
     val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
@@ -21,7 +22,7 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
         .option(ConnectionFactoryOptions.PROTOCOL, protocol)
-        .option(ConnectionFactoryOptions.DRIVER, "pool")
+        .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
         .option(ConnectionFactoryOptions.USER, username)
@@ -32,6 +33,7 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
 }
 
 val r2dbcDatabase: () -> R2dbcDatabase = {
+    val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
     val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
@@ -43,7 +45,7 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
         .option(ConnectionFactoryOptions.PROTOCOL, protocol)
-        .option(ConnectionFactoryOptions.DRIVER, "pool")
+        .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.DATABASE, name)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
