@@ -36,20 +36,16 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2                   # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: cpeg-ecr-01           # set this to your Amazon ECR repository name
-  ECS_SERVICE: cpeg-service-prod-1                 # set this to your Amazon ECS service name
-  ECS_CLUSTER: cpeg-cluster-01                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: ./server/cpeg-prod-td-revision1.json # set this to the path to your Amazon ECS task definition
+  ECR_REPOSITORY: ktor-kafka-repository-1           # set this to your Amazon ECR repository name
+  ECS_SERVICE: ktor-kafka-service-dev-1                 # set this to your Amazon ECS service name
+  ECS_CLUSTER: ktor-kafka-cluster-1                 # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION: ./ktor-kafka-dev-td-revision1.json # set this to the path to your Amazon ECS task definition
   # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: cpeg-container-prod-1           # set this to the name of the container in the
+  CONTAINER_NAME: ktor-kafka-container-dev-1           # set this to the name of the container in the
   # containerDefinitions section of your task definition
 
 permissions:
   contents: read
-
-defaults:
-  run:
-    working-directory: server
 
 jobs:
   deploy:
@@ -61,11 +57,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-#      - name: Set up JDK 17
-#        uses: actions/setup-java@v3
-#        with:
-#          java-version: '17'
-#          distribution: 'adopt'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -78,8 +74,8 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-#      - name: gradlew permission
-#        run: chmod +x gradlew
+      - name: gradlew permission
+        run: chmod +x gradlew
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -91,9 +87,9 @@ jobs:
           # push it to ECR so that it can
           # be deployed to ECS.
           
-#          ./gradlew build
-#          mkdir build/libs/extracted
-#          java -Djarmode=layertools -jar build/libs/playground-0.0.1-SNAPSHOT.jar extract --destination build/libs/extracted
+          ./gradlew build
+          mkdir build/libs/extracted
+          java -Djarmode=layertools -jar build/libs/ktor-kafka-0.0.1-SNAPSHOT.jar extract --destination build/libs/extracted
           
           DOCKER_BUILDKIT=1 docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
