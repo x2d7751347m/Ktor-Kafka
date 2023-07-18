@@ -11,7 +11,7 @@ import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
 
 private val initialR2dbcDatabase: () -> R2dbcDatabase = {
-    val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
+    val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.host").getString()
@@ -20,18 +20,19 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.DRIVER, driver)
+        .option(ConnectionFactoryOptions.PROTOCOL, "mariadb")
+        .option(ConnectionFactoryOptions.DRIVER, "pool")
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
         .option(ConnectionFactoryOptions.USER, username)
         .option(ConnectionFactoryOptions.PASSWORD, password)
         .option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
         .build()
-    R2dbcDatabase(options)
+    R2dbcDatabase("mysql://admin1:aftertime01@localhost:3306/tokio_tungstenite_rocket")
 }
 
 val r2dbcDatabase: () -> R2dbcDatabase = {
-    val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
+    val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.host").getString()
@@ -41,7 +42,8 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.DRIVER, driver)
+        .option(ConnectionFactoryOptions.PROTOCOL, "mariadb")
+        .option(ConnectionFactoryOptions.DRIVER, "pool")
         .option(ConnectionFactoryOptions.DATABASE, name)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
