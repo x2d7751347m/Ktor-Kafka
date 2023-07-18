@@ -104,6 +104,8 @@ image::.adoc/images/Db Table.PNG[]
 ----
 connections // Shows the number of connections (/chat path)
 bye // command for disconnect
+did you still alive? // It is not a server command, but written in the mock client test code in `src/test/kotlin/com/aftertime/ApplicationTest.kt`.
+
 ----
 
 === Notice
