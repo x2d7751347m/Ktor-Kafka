@@ -99,6 +99,7 @@ dependencies {
         ksp(it)
     }
     implementation("org.komapper:komapper-starter-r2dbc")
+    testImplementation("org.komapper:komapper-starter-r2dbc")
     implementation("org.komapper:komapper-dialect-mariadb-r2dbc")
     testImplementation("org.komapper:komapper-dialect-mariadb-r2dbc")
     ksp("org.komapper:komapper-processor")
