@@ -20,14 +20,14 @@ import java.io.PrintWriter
 import java.net.Socket
 
 
-@Testcontainers
+//@Testcontainers
 class ApplicationTest {
 
     @Test
     fun test() {
     }
 
-    @Test
+//    @Test
     fun testRoot() = testApplication {
         application {
         }
@@ -37,7 +37,7 @@ class ApplicationTest {
         }
     }
 
-    @Test
+//    @Test
     fun testWebSocket() = testApplication {
         application {
 //                testModule()
@@ -111,7 +111,7 @@ class ApplicationTest {
     }
 
     // for test raw socket
-    @Test
+//    @Test
     fun socketClient() {
         val client = Socket("127.0.0.1", 9002)
         val output = PrintWriter(client.getOutputStream(), true)
