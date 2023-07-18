@@ -20,7 +20,6 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-//        .option(ConnectionFactoryOptions.PROTOCOL, "r2dbc")
         .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
