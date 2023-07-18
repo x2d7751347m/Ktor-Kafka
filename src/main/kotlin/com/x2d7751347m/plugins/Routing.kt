@@ -136,9 +136,9 @@ fun Application.configureRouting() {
             forwardRoot = true
         }
         info {
-            title = "Ktor-sample API"
+            title = "Ktor-kafka API"
             version = "latest"
-            description = "Ktor-sample API for testing and demonstration purposes."
+            description = "Ktor-kafka API for testing and demonstration purposes."
         }
         server {
             url = "http://localhost:$port"
