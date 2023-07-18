@@ -20,7 +20,7 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.PROTOCOL, "mariadb")
+        .option(ConnectionFactoryOptions.PROTOCOL, protocol)
         .option(ConnectionFactoryOptions.DRIVER, "pool")
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
@@ -28,7 +28,7 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
         .option(ConnectionFactoryOptions.PASSWORD, password)
         .option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
         .build()
-    R2dbcDatabase("mysql://admin1:aftertime01@localhost:3306/tokio_tungstenite_rocket")
+    R2dbcDatabase(options)
 }
 
 val r2dbcDatabase: () -> R2dbcDatabase = {
@@ -42,7 +42,7 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.PROTOCOL, "mariadb")
+        .option(ConnectionFactoryOptions.PROTOCOL, protocol)
         .option(ConnectionFactoryOptions.DRIVER, "pool")
         .option(ConnectionFactoryOptions.DATABASE, name)
         .option(ConnectionFactoryOptions.HOST, host)
