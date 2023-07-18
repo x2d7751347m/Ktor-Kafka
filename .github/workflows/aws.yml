@@ -89,7 +89,7 @@ jobs:
           
           ./gradlew build
           mkdir build/libs/extracted
-          java -Djarmode=layertools -jar build/libs/ktor-kafka-0.0.1-SNAPSHOT.jar extract --destination build/libs/extracted
+          java -Djarmode=layertools -jar build/libs/ktor-kafka-0.0.1.jar extract --destination build/libs/extracted
           
           DOCKER_BUILDKIT=1 docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

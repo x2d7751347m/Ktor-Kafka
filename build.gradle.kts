@@ -25,6 +25,12 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+ktor {
+    fatJar {
+        archiveFileName.set("ktor-kafka-$version.jar")
+    }
+}
+
 repositories {
     mavenCentral()
     maven("https://repository.mulesoft.org/nexus/content/repositories/public/") {

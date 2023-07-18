@@ -20,7 +20,7 @@ import java.io.PrintWriter
 import java.net.Socket
 
 
-//@Testcontainers
+@Testcontainers
 class ApplicationTest {
 
     @Test
