@@ -2,7 +2,7 @@
 
 == Tutorial movie
 
-image::.adoc/images/tutorial1.PNG[link="https://youtu.be/6pRl7A75_-4",window="_blank"]]
+image::.adoc/images/tutorial1.PNG[link="https://youtu.be/6pRl7A75_-4",window=_blank]]
 
 ▲ Click the link!
 
@@ -10,7 +10,7 @@ image::.adoc/images/tutorial1.PNG[link="https://youtu.be/6pRl7A75_-4",window="_b
 
 == Testing video
 
-image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI",window="_blank"]]
+image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI",window=_blank]]
 
 ▲ Click the link!
 
