@@ -11,7 +11,7 @@ import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
 
 private val initialR2dbcDatabase: () -> R2dbcDatabase = {
-    val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
+    val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.host").getString()
@@ -20,8 +20,8 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.PROTOCOL, "r2dbc")
-        .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+//        .option(ConnectionFactoryOptions.PROTOCOL, "r2dbc")
+        .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
         .option(ConnectionFactoryOptions.USER, username)
@@ -32,7 +32,7 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
 }
 
 val r2dbcDatabase: () -> R2dbcDatabase = {
-    val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
+    val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.host").getString()
@@ -42,8 +42,7 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.PROTOCOL, "r2dbc")
-        .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+        .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.DATABASE, name)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
