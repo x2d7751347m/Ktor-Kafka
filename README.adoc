@@ -18,19 +18,45 @@ image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI"]
 
 == Swagger ui (Check out available API here!)
 
-http://127.0.0.1:8080
+ http://127.0.0.1:8080
 
 ... If running on a local server
 
-http://localhost:8080
+ http://localhost:8080
+
+== Websocket url
+
+ ws://127.0.0.1:8080/chat
+
+... If running on a local server
+
+ ws://localhost:8080/chat
+
+.. Note) /chat consists of connections only within one server without kafka.
+
+==
+
+ ws://127.0.0.1:8080/messages/{group}
+
+... If running on a local server
+
+... ws://localhost:8080/messages/{group}
+
+.. e.g)
+
+ ws://127.0.0.1:8080/socket?food_topic
+
+ ws://127.0.0.1:8080/socket?room1
+
+. Note) Swagger does not support WebSockets
 
 == Kafka topic console
 
-http://127.0.0.1:9080
+ http://127.0.0.1:9080
 
 ... If running on a local server
 
-http://localhost:9080
+ http://localhost:9080
 
 == How to tune
 
@@ -54,8 +80,6 @@ image::.adoc/images/Cloud Architecture of AWS ECS with ALB.jpg[]
 === Producers and consumers writing and reading events from Kafka topics ( /messages/{group} )
 
 image::.adoc/images/kafka-producers-consumers-topics.jpg[]
-
-/chat consists of connections only within one server without kafka.
 
 === Ci/cd pipeline
 
