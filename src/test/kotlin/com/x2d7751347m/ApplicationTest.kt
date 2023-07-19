@@ -27,16 +27,16 @@ class ApplicationTest {
     fun test() {
     }
 
-//    @Test
-//    fun testRoot() = testApplication {
-//        application {
-//        }
-//        client.get("/health").apply {
-//            assertEquals(HttpStatusCode.OK, status)
-//            assertEquals("Healthy!", bodyAsText())
-//        }
-//    }
-//
+    @Test
+    fun testRoot() = testApplication {
+        application {
+        }
+        client.get("/health").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals("Healthy!", bodyAsText())
+        }
+    }
+
 //    @Test
 //    fun testWebSocket() = testApplication {
 //        application {
