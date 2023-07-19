@@ -26,7 +26,7 @@ class ProducerConsumerIntegrationTest {
         @JvmStatic
         @BeforeAll
         fun setUp() {
-            kafka = KafkaContainer(parse("confluentinc/cp-kafka:7.3.1")).apply {
+            kafka = KafkaContainer(parse("confluentinc/cp-kafka:latest")).apply {
                 //only for test
                 //withLogConsumer(Slf4jLogConsumer(log))
                 withEnv("KAFKA_AUTO_CREATE_TOPIC_ENABLE", "true")
