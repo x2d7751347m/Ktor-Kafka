@@ -39,7 +39,7 @@ env:
   ECR_REPOSITORY: ktor-kafka-repository-1           # set this to your Amazon ECR repository name
   ECS_SERVICE: ktor-kafka-service-dev-1                 # set this to your Amazon ECS service name
   ECS_CLUSTER: ktor-kafka-cluster-1                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: app/resources/ktor-kafka-td-dev-revision1.json # set this to the path to your Amazon ECS task definition
+  ECS_TASK_DEFINITION: ./ktor-kafka-td-dev-1-revision1.json # set this to the path to your Amazon ECS task definition
   # file, e.g. .aws/task-definition.json
   CONTAINER_NAME: ktor-kafka-container-dev-1           # set this to the name of the container in the
   # containerDefinitions section of your task definition
