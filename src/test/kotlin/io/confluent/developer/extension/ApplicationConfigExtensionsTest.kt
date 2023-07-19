@@ -1,6 +1,7 @@
 package io.confluent.developer.extension
 
 import com.typesafe.config.ConfigFactory
+import io.confluent.developer.extension.toMap
 import io.confluent.developer.ktor.effectiveStreamProperties
 import io.ktor.server.config.*
 import org.assertj.core.api.Assertions.assertThat

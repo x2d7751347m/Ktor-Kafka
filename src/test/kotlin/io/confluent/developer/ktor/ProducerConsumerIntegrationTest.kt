@@ -1,6 +1,7 @@
 package io.confluent.developer.ktor
 
 import com.typesafe.config.ConfigFactory
+import io.confluent.developer.ktor.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import org.apache.kafka.clients.consumer.ConsumerConfig

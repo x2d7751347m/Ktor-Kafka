@@ -1,10 +1,13 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.cli.jvm.compiler.findMainClass
+
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 val prometeus_version: String by project
 
 plugins {
-//    application
     kotlin("jvm") version "1.8.22"
     id("io.ktor.plugin") version "2.3.2"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
@@ -12,6 +15,8 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.16.12"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("kapt") version "1.8.20"
+    `java-library`
+    `maven-publish`
 }
 kapt {
     correctErrorTypes = true
@@ -28,6 +33,24 @@ application {
 ktor {
     fatJar {
         archiveFileName.set("ktor-kafka-$version.jar")
+    }
+    docker {
+        jreVersion.set(io.ktor.plugin.features.JreVersion.JRE_17)
+//        localImageName.set("sample-docker-image")
+//        imageTag.set("0.0.1-preview")
+        portMappings.set(listOf(
+            io.ktor.plugin.features.DockerPortMapping(
+                8000,
+                8000,
+                io.ktor.plugin.features.DockerPortMappingProtocol.TCP
+            ),
+            io.ktor.plugin.features.DockerPortMapping(
+                8080,
+                8080,
+                io.ktor.plugin.features.DockerPortMappingProtocol.TCP
+            )
+        )
+        )
     }
 }
 
@@ -57,7 +80,6 @@ val testcontainers_version: String by project
 val ak_version: String by project
 val confluent_version: String by project
 dependencies {
-    implementation(project(":plugin"))
     implementation("io.ktor:ktor-server-auto-head-response-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
@@ -123,10 +145,19 @@ dependencies {
         exclude("org.apache.kafka", "kafka-clients")
     }
     testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("org.awaitility:awaitility:4.2.0")
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    testLogging {
+        outputs.upToDateWhen { false }
+        outputs.upToDateWhen { false }
+        showStandardStreams = false
+        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+        exceptionFormat = TestExceptionFormat.FULL
+    }
 }
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs>().configureEach {
     kotlinOptions {
@@ -135,4 +166,15 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs>().configureE
 }
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "17"
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+            from(components["java"])
+        }
+    }
 }
