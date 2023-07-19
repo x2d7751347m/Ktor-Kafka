@@ -43,9 +43,11 @@ fun Application.configureSockets() {
     }
 
     // load properties
-    val kafkaConfigPath = "src/main/resources/kafka.conf"
+//    val kafkaConfigPath = "src/main/resources/kafka.conf"
+    val kafkaConfigPath = "app/resources/kafka.conf" // for docker image
     //region Kafka
     install(Kafka) {
+
         configurationPath = kafkaConfigPath
 //        topics = listOf(
 //            newTopic(ratingTopicName) {
