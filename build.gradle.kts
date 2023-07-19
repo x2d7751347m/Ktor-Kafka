@@ -75,7 +75,7 @@ java {
     }
 }
 
-val komapperVersion = "1.11.0"
+val komapperVersion: String by project
 val testcontainers_version: String by project
 val ak_version: String by project
 val confluent_version: String by project
@@ -112,6 +112,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("org.slf4j:slf4j-api:2.0.7")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
@@ -123,6 +124,8 @@ dependencies {
     implementation("org.komapper:komapper-starter-r2dbc")
     implementation("org.komapper:komapper-dialect-mariadb-r2dbc")
     ksp("org.komapper:komapper-processor")
+
+//    runtimeOnly("org.komapper:komapper-slf4j:$komapperVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
     implementation("io.github.smiley4:ktor-swagger-ui:2.2.0")
     implementation("io.konform:konform:0.4.0")
