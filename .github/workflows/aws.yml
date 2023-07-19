@@ -78,7 +78,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build the stack
-        run: docker-compose up
+        run: docker-compose up -d
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
