@@ -4,7 +4,7 @@ import io.confluent.developer.ktor.buildProducer
 import io.confluent.developer.ktor.send
 import io.ktor.server.config.*
 
-fun main() {
+fun console_producer_main() {
 
     val applicationConfig = ApplicationConfig("kafka.conf")
     val producer = buildProducer<Long, Rating>(applicationConfig)

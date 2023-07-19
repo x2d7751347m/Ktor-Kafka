@@ -320,7 +320,7 @@ object EchoApp {
 
     object Server {
         @JvmStatic
-        fun main(args: Array<String>) {
+        fun server_main(args: Array<String>) {
             runBlocking {
                 val serverSocket = aSocket(selectorManager).tcp().bind(port = DefaultPort)
                 println("Echo Server listening at ${serverSocket.localAddress}")
@@ -346,7 +346,7 @@ object EchoApp {
 
     object Client {
         @JvmStatic
-        fun main(args: Array<String>) {
+        fun client_main(args: Array<String>) {
             runBlocking {
                 val socket = aSocket(selectorManager).tcp().connect("127.0.0.1", port = DefaultPort)
                 val read = socket.openReadChannel()
