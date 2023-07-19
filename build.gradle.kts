@@ -24,10 +24,14 @@ kapt {
 group = "com.x2d7751347m"
 version = "0.0.1"
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("com.x2d7751347m.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+jib {
+    container.mainClass = "ApplicationKt"
 }
 
 ktor {

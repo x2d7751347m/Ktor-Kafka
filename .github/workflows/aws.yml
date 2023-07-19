@@ -88,13 +88,9 @@ jobs:
           # be deployed to ECS.
           
           ./gradlew build
-          mkdir target/dependency
-          mv ./build/libs/ktor-kafka-0.0.1.jar ./target/dependency
-          cd target/dependency
-          jar -xf ktor-kafka-0.0.1.jar
-          docker build -t ktor/ktor-kafka .
+          ./gradlew publishImageToLocalRegistry
+          docker image tag ktor-docker-image:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
-          DOCKER_BUILDKIT=1 docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
