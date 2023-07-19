@@ -18,9 +18,9 @@ image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI",window=_blank]
 
 == Swagger ui (Check out available APIs here!)
 
-http://127.0.0.1:8080
+http://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080
 
- http://127.0.0.1:8080
+ http://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080
 
 ... If running on a local server
 
@@ -30,7 +30,7 @@ http://localhost:8080
 
 == Websocket url
 
- ws://127.0.0.1:8080/chat
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/chat
 
 ... If running on a local server
 
@@ -48,9 +48,9 @@ http://localhost:8080
 
 .. e.g)
 
- ws://127.0.0.1:8080/socket?food_topic
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/socket?food_topic
 
- ws://127.0.0.1:8080/socket?room1
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/socket?room1
 
 . Note) Swagger does not support WebSockets
 
@@ -62,9 +62,9 @@ image::.adoc/images/task definition.PNG[]
 
 == Kafka topic console
 
-http://127.0.0.1:9080
+http://121.172.169.213:9080
 
- http://127.0.0.1:9080
+ http://121.172.169.213:9080
 
 ... If running on a local server
 
