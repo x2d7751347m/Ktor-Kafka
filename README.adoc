@@ -66,7 +66,7 @@ image::.adoc/images/task definition.PNG[]
 
 == How to tune
 
-. Change parameters in `src/main/resources`
+. Change parameters in `src/main/resources` and `plugin/src/test/resources/kafka-config-map.conf`
 .. You don't have to create a matching Database. Just connect to your db and fill `src/main/resources/application.conf` > `ktor.deployment.db`
 . Set aws environmental variables and github actions secrets in `.github/workflows/aws.yml`
 . Run kafka server infrastructure using `docker compose up`

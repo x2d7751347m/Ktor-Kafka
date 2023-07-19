@@ -272,6 +272,8 @@ fun Route.socketRouting() {
                     }
                 }
             } finally {
+                binaryProducer.abortTransaction()
+                textProducer.abortTransaction()
                 binaryConsumer.apply {
                     unsubscribe()
                 }
