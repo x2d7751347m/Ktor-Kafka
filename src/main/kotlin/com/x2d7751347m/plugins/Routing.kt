@@ -129,7 +129,7 @@ fun Application.configureRouting() {
             }
         }
     }
-    val host = environment.config.property("ktor.deployment.host").getString()
+    val host = environment.config.property("swagger.host").getString()
     val port = environment.config.property("ktor.deployment.port").getString()
     install(SwaggerUI) {
         swagger {
