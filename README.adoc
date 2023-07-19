@@ -18,11 +18,11 @@ image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI",window=_blank]
 
 == Swagger ui (Check out available APIs here!)
 
- http://127.0.0.1:8080
+http://127.0.0.1:8080
 
 ... If running on a local server
 
- http://localhost:8080
+http://localhost:8080
 
 == Websocket url
 
@@ -58,11 +58,11 @@ image::.adoc/images/task definition.PNG[]
 
 == Kafka topic console
 
- http://127.0.0.1:9080
+http://127.0.0.1:9080
 
 ... If running on a local server
 
- http://localhost:9080
+http://localhost:9080
 
 == How to tune
 
@@ -74,7 +74,7 @@ image::.adoc/images/task definition.PNG[]
 [source,bash]
 .docker compose up command
 ----
-docker compose up
+docker compose up -d
 ----
 
 == Architecture
