@@ -165,9 +165,6 @@ fun Application.configureRouting() {
     }
     install(Resources)
     routing {
-        get("/hello") {
-            call.respondText("Hello")
-        }
         route("", {
             response {
                 HttpStatusCode.OK to {
