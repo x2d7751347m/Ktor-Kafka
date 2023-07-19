@@ -1,10 +1,18 @@
+FROM eclipse-temurin:17-jdk-alpine as build
+WORKDIR /x2d7751347m/ktor-kafka
+
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+
+RUN ./mvnw install -DskipTests
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+
 FROM eclipse-temurin:17-jdk-alpine
-EXPOSE 8080
 VOLUME /tmp
-RUN mkdir build/libs/extracted
-ARG EXTRACTED=build/libs/extracted
-COPY ${EXTRACTED}/dependencies/ ./
-COPY ${EXTRACTED}/spring-boot-loader/ ./
-COPY ${EXTRACTED}/snapshot-dependencies/ ./
-COPY ${EXTRACTED}/application/ ./
-ENTRYPOINT ["java","org.springframework.boot.loader.JarLauncher"]
+ARG DEPENDENCY=/x2d7751347m/ktor-kafka/target/dependency
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /ktor-kafka/lib
+COPY --from=build ${DEPENDENCY}/META-INF /ktor-kafka/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /ktor-kafka
+ENTRYPOINT ["java","-cp","ktor-kafka:ktor-kafka/lib/*","hello.Application"]
