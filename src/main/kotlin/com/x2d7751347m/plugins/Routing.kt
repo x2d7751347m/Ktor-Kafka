@@ -129,6 +129,7 @@ fun Application.configureRouting() {
             }
         }
     }
+    val host = environment.config.property("ktor.deployment.host").getString()
     val port = environment.config.property("ktor.deployment.port").getString()
     install(SwaggerUI) {
         swagger {
@@ -141,7 +142,7 @@ fun Application.configureRouting() {
             description = "Ktor-kafka API for testing and demonstration purposes."
         }
         server {
-            url = "http://localhost:$port"
+            url = "http://$host:$port"
             description = "Development Server"
         }
         // default value for "401 Unauthorized"-responses.

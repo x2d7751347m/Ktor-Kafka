@@ -7,6 +7,7 @@ build/
 !**/src/test/**/build/
 target/
 .vs
+app/
 
 # Compiled class file
 *.class
