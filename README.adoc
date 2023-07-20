@@ -1,4 +1,6 @@
-= Ktor web & websocket sample
+= Ktor web & websocket
+
+ Coroutine & Non-blocking
 
 == Tutorial movie
 
