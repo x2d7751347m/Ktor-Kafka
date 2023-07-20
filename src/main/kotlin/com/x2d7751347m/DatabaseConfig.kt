@@ -9,10 +9,10 @@ import io.r2dbc.spi.R2dbcTransientResourceException
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
+import java.time.Duration
 
 private val initialR2dbcDatabase: () -> R2dbcDatabase = {
     val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
-    val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.host").getString()
@@ -21,7 +21,6 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.PROTOCOL, protocol)
         .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.HOST, host)
         .option(ConnectionFactoryOptions.PORT, port)
@@ -34,7 +33,6 @@ private val initialR2dbcDatabase: () -> R2dbcDatabase = {
 
 val r2dbcDatabase: () -> R2dbcDatabase = {
     val driver = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.driver").getString()
-    val protocol = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.protocol").getString()
     val port =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.port").getString().toInt()
     val host = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.host").getString()
@@ -44,7 +42,6 @@ val r2dbcDatabase: () -> R2dbcDatabase = {
     val password =
         HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.password").getString()
     val options = ConnectionFactoryOptions.builder()
-        .option(ConnectionFactoryOptions.PROTOCOL, protocol)
         .option(ConnectionFactoryOptions.DRIVER, driver)
         .option(ConnectionFactoryOptions.DATABASE, name)
         .option(ConnectionFactoryOptions.HOST, host)
@@ -73,6 +70,12 @@ suspend fun initR2dbcDatabase() {
         QueryDsl.executeScript(
             "ALTER TABLE `user`\n" +
                     "\tCHANGE COLUMN `credit` `credit` DECIMAL(65,0) NOT NULL DEFAULT 0 AFTER `password`;"
+        )
+    }
+    db.runQuery {
+        QueryDsl.executeScript("ALTER TABLE `user`\n" +
+                "\tADD UNIQUE INDEX `id` (`id`),\n" +
+                "\tADD UNIQUE INDEX `username` (`username`);"
         )
     }
 }

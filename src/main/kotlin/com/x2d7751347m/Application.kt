@@ -2,9 +2,10 @@ package com.x2d7751347m
 
 import com.x2d7751347m.plugins.*
 import io.ktor.server.application.*
+import kotlinx.coroutines.runBlocking
 
-suspend fun main(args: Array<String>): Unit {
-    initR2dbcDatabase()
+fun main(args: Array<String>): Unit {
+    runBlocking { initR2dbcDatabase() }
     return io.ktor.server.netty.EngineMain.main(args)
 }
 

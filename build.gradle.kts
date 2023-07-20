@@ -123,6 +123,7 @@ dependencies {
     }
     implementation("org.komapper:komapper-starter-r2dbc")
     implementation("org.komapper:komapper-dialect-mariadb-r2dbc")
+    implementation("org.mariadb:r2dbc-mariadb:1.1.4")
     ksp("org.komapper:komapper-processor")
 
 //    runtimeOnly("org.komapper:komapper-slf4j:$komapperVersion")
