@@ -83,13 +83,8 @@ http://localhost:9080
 .. For local
 -   Enter the command into bash or powershell depending on your operating environment.
 
-
-
  // Running it directly
  ./gradlew runDocker
-
-
-
 
  // Builds and publishes a project's Docker image to a local registry.
  ./gradlw publishImageToLocalRegistry
