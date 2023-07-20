@@ -78,6 +78,7 @@ http://localhost:9080
 
 . Change parameters in `src/main/resources` and `plugin/src/test/resources/kafka-config-map.conf`
 - You don't have to create a matching Database. Just connect to your db and fill `src/main/resources/application.conf` > `ktor.deployment.db`
+. Install Docker
 . Run kafka server infrastructure using `docker compose up`
 
 .. For local
