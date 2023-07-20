@@ -1,6 +1,6 @@
-= Ktor web & websocket
+= Ktor Web & Websocket Server
 
- Coroutine & Non-blocking
+ - Coroutine & Non-blocking
 
 == Tutorial movie
 
