@@ -5,7 +5,9 @@ import com.x2d7751347m.entity.user
 import io.ktor.server.config.*
 import io.r2dbc.spi.ConnectionFactoryOptions
 import io.r2dbc.spi.Option
+import io.r2dbc.spi.R2dbcBadGrammarException
 import io.r2dbc.spi.R2dbcTransientResourceException
+import kotlinx.serialization.builtins.serializer
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.r2dbc.R2dbcDatabase
@@ -66,16 +68,15 @@ suspend fun initR2dbcDatabase() {
     db.runQuery {
         QueryDsl.create(userDef)
     }
+    try {
     db.runQuery {
         QueryDsl.executeScript(
-            "ALTER TABLE `user`\n" +
-                    "\tCHANGE COLUMN `credit` `credit` DECIMAL(65,0) NOT NULL DEFAULT 0 AFTER `password`;"
-        )
-    }
-    db.runQuery {
+                "ALTER TABLE `user`\n" +
+                        "\tCHANGE COLUMN `credit` `credit` DECIMAL(65,0) NOT NULL DEFAULT 0 AFTER `password`;"
+                )
         QueryDsl.executeScript("ALTER TABLE `user`\n" +
                 "\tADD UNIQUE INDEX `id` (`id`),\n" +
                 "\tADD UNIQUE INDEX `username` (`username`);"
         )
-    }
+    } } catch (_: R2dbcBadGrammarException){}
 }
