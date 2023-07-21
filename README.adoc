@@ -1,6 +1,7 @@
 = Ktor Web & Websocket Server
 
  - Coroutine & Non-blocking
+ - R2dbc
 
 == Tutorial movie
 
