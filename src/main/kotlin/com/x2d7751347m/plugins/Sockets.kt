@@ -67,9 +67,10 @@ fun Application.configureSockets() {
 }
 
 fun Route.socketRouting() {
-    val sendCancelledChannelErrorHandler = CoroutineExceptionHandler { _, exception ->
-        println("CoroutineExceptionHandler got $exception")
-    }
+    val sendCancelledChannelErrorHandler =
+        CoroutineExceptionHandler { context, exception ->
+            println("CoroutineExceptionHandler got $exception")
+        }
     val userRepository = UserRepository();
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(2000))
     val connectionMutex = Mutex()
@@ -239,7 +240,7 @@ fun Route.socketRouting() {
                 createKafkaTextConsumer(config, group, "ws-consumer-$clientId")
             try {
                 coroutineScope {
-                    launch {
+                    launch(Dispatchers.IO) {
                         for (frame in incoming) {
                             when (frame) {
                                 is Frame.Text -> {
@@ -267,10 +268,8 @@ fun Route.socketRouting() {
 //                            poll(binaryConsumer)
 //                        }
 //                    }
-                    launch {
-                        while (true) {
-                            textPoll(textConsumer)
-                        }
+                    while (true) {
+                        textPoll(textConsumer)
                     }
                 }
             } finally {
