@@ -71,15 +71,24 @@ fun Route.socketRouting() {
         CoroutineExceptionHandler { context, exception ->
             println("CoroutineExceptionHandler got $exception")
         }
-    val userRepository = UserRepository();
+    val userRepository = UserRepository()
     val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet(2000))
     val connectionMutex = Mutex()
 
-    suspend fun <Connection> MutableSet<Connection>.removeConnection(connection: Connection) {
-        connectionMutex.withLock {
-            if (contains(connection)) {
-                remove(connection)
+    suspend fun <Connection> MutableSet<Connection>.removeConnection(
+        connection: Connection,
+        session: WebSocketServerSession,
+        closeReason: CloseReason?
+    ) {
+        try {
+            connectionMutex.withLock {
+                if (contains(connection)) {
+                    remove(connection)
+                }
             }
+            closeReason?.run { session.close(this) } ?: run { session.close() }
+        } catch (e: Exception) {
+            throw InternalError(e)
         }
     }
 
@@ -109,7 +118,11 @@ fun Route.socketRouting() {
                         try {
                             it.session.send("${thisConnection.name} is connected! There are ${connections.count()} users here.")
                         } catch (e: Exception) {
-                            connections.removeConnection(thisConnection)
+                            connections.removeConnection(
+                                thisConnection,
+                                this@webSocket,
+                                CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.localizedMessage)
+                            )
                         }
                     }
                 }
@@ -125,7 +138,11 @@ fun Route.socketRouting() {
                                     try {
                                         it.session.send(receivedByteArray)
                                     } catch (e: Exception) {
-                                        connections.removeConnection(thisConnection)
+                                        connections.removeConnection(
+                                            thisConnection,
+                                            this@webSocket,
+                                            CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.localizedMessage)
+                                        )
                                     }
                                 }
                             }
@@ -157,7 +174,11 @@ fun Route.socketRouting() {
                                             )
                                             it.session.send("Removing ${thisConnection.name} user! ")
                                         } catch (e: Exception) {
-                                            connections.removeConnection(thisConnection)
+                                            connections.removeConnection(
+                                                thisConnection,
+                                                this@webSocket,
+                                                CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.localizedMessage)
+                                            )
                                         }
                                     }
                                 }
@@ -173,7 +194,11 @@ fun Route.socketRouting() {
                                     try {
                                         it.session.send(receivedText)
                                     } catch (e: Exception) {
-                                        connections.removeConnection(thisConnection)
+                                        connections.removeConnection(
+                                            thisConnection,
+                                            this@webSocket,
+                                            CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.localizedMessage)
+                                        )
                                     }
                                 }
                             }
@@ -186,19 +211,32 @@ fun Route.socketRouting() {
                 }
             }
         } catch (e: R2dbcNonTransientResourceException) {
-            close(CloseReason(CloseReason.Codes.TRY_AGAIN_LATER, e.message ?: "null"))
+            connections.removeConnection(
+                thisConnection,
+                this@webSocket,
+                CloseReason(CloseReason.Codes.TRY_AGAIN_LATER, e.localizedMessage)
+            )
         } catch (e: IOException) {
-            close(CloseReason(CloseReason.Codes.NOT_CONSISTENT, e.message ?: "null"))
+            connections.removeConnection(
+                thisConnection,
+                this@webSocket,
+                CloseReason(CloseReason.Codes.NOT_CONSISTENT, e.localizedMessage)
+            )
         } catch (e: Exception) {
-            if (e.localizedMessage != "ArrayChannel was cancelled")
-                println(e.message)
-            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.message ?: "null"))
+            connections.removeConnection(
+                thisConnection,
+                this@webSocket,
+                CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.localizedMessage)
+            )
         } finally {
             println("Removing ${thisConnection.name} user by error! There are ${connections.count()} users here.")
             try {
-                connections.removeConnection(thisConnection)
-            } catch (e: Exception) {
-                println(e)
+                connections.removeConnection(
+                    thisConnection,
+                    this@webSocket,
+                    CloseReason(CloseReason.Codes.INTERNAL_ERROR, "null")
+                )
+            } catch (_: Exception) {
             }
         }
     }
@@ -272,6 +310,8 @@ fun Route.socketRouting() {
                         textPoll(textConsumer)
                     }
                 }
+            } catch (e: Exception) {
+                println(e.localizedMessage)
             } finally {
                 binaryProducer.abortTransaction()
                 textProducer.abortTransaction()
@@ -284,6 +324,7 @@ fun Route.socketRouting() {
                 close()
                 log.info("consumer for ${binaryConsumer.groupMetadata().groupId()} unsubscribed and closed...")
             }
+
 
         }
     }

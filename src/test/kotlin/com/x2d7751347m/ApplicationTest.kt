@@ -18,6 +18,8 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 
 @Testcontainers
@@ -37,7 +39,8 @@ class ApplicationTest {
         }
     }
 
-//    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     fun testWebSocket() = testApplication {
         application {
 //                testModule()
@@ -64,15 +67,15 @@ class ApplicationTest {
         val sendingInterval = (1000 / framePerSecond)
         coroutineScope {
             // Number of Clients
-            repeat(10) {
-                launch(Dispatchers.Default) {
+            repeat(100) {
+                launch(Dispatchers.IO.limitedParallelism(300)) {
 //                    var lastSentTime = mutableMapOf(Pair(it, currentMom  nt().toEpochMilliseconds()))
                     var lastSentTime = currentMoment()
                     client.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/chat") {
                         timeoutMillis = 15000
                         try {
                             runBlocking {
-                                launch(Dispatchers.IO) {
+                                launch {
                                     while (true) {
                                         when (incoming.receive()) {
                                             is Frame.Text -> {
@@ -90,12 +93,14 @@ class ApplicationTest {
                                         }
                                     }
                                 }
-                                launch(Dispatchers.IO) {
+                                launch {
                                     while (true) {
+                                        println("Current client thread is: ${Thread.currentThread().name}")
                                         if (currentMoment().minus(lastSentTime).inWholeMilliseconds > sendingInterval) {
                                             send("[$it]: $lastSentTime")
                                             lastSentTime = currentMoment()
                                         }
+                                        delay(sendingInterval.toDuration(DurationUnit.MILLISECONDS))
                                     }
                                 }
 
