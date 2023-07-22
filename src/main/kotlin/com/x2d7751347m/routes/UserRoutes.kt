@@ -7,7 +7,6 @@ import com.x2d7751347m.entity.User
 import com.x2d7751347m.entity.userStorage
 import com.x2d7751347m.entity.validateUser
 import com.x2d7751347m.mapper.UserMapper
-import com.x2d7751347m.plugins.ConflictException
 import com.x2d7751347m.plugins.ExceptionResponse
 import com.x2d7751347m.plugins.ValidationExceptions
 import com.x2d7751347m.repository.UserRepository
@@ -26,7 +25,7 @@ import org.mapstruct.factory.Mappers
 fun Route.userRouting() {
     val userRepository = UserRepository()
     val userMapper = Mappers.getMapper(UserMapper::class.java)
-    route("/api/v1/users", {
+    route("/v1/api/users", {
         tags = listOf("user")
     }) {
         post({
@@ -65,7 +64,7 @@ fun Route.userRouting() {
             call.response.status(HttpStatusCode.Created)
         }
     }
-    route("/api/v1/users", {
+    route("/v1/api/users", {
         tags = listOf("user")
         response {
             HttpStatusCode.OK to {
@@ -162,7 +161,7 @@ fun Route.userRouting() {
             }
         }
     }
-    route("/api/v1/admins", {
+    route("/v1/api/admins", {
         description = "administrator role is required"
         tags = listOf("admin")
         response {
