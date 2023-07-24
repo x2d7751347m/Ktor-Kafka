@@ -33,7 +33,9 @@ http://localhost:8080
 
  http://localhost:8080
 
-== Websocket url
+== Websocket
+
+. Websocket url without Kafka
 
  ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/chat
 
@@ -43,7 +45,7 @@ http://localhost:8080
 
 .. Note) /chat consists of connections only within one server without kafka.
 
-==
+. Websocket url Including Kafka
 
  ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080:8080/messages/{group}
 
