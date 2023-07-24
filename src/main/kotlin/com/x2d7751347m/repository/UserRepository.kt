@@ -5,6 +5,7 @@ import com.x2d7751347m.entity.UserData
 import com.x2d7751347m.entity.admin
 import com.x2d7751347m.entity.user
 import com.x2d7751347m.plugins.ConflictException
+import com.x2d7751347m.options
 import com.x2d7751347m.r2dbcDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
@@ -17,7 +18,7 @@ class UserRepository {
 
     val userDef = Meta.user
     val adminDef = Meta.admin
-    val db = r2dbcDatabase()
+    val db = r2dbcDatabase
     suspend fun insertUser(user: User): User {
         fetchUserByUsername(user.username)?.run { throw ConflictException("This username is already in use.") }
         db.runQuery {

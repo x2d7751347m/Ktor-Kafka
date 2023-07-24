@@ -151,6 +151,10 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.awaitility:awaitility:4.2.0")
     testImplementation(kotlin("test-junit"))
+    api("io.r2dbc:r2dbc-pool:1.0.1.RELEASE")
+    api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
+    api("org.jetbrains.kotlin:kotlin-test-junit5")
+    api("org.testcontainers:r2dbc")
 }
 
 tasks.named<Test>("test") {

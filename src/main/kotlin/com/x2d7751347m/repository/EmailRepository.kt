@@ -2,9 +2,9 @@ package com.x2d7751347m.repository
 
 import com.x2d7751347m.entity.Email
 import com.x2d7751347m.entity.EmailData
-import com.x2d7751347m.entity.admin
 import com.x2d7751347m.entity.email
 import com.x2d7751347m.plugins.ConflictException
+import com.x2d7751347m.options
 import com.x2d7751347m.r2dbcDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
@@ -15,7 +15,7 @@ import org.komapper.core.dsl.query.firstOrNull
 class EmailRepository {
 
     val emailDef = Meta.email
-    val db = r2dbcDatabase()
+    val db = r2dbcDatabase
     suspend fun insertEmail(email: Email): Email {
         fetchEmailByaddress(email.address)?.run { throw ConflictException("This address is already in use.") }
         db.runQuery {
