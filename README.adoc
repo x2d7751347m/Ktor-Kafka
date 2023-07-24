@@ -45,7 +45,7 @@ http://localhost:8080
 
 ==
 
- ws://127.0.0.1:8080/messages/{group}
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080:8080/messages/{group}
 
 ... If running on a local server
 
