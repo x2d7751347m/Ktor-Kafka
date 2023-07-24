@@ -1,5 +1,6 @@
 package com.x2d7751347m.plugins
 
+import com.x2d7751347m.routes.emailRouting
 import com.x2d7751347m.routes.userRouting
 import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.dsl.AuthScheme
@@ -182,6 +183,7 @@ fun Application.configureRouting() {
         }) {
             securityRouting()
             userRouting()
+            emailRouting()
             socketRouting()
             get("/health", {
                 description = "health check Endpoint."

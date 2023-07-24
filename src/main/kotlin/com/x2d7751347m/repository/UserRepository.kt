@@ -18,8 +18,8 @@ class UserRepository {
     val userDef = Meta.user
     val adminDef = Meta.admin
     val db = r2dbcDatabase()
-    suspend fun createUser(user: User): User {
-        findUserByUsername(user.username)?.run { throw ConflictException("This username is already in use.") }
+    suspend fun insertUser(user: User): User {
+        fetchUserByUsername(user.username)?.run { throw ConflictException("This username is already in use.") }
         db.runQuery {
             QueryDsl.insert(userDef).single(user.apply {
                 password.let {
@@ -35,8 +35,8 @@ class UserRepository {
         }.last()
     }
 
-    suspend fun patchUser(userData: UserData): User {
-        userData.username?.run { findUserByUsername(userData.username!!)?.run { throw ConflictException("This username is already in use.")} }
+    suspend fun updateUser(userData: UserData): User {
+        userData.username?.run { fetchUserByUsername(userData.username!!)?.run { throw ConflictException("This username is already in use.")} }
         db.runQuery {
             QueryDsl.update(userDef)
                 .set {
@@ -55,8 +55,8 @@ class UserRepository {
         }.last()
     }
 
-    suspend fun createAdmin(admin: User): User {
-        findUserByUsername(admin.username)?.run { throw ConflictException("This username is already in use.") }
+    suspend fun insertAdmin(admin: User): User {
+        fetchUserByUsername(admin.username)?.run { throw ConflictException("This username is already in use.") }
         db.runQuery {
             QueryDsl.insert(adminDef).single(admin.apply {
                 // gensalt's log_rounds parameter determines the complexity
@@ -70,7 +70,7 @@ class UserRepository {
         }.last()
     }
 
-    suspend fun findUsers(page: Int, size: Int): Flow<User> {
+    suspend fun fetchUsers(page: Int, size: Int): Flow<User> {
 
         // SELECT
         val user = db.flowQuery {
@@ -79,7 +79,7 @@ class UserRepository {
         return user
     }
 
-    suspend fun findUser(id: Long): User? {
+    suspend fun fetchUser(id: Long): User? {
 
         // SELECT
         val user = db.runQuery {
@@ -88,7 +88,7 @@ class UserRepository {
         return user
     }
 
-    suspend fun findUserByUsername(username: String): User? {
+    suspend fun fetchUserByUsername(username: String): User? {
 
         // SELECT
         val user = db.runQuery {
@@ -97,7 +97,7 @@ class UserRepository {
         return user
     }
 
-    suspend fun findUserByNickName(nickname: String): User? {
+    suspend fun fetchUserByNickName(nickname: String): User? {
 
         // SELECT
         val user = db.runQuery {

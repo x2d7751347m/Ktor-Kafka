@@ -27,6 +27,7 @@ data class AddressDef(
     val version: Nothing,
 )
 
+val emailStorage = mutableListOf<Email>()
 val userStorage = mutableListOf<User>()
 val currentMoment: Instant = Clock.System.now()
 val localDateTime1 = currentMoment.toLocalDateTime(TimeZone.UTC)
@@ -45,6 +46,18 @@ val validateUser = Validation {
     User::password ifPresent {
         pattern("^(?=.*[a-zA-Z])(?=.*\\d)[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,30}$") hint "Please provide a valid password that combination of numbers and letters. Also, special characters are allowed.)"
 //        pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid password"
+    }
+}
+
+val validateEmail = Validation {
+    Email::address ifPresent {
+                pattern("(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])") hint "Please provide a valid email.)"
+    }
+}
+
+val validateEmailData = Validation {
+    EmailData::address ifPresent {
+        pattern("(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])") hint "Please provide a valid email.)"
     }
 }
 
@@ -143,4 +156,37 @@ data class DepartmentDef(
     val departmentId: Nothing,
     @KomapperVersion
     val version: Nothing,
+)
+
+@Serializable
+data class Email(
+    var id: Long = 0,
+    var address: String = "",
+    var userId: Long? = null,
+    val version: Int = 0,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
+)
+
+@Serializable
+data class EmailData(
+    var id: Long? = null,
+    var address: String? = null,
+    var userId: Long? = null,
+    val version: Int? = null,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
+)
+
+@KomapperEntityDef(Email::class)
+data class EmailDef(
+    @KomapperId
+    @KomapperAutoIncrement
+    val id: Nothing,
+    @KomapperVersion
+    val version: Nothing,
+    @KomapperCreatedAt
+    val createdAt: LocalDateTime,
+    @KomapperUpdatedAt
+    val updatedAt: LocalDateTime,
 )

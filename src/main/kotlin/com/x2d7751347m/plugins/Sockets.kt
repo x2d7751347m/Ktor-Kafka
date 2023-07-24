@@ -253,7 +253,7 @@ fun Route.socketRouting() {
             var user = User()
             principal?.run {
                 id = principal.payload.getClaim("id").asLong()
-                user = userRepository.findUser(id)!!
+                user = userRepository.fetchUser(id)!!
             } ?: run {
                 user =
                     User()

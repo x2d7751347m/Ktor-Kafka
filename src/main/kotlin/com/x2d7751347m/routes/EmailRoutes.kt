@@ -1,14 +1,13 @@
 package com.x2d7751347m.routes
 
-import com.x2d7751347m.dto.UserPatch
-import com.x2d7751347m.dto.UserPost
-import com.x2d7751347m.dto.UserResponse
-import com.x2d7751347m.entity.User
-import com.x2d7751347m.entity.validateUser
-import com.x2d7751347m.mapper.UserMapper
+import com.x2d7751347m.dto.*
+import com.x2d7751347m.entity.Email
+import com.x2d7751347m.entity.validateEmail
+import com.x2d7751347m.entity.validateEmailData
+import com.x2d7751347m.mapper.EmailMapper
 import com.x2d7751347m.plugins.ExceptionResponse
 import com.x2d7751347m.plugins.ValidationExceptions
-import com.x2d7751347m.repository.UserRepository
+import com.x2d7751347m.repository.EmailRepository
 import io.github.smiley4.ktorswaggerui.dsl.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -21,50 +20,11 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.toList
 import org.mapstruct.factory.Mappers
 
-fun Route.userRouting() {
-    val userRepository = UserRepository()
-    val userMapper = Mappers.getMapper(UserMapper::class.java)
-    route("/v1/api/user/users", {
-        tags = listOf("user")
-    }) {
-        post({
-            description = "create user."
-            request {
-//                pathParameter<String>("operation") {
-//                    description = "the math operation to perform. Either 'add' or 'sub'"
-//                    example = "add"
-//                }
-                body<UserPost> {
-                    example("First", UserPost(username = "username", nickname = "nickname", password = "Password12!")) {
-                        description = "first example"
-                    }
-                    example(
-                        "Second",
-                        UserPost(username = "username2", nickname = "nickname2", password = "Password1234!")
-                    ) {
-                        description = "second example"
-                    }
-                    required = true
-                }
-            }
-            response {
-                HttpStatusCode.Created to {
-                    description = "Created"
-                }
-            }
-        }) {
-            val user = userMapper.userPostToUser(call.receive<UserPost>())
-
-            validateUser(user).errors.let {
-                if (it.isNotEmpty()) throw ValidationExceptions(it)
-            }
-            userRepository.insertUser(user)
-//            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
-            call.response.status(HttpStatusCode.Created)
-        }
-    }
-    route("/v1/api/user/users", {
-        tags = listOf("user")
+fun Route.emailRouting() {
+    val emailRepository = EmailRepository()
+    val emailMapper = Mappers.getMapper(EmailMapper::class.java)
+    route("/v1/api/user/emails", {
+        tags = listOf("email")
         response {
             HttpStatusCode.OK to {
                 description = "Successful Request"
@@ -80,6 +40,43 @@ fun Route.userRouting() {
         }
     }) {
         authenticate("auth-jwt") {
+
+            post({
+                description = "create email."
+                request {
+//                pathParameter<String>("operation") {
+//                    description = "the math operation to perform. Either 'add' or 'sub'"
+//                    example = "add"
+//                }
+                    body<EmailUserPost> {
+                        example("First", EmailUserPost(address = "address@domail.com")) {
+                            description = "First example"
+                        }
+                        example(
+                            "Second",
+                            EmailUserPost(address = "address2@domail.com")
+                        ) {
+                            description = "Second example"
+                        }
+                        required = true
+                    }
+                }
+                response {
+                    HttpStatusCode.Created to {
+                        description = "Created"
+                    }
+                }
+            }) {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal!!.payload.getClaim("id").asLong()
+                val email = emailMapper.emailUserPostToEmail(call.receive<EmailUserPost>()).apply { this.userId = userId }
+                validateEmail(email).errors.let {
+                    if (it.isNotEmpty()) throw ValidationExceptions(it)
+                }
+                emailRepository.insertEmail(email)
+//            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
+                call.response.status(HttpStatusCode.Created)
+            }
             get({
                 request {
                     queryParameter<Int>("page") {
@@ -92,7 +89,7 @@ fun Route.userRouting() {
                 response {
                     HttpStatusCode.OK to {
                         description = "Successful Request"
-                        body<List<UserResponse>> {
+                        body<List<EmailResponse>> {
                             mediaType(ContentType.Application.Json)
                             description = "the response"
                         }
@@ -101,9 +98,11 @@ fun Route.userRouting() {
             }) {
                 val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
                 val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal!!.payload.getClaim("id").asLong()
                 call.respond(
-                    userMapper.userListToUserResponseList(
-                        userRepository.fetchUsers(page, size).toList()
+                    emailMapper.emailListToEmailResponseList(
+                        emailRepository.fetchEmailsByUserId(page, size, userId).toList()
                     )
                 )
             }
@@ -116,38 +115,53 @@ fun Route.userRouting() {
                 }
                 response {
                     HttpStatusCode.OK to {
-                        body<UserResponse> {
+                        body<EmailResponse> {
                             mediaType(ContentType.Application.Json)
                             description = "the response"
                         }
                     }
                 }
             }) {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal!!.payload.getClaim("id").asLong()
                 val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
-                val user =
-                    userRepository.fetchUser(id) ?: throw NotFoundException()
-                call.respond(user)
+                val email =
+                    emailRepository.fetchEmail(id) ?: throw NotFoundException()
+                if(email.userId != userId) throw NotFoundException()
+                call.respond(email)
             }
-            patch({
+            patch("{id}", {
                 request {
-                    body<UserPatch> {
-                        example("First", UserPatch(nickname = "nickname", password = "Password12!")) {
-                            description = "nickname"
+                    pathParameter<Long>("id") {
+                        description = "id"
+                        required = true
+                    }
+                    body<EmailUserPatch> {
+                        example("First", EmailUserPatch(address = "address@domail.com", )) {
+                            description = "First Example"
                         }
-                        example("Second", UserPatch(nickname = "nickname2", password = "Password1234!")) {
-                            description = "nickname2"
+                        example("Second", EmailUserPatch(address = "address2@domail.com", )) {
+                            description = "Second Example"
                         }
                         required = true
                     }
                 }
             }) {
                 val principal = call.principal<JWTPrincipal>()
-                val id = principal!!.payload.getClaim("id").asLong()
+                val userId = principal!!.payload.getClaim("id").asLong()
+                val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
+                if(emailRepository.fetchEmail(id)!!.userId!=userId){
+                    throw NotFoundException()
+                }
                 call.respond(
-                    userRepository.updateUser(
-                        userMapper.userPatchToUserData(
-                            call.receive<UserPatch>()
-                        ).apply { this.id = id }
+                    emailRepository.updateEmail(
+                        emailMapper.emailUserPatchToEmailData(
+                            call.receive<EmailUserPatch>()
+                        ).apply {
+                            validateEmailData(this).errors.let {
+                                if (it.isNotEmpty()) throw ValidationExceptions(it)
+                            }
+                            this.id = id }
                     )
                 )
             }
@@ -155,12 +169,12 @@ fun Route.userRouting() {
             }) {
                 val principal = call.principal<JWTPrincipal>()
                 val id = principal!!.payload.getClaim("id").asLong()
-                userRepository.deleteUser(id)
+                emailRepository.deleteAllEmailsByUserId(id)
                 call.response.status(HttpStatusCode.OK)
             }
         }
     }
-    route("/v1/api/admin/admins", {
+    route("/v1/api/admin/emails", {
         description = "administrator role is required"
         tags = listOf("admin")
         response {
@@ -192,7 +206,7 @@ fun Route.userRouting() {
             }) {
                 val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
                 val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
-                call.respond(userRepository.fetchUsers(page, size))
+                call.respond(emailRepository.fetchEmails(page, size))
             }
             get("{id}", {
                 request {
@@ -203,26 +217,26 @@ fun Route.userRouting() {
                 }
             }) {
                 val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
-                val user =
-                    userRepository.fetchUser(id) ?: throw NotFoundException()
-                call.respond(user)
+                val email =
+                    emailRepository.fetchEmail(id) ?: throw NotFoundException()
+                call.respond(email)
             }
             post({
-                description = "create account."
+                description = "create email."
                 request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
 //                    example = "add"
 //                }
-                    body<User> {
-                        example("First", User(username = "username", nickname = "nickname", password = "Password12!")) {
-                            description = "nickname"
+                    body<Email> {
+                        example("First", Email(address = "address@domail.com", userId = 1)) {
+                            description = "First Example"
                         }
                         example(
                             "Second",
-                            User(username = "username", nickname = "nickname2", password = "Password1234!")
+                            Email(address = "address2@domail.com", userId = 2)
                         ) {
-                            description = "nickname2"
+                            description = "Second Example"
                         }
                         required = true
                     }
@@ -230,19 +244,18 @@ fun Route.userRouting() {
                 response {
                     HttpStatusCode.Created to {
                         description = "Successful Request"
-                        body<User> {
+                        body<Email> {
                             mediaType(ContentType.Application.Json)
                             description = "the response"
                         }
                     }
                 }
             }) {
-                val user = call.receive<User>()
-
-                validateUser(user).errors.let {
+                val email = call.receive<Email>()
+                validateEmail(email).errors.let {
                     if (it.isNotEmpty()) throw ValidationExceptions(it)
                 }
-                call.respond(status = HttpStatusCode.Created, userRepository.insertAdmin(user))
+                call.respond(status = HttpStatusCode.Created, emailRepository.insertEmail(email))
             }
             patch("{id}", {
                 request {
@@ -250,22 +263,26 @@ fun Route.userRouting() {
                         description = "id"
                         required = true
                     }
-                    body<UserPatch> {
-                        example("First", UserPatch(nickname = "nickname", password = "Password12!")) {
-                            description = "nickname"
+                    body<EmailPatch> {
+                        example("First", EmailPatch(address = "address@domail.com", userId = 1)) {
+                            description = "First Example"
                         }
-                        example("Second", UserPatch(nickname = "nickname2", password = "Password1234!")) {
-                            description = "nickname2"
+                        example("Second", EmailPatch(address = "address2@domail.com", userId = 2)) {
+                            description = "Second Example"
                         }
                         required = true
                     }
                 }
             }) {
                 call.respond(
-                    userRepository.updateUser(
-                        userMapper.userPatchToUserData(
-                            call.receive<UserPatch>()
-                        ).apply { id = call.parameters["id"]!!.toLong() }
+                    emailRepository.updateEmail(
+                        emailMapper.emailPatchToEmailData(
+                            call.receive<EmailPatch>()
+                        ).apply {
+                            validateEmailData(this).errors.let {
+                                if (it.isNotEmpty()) throw ValidationExceptions(it)
+                            }
+                            id = call.parameters["id"]!!.toLong() }
                     )
                 )
             }
@@ -278,8 +295,8 @@ fun Route.userRouting() {
                 }
             }) {
                 val id = call.parameters["id"]?.toLong() ?: return@delete call.respond(HttpStatusCode.BadRequest)
-                if (userRepository.fetchUser(id)==null) {
-                    userRepository.deleteUser(id)
+                if (emailRepository.fetchEmail(id)!=null) {
+                    emailRepository.deleteEmail(id)
                     call.respondText("Customer removed correctly", status = HttpStatusCode.Accepted)
                 } else {
                     call.respondText("Not Found", status = HttpStatusCode.NotFound)

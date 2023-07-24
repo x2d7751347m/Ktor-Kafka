@@ -164,9 +164,9 @@ fun Route.securityRouting() {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }
             val user =
-                userRepository.findUserByUsername(loginForm.username) ?: throw NotFoundException("user not found")
+                userRepository.fetchUserByUsername(loginForm.username) ?: throw NotFoundException("user not found")
             // Check username and password
-            userRepository.findUserByUsername(loginForm.username)?.run {
+            userRepository.fetchUserByUsername(loginForm.username)?.run {
 
                 // Check that an unencrypted password matches one that has
                 // previously been hashed
