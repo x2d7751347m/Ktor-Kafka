@@ -121,7 +121,11 @@ image::.adoc/images/aws_architecture.jpg[]
 
 == User table columns
 
-image::.adoc/images/Db Table.PNG[]
+image::.adoc/images/User Table.PNG[]
+
+== Email table columns
+
+image::.adoc/images/Email Table.PNG[]
 
 == How to use
 
