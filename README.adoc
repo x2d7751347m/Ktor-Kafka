@@ -21,9 +21,9 @@ image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI",window=_blank]
 
 == Swagger ui (Check out available APIs here!)
 
-http://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080
 
 .Hours of Service: (UTC +9) Monday- Friday: 09:00 - 18:00
+http://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080
 
  http://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080
 
