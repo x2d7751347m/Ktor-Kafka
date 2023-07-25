@@ -47,8 +47,6 @@ http://localhost:8080
 
 . Websocket url Including Kafka
 
-Day-off
-
  ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080:8080/messages/{group}
 
 ... If running on a local server
