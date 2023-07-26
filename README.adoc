@@ -37,27 +37,27 @@ http://localhost:8080
 
 . Websocket url without Kafka
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/chat
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/chat
 
 ... If running on a local server
 
- ws://localhost:8080/chat
+ ws://localhost:8080/v1/api/chat
 
 .. Note) /chat consists of connections only within one server without kafka.
 
 . Websocket url Including Kafka
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080:8080/messages/{group}
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/messages/{group}
 
 ... If running on a local server
 
-... ws://localhost:8080/messages/{group}
+... ws://localhost:8080/v1/api/messages/{group}
 
 .. e.g)
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/socket?food_topic
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/messages/food_topic
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/socket?room1
+ ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/messages/food_topic
 
 . Note) Swagger does not support WebSockets
 
