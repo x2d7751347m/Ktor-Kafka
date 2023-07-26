@@ -145,10 +145,19 @@ bye // command for disconnect
 did you still alive? // It is not a server-side command, but written in mock client test code in `src/test/kotlin/com/aftertime/ApplicationTest.kt`.
 ----
 
+
 === Notice
 
 ... You don't need to create a user when connecting to `/messages/{group}`.
 ... If you connected with `Authorization` header, the server shows your nickname.
 
 .../admins/... paths can only be accessed by admins(set your role to `ADMIN`.)
+
+
+== Flow Chart
+
+https://holy-tungsten-cc5.notion.site/56c389c4552947af99edb88239ad7e56?v=321dc448197244fcb3d515c811714d77&pvs=4
+
+ https://holy-tungsten-cc5.notion.site/56c389c4552947af99edb88239ad7e56?v=321dc448197244fcb3d515c811714d77&pvs=4
+
 
