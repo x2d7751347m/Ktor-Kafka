@@ -5,6 +5,7 @@ import com.x2d7751347m.dto.UserPost
 import com.x2d7751347m.dto.UserResponse
 import com.x2d7751347m.entity.User
 import com.x2d7751347m.entity.validateUser
+import com.x2d7751347m.entity.validateUserPost
 import com.x2d7751347m.mapper.UserMapper
 import com.x2d7751347m.plugins.ExceptionResponse
 import com.x2d7751347m.plugins.ValidationExceptions
@@ -53,8 +54,9 @@ fun Route.userRouting() {
                 }
             }
         }) {
-            val user = userMapper.userPostToUser(call.receive<UserPost>())
-
+            val userPost = call.receive<UserPost>()
+            validateUserPost(userPost)
+            val user = userMapper.userPostToUser(userPost)
             validateUser(user).errors.let {
                 if (it.isNotEmpty()) throw ValidationExceptions(it)
             }

@@ -1,6 +1,7 @@
 package com.x2d7751347m.entity
 
 import com.x2d7751347m.dto.GlobalDto
+import com.x2d7751347m.dto.UserPost
 import com.x2d7751347m.plugins.BigDecimalSerializer
 import io.konform.validation.Validation
 import io.konform.validation.jsonschema.maxLength
@@ -31,6 +32,25 @@ val emailStorage = mutableListOf<Email>()
 val userStorage = mutableListOf<User>()
 val currentMoment: Instant = Clock.System.now()
 val localDateTime1 = currentMoment.toLocalDateTime(TimeZone.UTC)
+
+val validateUserPost = Validation {
+    UserPost::username ifPresent {
+//        minLength(2)
+        maxLength(30)
+    }
+    UserPost::nickname ifPresent {
+        pattern("[a-z\\d_]{2,20}$") hint "Please provide a valid nickname that combination of numbers or letters.)"
+        minLength(4)
+        maxLength(16)
+
+    }
+    UserPost::password ifPresent {
+        pattern("^(?=.*[a-zA-Z])(?=.*\\d)[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,30}$") hint "Please provide a valid password that combination of numbers and letters. Also, special characters are allowed.)"
+//        pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#@$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/])[A-Za-z\\d#@\$^!%*?&()\\-_=+`~\\[{\\]};:'\",<.>/]{8,20}$") hint "Please provide a valid password"
+    }
+    UserPost::tribal required  {
+        }
+}
 
 val validateUser = Validation {
     User::username ifPresent {
@@ -81,6 +101,10 @@ enum class NetworkStatus(val status: String) {
     ENTRY("entry"), EXIT("exit"), PLAYER_SYNC("playerSync"), PLAYER_ARRAY_SYNC("playerArraySync"),
 }
 
+enum class Tribal {
+    PETAL, ZARD, ASPROUT, CONZ
+}
+
 @Serializable
 data class User(
     var id: Long = 0,
@@ -90,6 +114,11 @@ data class User(
     // Highly Inflationary Currency
     @Serializable(with = BigDecimalSerializer::class)
     var credit: BigDecimal = BigDecimal.ZERO,
+    var tribal: Tribal? = null,
+    var currentHead: Int? = null,
+    var currentTop: Int? = null,
+    var currentBottom: Int? = null,
+    var currentBoost: Int? = null,
     var userRole: UserRole = UserRole.USER,
     var userStatus: UserStatus = UserStatus.ACTIVE,
     val createdAt: LocalDateTime? = null,
@@ -109,6 +138,11 @@ data class UserData(
     var password: String? = null,
     @Serializable(with = BigDecimalSerializer::class)
     var credit: BigDecimal? = null,
+    var tribal: Tribal? = null,
+    var currentHead: Int? = null,
+    var currentTop: Int? = null,
+    var currentBottom: Int? = null,
+    var currentBoost: Int? = null,
     var userRole: UserRole? = null,
     var userStatus: UserStatus? = null,
     val createdAt: LocalDateTime? = null,
