@@ -92,7 +92,7 @@ fun Route.socketRouting() {
         }
     }
 
-    webSocket("/chat") {
+    webSocket("v1/api/chat") {
 
         val thisConnection: Connection
         connectionMutex.withLock {
@@ -242,7 +242,7 @@ fun Route.socketRouting() {
     }
 
     authenticate("auth-jwt") {
-        webSocket("/messages/{group}") {
+        webSocket("/v1/api/messages/{group}") {
 
             val currentMoment: Instant = kotlinx.datetime.Clock.System.now()
             val log = logger<Application>()
