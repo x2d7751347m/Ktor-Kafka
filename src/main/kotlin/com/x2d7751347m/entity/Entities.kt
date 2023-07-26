@@ -101,10 +101,6 @@ enum class NetworkStatus(val status: String) {
     ENTRY("entry"), EXIT("exit"), PLAYER_SYNC("playerSync"), PLAYER_ARRAY_SYNC("playerArraySync"),
 }
 
-enum class Tribal {
-    PETAL, ZARD, ASPROUT, CONZ
-}
-
 @Serializable
 data class User(
     var id: Long = 0,
@@ -114,7 +110,7 @@ data class User(
     // Highly Inflationary Currency
     @Serializable(with = BigDecimalSerializer::class)
     var credit: BigDecimal = BigDecimal.ZERO,
-    var tribal: Tribal? = null,
+    var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
@@ -138,7 +134,7 @@ data class UserData(
     var password: String? = null,
     @Serializable(with = BigDecimalSerializer::class)
     var credit: BigDecimal? = null,
-    var tribal: Tribal? = null,
+    var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,

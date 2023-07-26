@@ -1,6 +1,5 @@
 package com.x2d7751347m.dto
 
-import com.x2d7751347m.entity.Tribal
 import com.x2d7751347m.entity.UserStatus
 import com.x2d7751347m.plugins.BigDecimalSerializer
 import io.swagger.v3.oas.annotations.media.Schema
@@ -20,7 +19,7 @@ data class UserPost(
     @Serializable(with = BigDecimalSerializer::class)
     @field:Schema(description = "Highly Inflationary Currency", implementation = String::class, type = "string", example = "0")
     var credit: BigDecimal = BigDecimal.ZERO,
-    var tribal: Tribal? = null,
+    var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
@@ -38,7 +37,7 @@ data class UserPatch(
     @Serializable(with = BigDecimalSerializer::class)
     @field:Schema(description = "Highly Inflationary Currency", implementation = String::class, type = "string", example = "0")
     var credit: BigDecimal = BigDecimal.ZERO,
-    var tribal: Tribal? = null,
+    var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
@@ -57,7 +56,7 @@ data class UserResponse(
     @Serializable(with = BigDecimalSerializer::class)
     @field:Schema(description = "Highly Inflationary Currency", implementation = String::class, type = "string", example = "0")
     var credit: BigDecimal? = null,
-    var tribal: Tribal? = null,
+    var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
     var currentBottom: Int? = null,
