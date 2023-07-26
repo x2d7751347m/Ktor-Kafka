@@ -28,7 +28,7 @@ fun Route.userRouting() {
         tags = listOf("user")
     }) {
         post({
-            description = "create user."
+            summary = "create user."
             request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
@@ -81,6 +81,7 @@ fun Route.userRouting() {
     }) {
         authenticate("auth-jwt") {
             get({
+                summary = "get users"
                 request {
                     queryParameter<Int>("page") {
                         example = 1
@@ -108,6 +109,7 @@ fun Route.userRouting() {
                 )
             }
             get("{id}", {
+                summary = "get user by id"
                 request {
                     pathParameter<Long>("id") {
                         description = "id"
@@ -129,6 +131,7 @@ fun Route.userRouting() {
                 call.respond(user)
             }
             patch({
+                summary = "patch user"
                 request {
                     body<UserPatch> {
                         example("First", UserPatch(nickname = "nickname", password = "Password12!")) {
@@ -152,6 +155,7 @@ fun Route.userRouting() {
                 )
             }
             delete({
+                summary = "delete user"
             }) {
                 val principal = call.principal<JWTPrincipal>()
                 val id = principal!!.payload.getClaim("id").asLong()

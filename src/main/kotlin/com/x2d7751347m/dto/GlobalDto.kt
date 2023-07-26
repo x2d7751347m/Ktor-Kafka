@@ -8,5 +8,6 @@ class GlobalDto {
     data class LoginForm(
         val username: String,
         val password: String,
+        val deviceId: String,
     )
 }

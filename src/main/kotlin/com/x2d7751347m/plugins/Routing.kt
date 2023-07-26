@@ -186,7 +186,7 @@ fun Application.configureRouting() {
             emailRouting()
             socketRouting()
             get("/health", {
-                description = "health check Endpoint."
+                summary = "health check Endpoint."
                 response {
                     HttpStatusCode.OK to {
                         description = "Successful Request"

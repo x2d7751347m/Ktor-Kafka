@@ -42,7 +42,7 @@ fun Route.emailRouting() {
         authenticate("auth-jwt") {
 
             post({
-                description = "create email."
+                summary = "create email."
                 request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
@@ -78,6 +78,7 @@ fun Route.emailRouting() {
                 call.response.status(HttpStatusCode.Created)
             }
             get({
+                summary = "get emails"
                 request {
                     queryParameter<Int>("page") {
                         example = 1
@@ -107,6 +108,7 @@ fun Route.emailRouting() {
                 )
             }
             get("{id}", {
+                summary = "get email by id"
                 request {
                     pathParameter<Long>("id") {
                         description = "id"
@@ -131,6 +133,7 @@ fun Route.emailRouting() {
                 call.respond(email)
             }
             patch("{id}", {
+                summary = "patch email by id"
                 request {
                     pathParameter<Long>("id") {
                         description = "id"
@@ -166,6 +169,7 @@ fun Route.emailRouting() {
                 )
             }
             delete({
+                summary = "delete email"
             }) {
                 val principal = call.principal<JWTPrincipal>()
                 val id = principal!!.payload.getClaim("id").asLong()

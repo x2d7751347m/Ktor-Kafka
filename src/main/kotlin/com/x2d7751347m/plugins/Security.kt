@@ -123,7 +123,8 @@ fun Route.securityRouting() {
     val jwtIssuer = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.issuer")!!.getString()
     val jwtAudience = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.audience")!!.getString()
     val jwtRealm = HoconApplicationConfig(ConfigFactory.load()).propertyOrNull("jwt.realm")!!.getString()
-    route("", {
+    route("/v1/api", {
+        tags = listOf("auth")
         response {
             HttpStatusCode.OK to {
                 description = "Successful Request"
@@ -138,16 +139,16 @@ fun Route.securityRouting() {
             }
         }
     }) {
-        post("/login", {
-            description = "login"
+        post("/sign-in", {
+            summary = "log-in"
             request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
 //                    example = "add"
 //                }
                 body<GlobalDto.LoginForm> {
-                    example("First", GlobalDto.LoginForm(username = "username", password = "Password12!")) {
-                        description = "Enter your username and password"
+                    example("First", GlobalDto.LoginForm(username = "username", password = "Password12!", deviceId = "device1")) {
+                        description = "Enter your username and password and device id"
                     }
                     required = true
                 }
@@ -177,14 +178,15 @@ fun Route.securityRouting() {
                 .withIssuer(jwtIssuer)
                 .withClaim("id", user.id)
                 .withClaim("role", user.userRole.name)
+                .withClaim("device-id", loginForm.deviceId)
                 .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
                 .sign(Algorithm.HMAC256(jwtSecret))
             call.response.headers.append(HttpHeaders.Authorization, token)
             call.response.status(HttpStatusCode.OK)
         }
-        post("/oauth-login", {
-            description = "oauth login" +
-                    "not implemented"
+        post("/oauth-sign-in", {
+            summary = "oauth log-in"
+            description = "not implemented"
             request {
 //                pathParameter<String>("operation") {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
@@ -249,8 +251,9 @@ fun Route.securityRouting() {
         }
     }
     authenticate("auth-jwt") {
-        get("/token/refresh", {
-            description = "token refresh"
+        get("/v1/api/token/refresh", {
+            tags = listOf("auth")
+            summary = "token refresh"
             response {
                 HttpStatusCode.OK to {
                     description = "Successful Request"
