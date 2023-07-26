@@ -130,6 +130,23 @@ fun Route.userRouting() {
                     userRepository.fetchUser(id) ?: throw NotFoundException()
                 call.respond(user)
             }
+            get("me", {
+                summary = "get my user information"
+                response {
+                    HttpStatusCode.OK to {
+                        body<UserResponse> {
+                            mediaType(ContentType.Application.Json)
+                            description = "the response"
+                        }
+                    }
+                }
+            }) {
+                val principal = call.principal<JWTPrincipal>()
+                val id = principal!!.payload.getClaim("id").asLong()
+                val user =
+                    userRepository.fetchUser(id) ?: throw NotFoundException()
+                call.respond(user)
+            }
             patch({
                 summary = "patch user"
                 request {
