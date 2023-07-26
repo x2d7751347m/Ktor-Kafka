@@ -253,7 +253,7 @@ fun Route.securityRouting() {
     authenticate("auth-jwt") {
         get("/v1/api/token/refresh", {
             tags = listOf("auth")
-            summary = "token refresh"
+            summary = "refresh token"
             response {
                 HttpStatusCode.OK to {
                     description = "Successful Request"
