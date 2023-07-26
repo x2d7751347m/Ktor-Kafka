@@ -85,6 +85,9 @@ suspend fun initR2dbcDatabase() {
                 "ALTER TABLE `user`\n" +
                         "\tCHANGE COLUMN `credit` `credit` DECIMAL(65,0) NOT NULL DEFAULT 0 AFTER `password`;"
                 )
+    } } catch (_: R2dbcBadGrammarException){}
+    try {
+        db.runQuery {
         QueryDsl.executeScript("ALTER TABLE `user`\n" +
                 "\tADD UNIQUE INDEX `id` (`id`),\n" +
                 "\tADD UNIQUE INDEX `username` (`username`);"
