@@ -1,21 +1,22 @@
 package com.x2d7751347m.repository
 
-import com.x2d7751347m.entity.User
-import com.x2d7751347m.entity.UserData
-import com.x2d7751347m.entity.admin
-import com.x2d7751347m.entity.user
+import com.x2d7751347m.entity.*
 import com.x2d7751347m.plugins.ConflictException
-import com.x2d7751347m.options
 import com.x2d7751347m.r2dbcDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
+import org.komapper.core.dsl.operator.count
 import org.komapper.core.dsl.query.firstOrNull
+import org.komapper.core.dsl.query.on
 import org.mindrot.jbcrypt.BCrypt
+import java.math.BigDecimal
 
 class UserRepository {
 
+    val emailDef = Meta.email
+    private val onEmailUser = on { emailDef.userId eq userDef.id }
     val userDef = Meta.user
     val adminDef = Meta.admin
     val db = r2dbcDatabase
@@ -47,6 +48,7 @@ class UserRepository {
                     userData.nickname?.run { userDef.nickname eq this }
                     userData.password?.run { userDef.password eq BCrypt.hashpw(this, BCrypt.gensalt(12)) }
                     userData.credit?.run { userDef.credit eq this }
+                    userData.profileImageId?.run { userDef.profileImageId eq this }
                     userData.tribal?.run { userDef.tribal eq this }
                     userData.currentTop?.run { userDef.currentTop eq this }
                     userData.currentBoost?.run { userDef.currentBoost eq this }
@@ -108,6 +110,14 @@ class UserRepository {
         // SELECT
         val user = db.runQuery {
             QueryDsl.from(userDef).where { userDef.nickname eq nickname }.firstOrNull()
+        }
+        return user
+    }
+    suspend fun fetchUserByEmail(address: String): User? {
+
+        // SELECT
+        val user = db.runQuery {
+            QueryDsl.from(userDef).leftJoin(emailDef, onEmailUser).where { emailDef.address eq address }.firstOrNull()
         }
         return user
     }

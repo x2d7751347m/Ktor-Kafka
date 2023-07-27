@@ -126,9 +126,9 @@ dependencies {
     implementation("org.mariadb:r2dbc-mariadb:1.1.4")
     ksp("org.komapper:komapper-processor")
 
-//    runtimeOnly("org.komapper:komapper-slf4j:$komapperVersion")
+    runtimeOnly("org.komapper:komapper-slf4j:$komapperVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-    implementation("io.github.smiley4:ktor-swagger-ui:2.2.0")
+    implementation("io.github.smiley4:ktor-swagger-ui:2.2.2")
     implementation("io.konform:konform:0.4.0")
     implementation("de.svenkubiak:jBCrypt:0.4.1")
     implementation("com.google.api-client:google-api-client:2.2.0")

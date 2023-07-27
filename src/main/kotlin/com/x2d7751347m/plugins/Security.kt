@@ -262,10 +262,23 @@ fun Route.securityRouting() {
             }
 
         }) {
+
             val principal = call.principal<JWTPrincipal>()
-            val id = principal!!.payload.getClaim("id").asString()
-            val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
-            call.respondText("Hello, $id! Token is expired at $expiresAt ms.")
+            val id = principal!!.payload.getClaim("id").asLong()
+            val user =
+                userRepository.fetchUser(id) ?: throw NotFoundException("user not found")
+            val token = JWT.create()
+                .withAudience(jwtAudience)
+                .withIssuer(jwtIssuer)
+                .withClaim("id", user.id)
+                .withClaim("role", user.userRole.name)
+                .withClaim("device-id", principal!!.payload.getClaim("device-id").asString())
+                .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
+                .sign(Algorithm.HMAC256(jwtSecret))
+            call.response.headers.append(HttpHeaders.Authorization, token)
+            call.response.status(HttpStatusCode.OK)
+//            val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
+//            call.respondText("Hello, $id! Token is expired at $expiresAt ms.")
         }
     }
 }

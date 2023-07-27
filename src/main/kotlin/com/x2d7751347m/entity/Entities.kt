@@ -7,6 +7,7 @@ import io.konform.validation.Validation
 import io.konform.validation.jsonschema.maxLength
 import io.konform.validation.jsonschema.minLength
 import io.konform.validation.jsonschema.pattern
+import io.r2dbc.spi.Blob
 import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
 import org.komapper.annotation.*
@@ -110,6 +111,7 @@ data class User(
     // Highly Inflationary Currency
     @Serializable(with = BigDecimalSerializer::class)
     var credit: BigDecimal = BigDecimal.ZERO,
+    var profileImageId: Long? = null,
     var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
@@ -134,6 +136,7 @@ data class UserData(
     var password: String? = null,
     @Serializable(with = BigDecimalSerializer::class)
     var credit: BigDecimal? = null,
+    var profileImageId: Long? = null,
     var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
@@ -210,6 +213,68 @@ data class EmailData(
 
 @KomapperEntityDef(Email::class)
 data class EmailDef(
+    @KomapperId
+    @KomapperAutoIncrement
+    val id: Nothing,
+    @KomapperVersion
+    val version: Nothing,
+    @KomapperCreatedAt
+    val createdAt: LocalDateTime,
+    @KomapperUpdatedAt
+    val updatedAt: LocalDateTime,
+)
+
+@Serializable
+data class ImageFile(
+    var id: Long = 0,
+    var name: String = "",
+    var type: String = "",
+    var userId: Long? = null,
+    val version: Int = 0,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
+    var data: ByteArray? = null,
+)
+
+@Serializable
+data class ImageFileData(
+    var id: Long? = null,
+    var name: String? = null,
+    var type: String? = null,
+    var userId: Long? = null,
+    val version: Int? = null,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
+    var data: ByteArray? = null,
+)
+
+@KomapperEntityDef(ImageFile::class)
+data class ImageFileDef(
+    @KomapperId
+    @KomapperAutoIncrement
+    val id: Nothing,
+    @KomapperVersion
+    val version: Nothing,
+    @KomapperCreatedAt
+    val createdAt: LocalDateTime,
+    @KomapperUpdatedAt
+    val updatedAt: LocalDateTime,
+)
+
+@Serializable
+data class ImageFileCreation(
+    var id: Long = 0,
+    var name: String = "",
+    var type: String = "",
+    var userId: Long? = null,
+    val version: Int = 0,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null,
+)
+
+@KomapperEntityDef(ImageFileCreation::class)
+@KomapperTable("image_file")
+data class ImageFileCreationDef(
     @KomapperId
     @KomapperAutoIncrement
     val id: Nothing,

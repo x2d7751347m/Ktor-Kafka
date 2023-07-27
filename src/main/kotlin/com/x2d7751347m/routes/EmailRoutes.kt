@@ -49,12 +49,12 @@ fun Route.emailRouting() {
 //                    example = "add"
 //                }
                     body<EmailUserPost> {
-                        example("First", EmailUserPost(address = "address@domail.com")) {
+                        example("First", EmailUserPost(address = "address@domain.com")) {
                             description = "First example"
                         }
                         example(
                             "Second",
-                            EmailUserPost(address = "address2@domail.com")
+                            EmailUserPost(address = "address2@domain.com")
                         ) {
                             description = "Second example"
                         }
@@ -140,10 +140,10 @@ fun Route.emailRouting() {
                         required = true
                     }
                     body<EmailUserPatch> {
-                        example("First", EmailUserPatch(address = "address@domail.com", )) {
+                        example("First", EmailUserPatch(address = "address@domain.com", )) {
                             description = "First Example"
                         }
-                        example("Second", EmailUserPatch(address = "address2@domail.com", )) {
+                        example("Second", EmailUserPatch(address = "address2@domain.com", )) {
                             description = "Second Example"
                         }
                         required = true
@@ -233,12 +233,12 @@ fun Route.emailRouting() {
 //                    example = "add"
 //                }
                     body<Email> {
-                        example("First", Email(address = "address@domail.com", userId = 1)) {
+                        example("First", Email(address = "address@domain.com", userId = 1)) {
                             description = "First Example"
                         }
                         example(
                             "Second",
-                            Email(address = "address2@domail.com", userId = 2)
+                            Email(address = "address2@domain.com", userId = 2)
                         ) {
                             description = "Second Example"
                         }
@@ -268,10 +268,10 @@ fun Route.emailRouting() {
                         required = true
                     }
                     body<EmailPatch> {
-                        example("First", EmailPatch(address = "address@domail.com", userId = 1)) {
+                        example("First", EmailPatch(address = "address@domain.com", userId = 1)) {
                             description = "First Example"
                         }
-                        example("Second", EmailPatch(address = "address2@domail.com", userId = 2)) {
+                        example("Second", EmailPatch(address = "address2@domain.com", userId = 2)) {
                             description = "Second Example"
                         }
                         required = true

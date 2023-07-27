@@ -7,6 +7,7 @@ import com.x2d7751347m.entity.User
 import com.x2d7751347m.entity.validateUser
 import com.x2d7751347m.entity.validateUserPost
 import com.x2d7751347m.mapper.UserMapper
+import com.x2d7751347m.plugins.ConflictException
 import com.x2d7751347m.plugins.ExceptionResponse
 import com.x2d7751347m.plugins.ValidationExceptions
 import com.x2d7751347m.repository.UserRepository
@@ -63,6 +64,44 @@ fun Route.userRouting() {
             userRepository.insertUser(user)
 //            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
             call.response.status(HttpStatusCode.Created)
+        }
+        post("available-nicknames", {
+            summary = "check available nicknames."
+            request {
+                queryParameter<String>("nickname") {
+                    description = "nickname"
+                    example = "nickname1"
+                }
+            }
+            response {
+                HttpStatusCode.OK to {
+                    description = "OK"
+                }
+            }
+        }) {
+            val nickname = call.parameters["nickname"] ?: throw BadRequestException("nickname is null")
+            userRepository.fetchUserByNickName(nickname)?.run { throw ConflictException("nickname is already in use") }
+//            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
+            call.response.status(HttpStatusCode.OK)
+        }
+        post("available-emails", {
+            summary = "check available emails."
+            request {
+                queryParameter<String>("email") {
+                    description = "email"
+                    example = "email@domain.com"
+                }
+            }
+            response {
+                HttpStatusCode.OK to {
+                    description = "OK"
+                }
+            }
+        }) {
+            val email = call.parameters["email"] ?: throw BadRequestException("email is null")
+            userRepository.fetchUserByEmail(email)?.run { throw ConflictException("email is already in use") }
+//            CoroutineScope(Job()).launch { Mail().sendEmail("hahaha") }
+            call.response.status(HttpStatusCode.OK)
         }
     }
     route("/v1/api/user/users", {
@@ -133,7 +172,7 @@ fun Route.userRouting() {
                 call.respond(user)
             }
             get("me", {
-                summary = "get my user information"
+                summary = "get user information of mine"
                 response {
                     HttpStatusCode.OK to {
                         body<UserResponse> {

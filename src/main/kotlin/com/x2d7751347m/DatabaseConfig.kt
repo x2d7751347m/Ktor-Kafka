@@ -2,6 +2,8 @@ package com.x2d7751347m
 
 import com.typesafe.config.ConfigFactory
 import com.x2d7751347m.entity.email
+import com.x2d7751347m.entity.imageFile
+import com.x2d7751347m.entity.imageFileCreation
 import com.x2d7751347m.entity.user
 import io.ktor.server.config.*
 import io.r2dbc.spi.ConnectionFactoryOptions
@@ -66,6 +68,7 @@ suspend fun initR2dbcDatabase() {
     val db: R2dbcDatabase = r2dbcDatabase
     val userDef = Meta.user
     val emailDef = Meta.email
+    val imageFileCreationDef = Meta.imageFileCreation
     val name = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.name").getString()
     // create a schema
     try {
@@ -79,6 +82,14 @@ suspend fun initR2dbcDatabase() {
     db.runQuery {
         QueryDsl.create(emailDef)
     }
+    db.runQuery {
+        QueryDsl.create(imageFileCreationDef)
+    }
+    try {
+    db.runQuery {
+        QueryDsl.executeScript("ALTER TABLE `image_file`\n" +
+                "\tADD COLUMN `data` VARBINARY(60000) NULL AFTER `updated_at`;")
+    } } catch (_: R2dbcBadGrammarException){}
     try {
     db.runQuery {
         QueryDsl.executeScript(

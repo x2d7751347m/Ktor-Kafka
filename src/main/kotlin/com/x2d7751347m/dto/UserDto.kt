@@ -19,6 +19,7 @@ data class UserPost(
     @Serializable(with = BigDecimalSerializer::class)
     @field:Schema(description = "Highly Inflationary Currency", implementation = String::class, type = "string", example = "0")
     var credit: BigDecimal = BigDecimal.ZERO,
+    var profileImageId: Long? = null,
     var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
@@ -37,6 +38,7 @@ data class UserPatch(
     @Serializable(with = BigDecimalSerializer::class)
     @field:Schema(description = "Highly Inflationary Currency", implementation = String::class, type = "string", example = "0")
     var credit: BigDecimal = BigDecimal.ZERO,
+    var profileImageId: Long? = null,
     var tribal: Int? = null,
     var currentHead: Int? = null,
     var currentTop: Int? = null,
@@ -53,6 +55,7 @@ data class UserResponse(
     var nickname: String? = null,
     @field:Schema(description = "Just a password.", example = "Password1!")
     var password: String? = null,
+    var profileImageId: Long? = null,
     @Serializable(with = BigDecimalSerializer::class)
     @field:Schema(description = "Highly Inflationary Currency", implementation = String::class, type = "string", example = "0")
     var credit: BigDecimal? = null,

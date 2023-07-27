@@ -31,8 +31,7 @@ class EmailRepository {
         db.runQuery {
             QueryDsl.update(emailDef)
                 .set {
-                    emailData.address?.run {
-                        emailDef.address eq this }
+                    emailData.address?.run { emailDef.address eq this }
                     emailData.userId?.run { emailDef.userId eq this }
                 }
                 .where { emailDef.id eq emailData.id }
