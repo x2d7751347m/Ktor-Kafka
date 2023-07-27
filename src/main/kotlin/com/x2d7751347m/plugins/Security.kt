@@ -56,6 +56,7 @@ fun Application.configureSecurity() {
     val jwtRealm = environment.config.property("jwt.realm").getString()
     install(Authentication) {
         jwt("auth-jwt") {
+            val userRepository = UserRepository()
             realm = jwtRealm
             verifier(
                 JWT
@@ -65,7 +66,7 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim("id").asString() != "" && !(this.request.path()
+                if (credential.payload.getClaim("id").asString() != "" && userRepository.fetchUser(credential.payload.getClaim("id").asLong()) != null && !(this.request.path()
                         .contains("/admins") && UserRole.valueOf(
                         credential.payload.getClaim("role").asString()
                     ) != UserRole.ADMIN)

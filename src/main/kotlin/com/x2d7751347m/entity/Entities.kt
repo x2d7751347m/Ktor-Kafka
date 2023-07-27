@@ -233,7 +233,7 @@ data class ImageFile(
     val version: Int = 0,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
-    var data: ByteArray? = null,
+    var data: Blob? = null,
 )
 
 @Serializable
@@ -245,36 +245,11 @@ data class ImageFileData(
     val version: Int? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
-    var data: ByteArray? = null,
+    var data: Blob? = null,
 )
 
 @KomapperEntityDef(ImageFile::class)
 data class ImageFileDef(
-    @KomapperId
-    @KomapperAutoIncrement
-    val id: Nothing,
-    @KomapperVersion
-    val version: Nothing,
-    @KomapperCreatedAt
-    val createdAt: LocalDateTime,
-    @KomapperUpdatedAt
-    val updatedAt: LocalDateTime,
-)
-
-@Serializable
-data class ImageFileCreation(
-    var id: Long = 0,
-    var name: String = "",
-    var type: String = "",
-    var userId: Long? = null,
-    val version: Int = 0,
-    val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null,
-)
-
-@KomapperEntityDef(ImageFileCreation::class)
-@KomapperTable("image_file")
-data class ImageFileCreationDef(
     @KomapperId
     @KomapperAutoIncrement
     val id: Nothing,

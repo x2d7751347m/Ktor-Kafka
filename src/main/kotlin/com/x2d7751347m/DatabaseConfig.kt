@@ -3,7 +3,7 @@ package com.x2d7751347m
 import com.typesafe.config.ConfigFactory
 import com.x2d7751347m.entity.email
 import com.x2d7751347m.entity.imageFile
-import com.x2d7751347m.entity.imageFileCreation
+import com.x2d7751347m.entity.imageFile
 import com.x2d7751347m.entity.user
 import io.ktor.server.config.*
 import io.r2dbc.spi.ConnectionFactoryOptions
@@ -68,7 +68,7 @@ suspend fun initR2dbcDatabase() {
     val db: R2dbcDatabase = r2dbcDatabase
     val userDef = Meta.user
     val emailDef = Meta.email
-    val imageFileCreationDef = Meta.imageFileCreation
+    val imageFileDef = Meta.imageFile
     val name = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.name").getString()
     // drop existing table
     try {
@@ -90,13 +90,15 @@ suspend fun initR2dbcDatabase() {
         QueryDsl.create(emailDef)
     }
     db.runQuery {
-        QueryDsl.create(imageFileCreationDef)
+        QueryDsl.create(imageFileDef)
     }
     try {
-    db.runQuery {
-        QueryDsl.executeScript("ALTER TABLE `image_file`\n" +
-                "\tADD COLUMN `data` VARBINARY(60000) NULL AFTER `updated_at`;")
-    } } catch (_: R2dbcBadGrammarException){}
+        db.runQuery {
+            QueryDsl.executeScript(
+                "ALTER TABLE `image_file`\n" +
+                        "\tCHANGE COLUMN `data` `data` MEDIUMBLOB NULL AFTER `updated_at`;"
+            )
+        } } catch (_: R2dbcBadGrammarException){}
     try {
     db.runQuery {
         QueryDsl.executeScript(

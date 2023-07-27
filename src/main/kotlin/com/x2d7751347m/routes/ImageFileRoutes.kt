@@ -17,12 +17,18 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.r2dbc.spi.Blob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitLast
+import kotlinx.coroutines.reactive.collect
 import kotlinx.serialization.builtins.serializer
 import org.mapstruct.factory.Mappers
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.ByteBuffer
 
@@ -34,6 +40,23 @@ data class Coords(
     val lat: Float,
     val long: Float
 )
+fun blobToByteArray(blob: Blob): ByteArray {
+    val initialByteBuffer = ByteBuffer.allocate(0)
+
+    return Flux.from(blob.stream())
+        .concatMap { buffer -> Flux.just(buffer) }
+        .reduce(initialByteBuffer) { acc, buffer ->
+            val combined = ByteBuffer.allocate(acc.remaining() + buffer.remaining())
+            combined.put(acc).put(buffer)
+            combined.flip()
+            combined
+        }
+        .map { buffer ->
+            val byteArray = ByteArray(buffer.remaining())
+            buffer.get(byteArray)
+            byteArray
+        }.block()!!
+}
 
 fun Route.imageFileRouting() {
     val imageFileRepository = ImageFileRepository()
@@ -72,11 +95,12 @@ fun Route.imageFileRouting() {
             }
         }) {
             val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
-            val imageFile =
-                imageFileRepository.fetchImageFile(id) ?: throw NotFoundException()
+            val imageFileData =
+                imageFileRepository.fetchImageFile(id)?.data ?: throw NotFoundException()
             call.response.headers.append(HttpHeaders.ContentType, "image/png")
             call.respondBytes(
-                imageFile.data!!)
+                blobToByteArray(imageFileData)
+            )
         }
         authenticate("auth-jwt") {
 
@@ -105,9 +129,7 @@ fun Route.imageFileRouting() {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal!!.payload.getClaim("id").asLong()
                 call.respond(
-//                    imageFileMapper.imageFileListToImageFileResponseList(
                     imageFileRepository.fetchImageFilesByUserId(page, size, userId).toList()
-//                    )
                 )
             }
             post({
@@ -155,7 +177,7 @@ fun Route.imageFileRouting() {
                         is PartData.FileItem -> {
                             fileName = part.originalFileName as String
                             val fileBytes = part.streamProvider().readBytes()
-                            imageFileRepository.insertImageFile(ImageFile(name = fileName, data = fileBytes,
+                            imageFileRepository.insertImageFile(ImageFile(name = fileName, data = Blob.from( Mono.just(ByteBuffer.wrap(fileBytes)) ),
                                 userId = userId))
                         }
 
