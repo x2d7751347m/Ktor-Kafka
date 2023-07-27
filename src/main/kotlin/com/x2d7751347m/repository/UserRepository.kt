@@ -117,7 +117,7 @@ class UserRepository {
 
         // SELECT
         val user = db.runQuery {
-            QueryDsl.from(userDef).leftJoin(emailDef, onEmailUser).where { emailDef.address eq address }.firstOrNull()
+            QueryDsl.from(userDef).innerJoin(emailDef, onEmailUser).where { emailDef.address eq address }.firstOrNull()
         }
         return user
     }
