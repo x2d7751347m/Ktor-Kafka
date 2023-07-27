@@ -4,7 +4,6 @@ import com.x2d7751347m.entity.Email
 import com.x2d7751347m.entity.EmailData
 import com.x2d7751347m.entity.email
 import com.x2d7751347m.plugins.ConflictException
-import com.x2d7751347m.options
 import com.x2d7751347m.r2dbcDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
@@ -17,7 +16,7 @@ class EmailRepository {
     val emailDef = Meta.email
     val db = r2dbcDatabase
     suspend fun insertEmail(email: Email): Email {
-        fetchEmailByaddress(email.address)?.run { throw ConflictException("This address is already in use.") }
+        fetchEmailByAddress(email.address)?.run { throw ConflictException("This address is already in use.") }
         db.runQuery {
             QueryDsl.insert(emailDef).single(email)
         }
@@ -27,7 +26,7 @@ class EmailRepository {
     }
 
     suspend fun updateEmail(emailData: EmailData): Email {
-        emailData.address?.run { fetchEmailByaddress(emailData.address!!)?.run { throw ConflictException("This address is already in use.")} }
+        emailData.address?.run { fetchEmailByAddress(emailData.address!!)?.run { throw ConflictException("This address is already in use.")} }
         db.runQuery {
             QueryDsl.update(emailDef)
                 .set {
@@ -68,7 +67,7 @@ class EmailRepository {
         return email
     }
 
-    suspend fun fetchEmailByaddress(address: String): Email? {
+    suspend fun fetchEmailByAddress(address: String): Email? {
 
         // SELECT
         val email = db.runQuery {
