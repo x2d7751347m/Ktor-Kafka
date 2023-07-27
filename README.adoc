@@ -119,13 +119,17 @@ image::.adoc/images/kafka-producers-consumers-topics.jpg[]
 
 image::.adoc/images/aws_architecture.jpg[]
 
-== User table columns
+== User table
 
 image::.adoc/images/User Table.PNG[]
 
-== Email table columns
+== Email table
 
 image::.adoc/images/Email Table.PNG[]
+
+== Image File table
+
+image::.adoc/images/Image File Table.PNG[]
 
 == How to use
 
