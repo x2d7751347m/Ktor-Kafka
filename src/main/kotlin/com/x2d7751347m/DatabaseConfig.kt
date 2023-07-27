@@ -70,6 +70,13 @@ suspend fun initR2dbcDatabase() {
     val emailDef = Meta.email
     val imageFileCreationDef = Meta.imageFileCreation
     val name = HoconApplicationConfig(ConfigFactory.load()).property("ktor.deployment.db.name").getString()
+    // drop existing table
+    try {
+        initialR2dbcDatabase().runQuery {
+            QueryDsl.executeScript("DROP DATABASE `$name`;")
+        }
+    } catch (_: R2dbcTransientResourceException){}
+
     // create a schema
     try {
         initialR2dbcDatabase().runQuery {
