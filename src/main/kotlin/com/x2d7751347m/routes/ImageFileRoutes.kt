@@ -1,13 +1,16 @@
 package com.x2d7751347m.routes
 
-import com.x2d7751347m.dto.*
+import com.x2d7751347m.dto.ImageFileResponse
 import com.x2d7751347m.entity.ImageFile
+import com.x2d7751347m.mapper.ImageFileMapper
 import com.x2d7751347m.plugins.ExceptionResponse
-import com.x2d7751347m.plugins.ValidationExceptions
+import com.x2d7751347m.plugins.ImageUtil
 import com.x2d7751347m.repository.ImageFileRepository
-import io.github.smiley4.ktorswaggerui.dsl.*
+import io.github.smiley4.ktorswaggerui.dsl.delete
+import io.github.smiley4.ktorswaggerui.dsl.get
+import io.github.smiley4.ktorswaggerui.dsl.post
+import io.github.smiley4.ktorswaggerui.dsl.route
 import io.ktor.http.*
-import io.ktor.http.cio.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,46 +20,23 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.r2dbc.spi.Blob
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitLast
-import kotlinx.coroutines.reactive.collect
-import kotlinx.serialization.builtins.serializer
-import org.mapstruct.factory.Mappers
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.ByteBuffer
 
 data class Metadata(
     val format: String,
-    val location: Coords
+    val location: Coords,
 )
+
 data class Coords(
     val lat: Float,
-    val long: Float
+    val long: Float,
 )
-fun blobToByteArray(blob: Blob): ByteArray {
-    val initialByteBuffer = ByteBuffer.allocate(0)
 
-    return Flux.from(blob.stream())
-        .concatMap { buffer -> Flux.just(buffer) }
-        .reduce(initialByteBuffer) { acc, buffer ->
-            val combined = ByteBuffer.allocate(acc.remaining() + buffer.remaining())
-            combined.put(acc).put(buffer)
-            combined.flip()
-            combined
-        }
-        .map { buffer ->
-            val byteArray = ByteArray(buffer.remaining())
-            buffer.get(byteArray)
-            byteArray
-        }.block()!!
-}
+fun byteArrayToBlob(byteArray: ByteArray): Blob =
+    Blob.from(Mono.just(ByteBuffer.wrap(ImageUtil.compressImage(byteArray))))
 
 fun Route.imageFileRouting() {
     val imageFileRepository = ImageFileRepository()
@@ -95,15 +75,14 @@ fun Route.imageFileRouting() {
             }
         }) {
             val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
-            val imageFileData =
-                imageFileRepository.fetchImageFile(id)?.data ?: throw NotFoundException()
+            val imageFile =
+                imageFileRepository.fetchImageFile(id) ?: throw NotFoundException()
             call.response.headers.append(HttpHeaders.ContentType, "image/png")
             call.respondBytes(
-                blobToByteArray(imageFileData)
+                ImageFileMapper().imageFileToImageFileResponse(imageFile).data!!
             )
         }
         authenticate("auth-jwt") {
-
             get({
                 summary = "get imageFiles"
                 request {
@@ -129,7 +108,13 @@ fun Route.imageFileRouting() {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal!!.payload.getClaim("id").asLong()
                 call.respond(
-                    imageFileRepository.fetchImageFilesByUserId(page, size, userId).toList()
+                    ImageFileMapper().imageFileListToImageFileResponseList(
+                        imageFileRepository.fetchImageFilesByUserId(
+                            page,
+                            size,
+                            userId
+                        ).toList()
+                    ).onEach { it.data = ImageUtil.decompressImage(it.data!!) }
                 )
             }
             post({
@@ -177,8 +162,12 @@ fun Route.imageFileRouting() {
                         is PartData.FileItem -> {
                             fileName = part.originalFileName as String
                             val fileBytes = part.streamProvider().readBytes()
-                            imageFileRepository.insertImageFile(ImageFile(name = fileName, data = Blob.from( Mono.just(ByteBuffer.wrap(fileBytes)) ),
-                                userId = userId))
+                            imageFileRepository.insertImageFile(
+                                ImageFile(
+                                    name = fileName, data = byteArrayToBlob(fileBytes),
+                                    userId = userId
+                                )
+                            )
                         }
 
                         else -> {}
@@ -218,33 +207,64 @@ fun Route.imageFileRouting() {
     }) {
         authenticate("auth-jwt") {
             get({
+                summary = "get imageFiles"
                 request {
                     queryParameter<Int>("page") {
                         example = 1
-//                    required = true
                     }
                     queryParameter<Int>("size") {
                         example = 10
-//                    required = true
+                    }
+                }
+                response {
+                    HttpStatusCode.OK to {
+                        description = "Successful Request"
+                        body<List<ImageFileResponse>> {
+                            mediaType(ContentType.Application.Json)
+                            description = "the response"
+                        }
                     }
                 }
             }) {
                 val page = call.parameters["page"]?.toInt() ?: throw BadRequestException("page is null")
                 val size = call.parameters["size"]?.toInt() ?: throw BadRequestException("size is null")
-                call.respond(imageFileRepository.fetchImageFiles(page, size))
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal!!.payload.getClaim("id").asLong()
+                call.respond(
+                    ImageFileMapper().imageFileListToImageFileResponseList(
+                        imageFileRepository.fetchImageFilesByUserId(
+                            page,
+                            size,
+                            userId
+                        ).toList()
+                    ).onEach { it.data = ImageUtil.decompressImage(it.data!!) }
+                )
             }
             get("{id}", {
+                summary = "get imageFile by id"
                 request {
                     pathParameter<Long>("id") {
                         description = "id"
                         required = true
                     }
                 }
+                response {
+                    HttpStatusCode.OK to {
+                        header<String>(HttpHeaders.ContentType)
+                        body<ContentType.Image> {
+                            mediaType(ContentType.Image.PNG)
+                            description = "the response"
+                        }
+                    }
+                }
             }) {
                 val id = call.parameters["id"]?.toLong() ?: throw BadRequestException("id is null")
                 val imageFile =
                     imageFileRepository.fetchImageFile(id) ?: throw NotFoundException()
-                call.respond(imageFile)
+                call.response.headers.append(HttpHeaders.ContentType, "image/png")
+                call.respondBytes(
+                    ImageFileMapper().imageFileToImageFileResponse(imageFile).data!!
+                )
             }
             post({
                 summary = "create imageFile."
@@ -253,10 +273,19 @@ fun Route.imageFileRouting() {
 //                    description = "the math operation to perform. Either 'add' or 'sub'"
 //                    example = "add"
 //                }
+
                     multipartBody {
-                        mediaType(ContentType.Application.OctetStream)
                         required = true
-                        description = "file"
+                        description = "profile image"
+                        mediaType(ContentType.MultiPart.FormData)
+                        part<File>("profileImage") {
+                            mediaTypes = setOf(
+                                ContentType.Image.PNG,
+                                ContentType.Image.JPEG,
+                                ContentType.Image.GIF
+                            )
+                        }
+                        part<Metadata>("myMetadata")
                     }
                 }
                 response {
@@ -268,7 +297,32 @@ fun Route.imageFileRouting() {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal!!.payload.getClaim("id").asLong()
 
-                val imageFile = call.receive<ContentType.MultiPart>()
+                var fileDescription = ""
+                var fileName = ""
+                val multipartData = call.receiveMultipart()
+
+
+                multipartData.forEachPart { part ->
+                    when (part) {
+                        is PartData.FormItem -> {
+                            fileDescription = part.value
+                        }
+
+                        is PartData.FileItem -> {
+                            fileName = part.originalFileName as String
+                            val fileBytes = part.streamProvider().readBytes()
+                            imageFileRepository.insertImageFile(
+                                ImageFile(
+                                    name = fileName, data = byteArrayToBlob(fileBytes),
+                                    userId = userId
+                                )
+                            )
+                        }
+
+                        else -> {}
+                    }
+                    part.dispose()
+                }
 //                imageFileRepository.insertImageFile(imageFile)
 //            CoroutineScope(Job()).launch { Mail().sendImageFile("hahaha") }
                 call.response.status(HttpStatusCode.Created)
@@ -282,7 +336,7 @@ fun Route.imageFileRouting() {
                 }
             }) {
                 val id = call.parameters["id"]?.toLong() ?: return@delete call.respond(HttpStatusCode.BadRequest)
-                if (imageFileRepository.fetchImageFile(id)!=null) {
+                if (imageFileRepository.fetchImageFile(id) != null) {
                     imageFileRepository.deleteImageFile(id)
                     call.respondText("Customer removed correctly", status = HttpStatusCode.Accepted)
                 } else {
