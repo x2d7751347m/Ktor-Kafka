@@ -2,6 +2,8 @@ package com.x2d7751347m.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.TokenExpiredException
+import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
@@ -14,7 +16,6 @@ import com.x2d7751347m.dto.GlobalDto
 import com.x2d7751347m.entity.UserRole
 import com.x2d7751347m.entity.validateLoginForm
 import com.x2d7751347m.repository.UserRepository
-import io.github.smiley4.ktorswaggerui.dsl.get
 import io.github.smiley4.ktorswaggerui.dsl.post
 import io.github.smiley4.ktorswaggerui.dsl.route
 import io.ktor.http.*
@@ -66,7 +67,9 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim("id").asString() != "" && userRepository.fetchUser(credential.payload.getClaim("id").asLong()) != null && !(this.request.path()
+                if (credential.payload.getClaim("id").asString() != "" && userRepository.fetchUser(
+                        credential.payload.getClaim("id").asLong()
+                    ) != null && !(this.request.path()
                         .contains("/admins") && UserRole.valueOf(
                         credential.payload.getClaim("role").asString()
                     ) != UserRole.ADMIN)
@@ -148,7 +151,10 @@ fun Route.securityRouting() {
 //                    example = "add"
 //                }
                 body<GlobalDto.LoginForm> {
-                    example("First", GlobalDto.LoginForm(username = "username", password = "Password12!", deviceId = "device1")) {
+                    example(
+                        "First",
+                        GlobalDto.LoginForm(username = "username", password = "Password12!", deviceId = "device1")
+                    ) {
                         description = "Enter your username and password and device id"
                     }
                     required = true
@@ -174,7 +180,7 @@ fun Route.securityRouting() {
                 // previously been hashed
                 if (!BCrypt.checkpw(loginForm.password, password)) throw ValidationException("It does not match")
             }
-            val token = JWT.create()
+            val authorizationToken = JWT.create()
                 .withAudience(jwtAudience)
                 .withIssuer(jwtIssuer)
                 .withClaim("id", user.id)
@@ -182,7 +188,16 @@ fun Route.securityRouting() {
                 .withClaim("device-id", loginForm.deviceId)
                 .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
                 .sign(Algorithm.HMAC256(jwtSecret))
-            call.response.headers.append(HttpHeaders.Authorization, token)
+            val refreshToken = JWT.create()
+                .withAudience(jwtAudience)
+                .withIssuer(jwtIssuer)
+                .withClaim("id", user.id)
+                .withClaim("role", user.userRole.name)
+                .withClaim("device-id", loginForm.deviceId)
+                .withExpiresAt(Date(System.currentTimeMillis() + 7 * 24 * 60 * 60000))
+                .sign(Algorithm.HMAC256(jwtSecret))
+            call.response.headers.append(HttpHeaders.Authorization, authorizationToken)
+            call.response.headers.append("Refresh", refreshToken)
             call.response.status(HttpStatusCode.OK)
         }
         post("/oauth-sign-in", {
@@ -209,7 +224,7 @@ fun Route.securityRouting() {
         }) {
             when (Oauth.valueOf(call.parameters.getOrFail("platform"))) {
                 Oauth.GOOGLE -> {
-                    val idTokenString = call.request.headers["IdToken"]
+                    val idTokenString = call.request.headers["IdToken"]!!
                     val transport: HttpTransport = NetHttpTransport()
                     val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance()
                     val verifier = GoogleIdTokenVerifier.Builder(
@@ -251,36 +266,49 @@ fun Route.securityRouting() {
             }
         }
     }
-    authenticate("auth-jwt") {
-        get("/v1/api/token/refresh", {
-            tags = listOf("auth")
-            summary = "refresh token"
-            response {
-                HttpStatusCode.OK to {
-                    description = "Successful Request"
-                    header<String>(HttpHeaders.Authorization)
-                }
+    post("/v1/api/token/refresh", {
+        tags = listOf("auth")
+        summary = "refresh token"
+        request {
+            headerParameter<String>("Refresh")
+        }
+        response {
+            HttpStatusCode.OK to {
+                description = "Successful Request"
+                header<String>(HttpHeaders.Authorization)
             }
+        }
 
-        }) {
+    }) {
 
-            val principal = call.principal<JWTPrincipal>()
-            val id = principal!!.payload.getClaim("id").asLong()
-            val user =
-                userRepository.fetchUser(id) ?: throw NotFoundException("user not found")
-            val token = JWT.create()
-                .withAudience(jwtAudience)
-                .withIssuer(jwtIssuer)
-                .withClaim("id", user.id)
-                .withClaim("role", user.userRole.name)
-                .withClaim("device-id", principal!!.payload.getClaim("device-id").asString())
-                .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
-                .sign(Algorithm.HMAC256(jwtSecret))
-            call.response.headers.append(HttpHeaders.Authorization, token)
-            call.response.status(HttpStatusCode.OK)
+        val refreshToken = call.request.headers["Refresh"]
+
+        val verifier = JWT
+            .require(Algorithm.HMAC256(jwtSecret))
+            .withAudience(jwtAudience)
+            .withIssuer(jwtIssuer)
+            .build()
+        var decodedJWT: DecodedJWT
+        try {
+            decodedJWT = verifier.verify(refreshToken)
+        } catch (tokenExpiredException: TokenExpiredException) {
+            throw ValidationException(tokenExpiredException.localizedMessage)
+        }
+        val id = decodedJWT.getClaim("id").asLong()
+        val user =
+            userRepository.fetchUser(id) ?: throw NotFoundException("user not found")
+        val token = JWT.create()
+            .withAudience(jwtAudience)
+            .withIssuer(jwtIssuer)
+            .withClaim("id", user.id)
+            .withClaim("role", user.userRole.name)
+            .withClaim("device-id", decodedJWT.getClaim("device-id").asString())
+            .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60000))
+            .sign(Algorithm.HMAC256(jwtSecret))
+        call.response.headers.append(HttpHeaders.Authorization, token)
+        call.response.status(HttpStatusCode.OK)
 //            val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
 //            call.respondText("Hello, $id! Token is expired at $expiresAt ms.")
-        }
     }
 }
 // configure routes
