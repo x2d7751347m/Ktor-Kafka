@@ -164,6 +164,7 @@ fun Route.securityRouting() {
                 HttpStatusCode.OK to {
                     description = "Successful Request"
                     header<String>(HttpHeaders.Authorization)
+                    header<String>("Refresh")
                 }
             }
         }) {
@@ -219,6 +220,7 @@ fun Route.securityRouting() {
                 HttpStatusCode.OK to {
                     description = "Successful Request"
                     header<String>(HttpHeaders.Authorization)
+                    header<String>("Refresh")
                 }
             }
         }) {

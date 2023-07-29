@@ -35,7 +35,7 @@ data class Coords(
     val long: Float,
 )
 
-fun byteArrayToBlob(byteArray: ByteArray): Blob =
+private fun byteArrayToBlob(byteArray: ByteArray): Blob =
     Blob.from(Mono.just(ByteBuffer.wrap(ImageUtil.compressImage(byteArray))))
 
 fun Route.imageFileRouting() {
