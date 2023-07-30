@@ -136,7 +136,7 @@ fun Route.imageFileRouting() {
                                 ContentType.Image.GIF
                             )
                         }
-                        part<Metadata>("myMetadata")
+//                        part<Metadata>("myMetadata")
                     }
                 }
                 response {
@@ -285,7 +285,7 @@ fun Route.imageFileRouting() {
                                 ContentType.Image.GIF
                             )
                         }
-                        part<Metadata>("myMetadata")
+//                        part<Metadata>("myMetadata")
                     }
                 }
                 response {

@@ -1,6 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.kotlin.cli.jvm.compiler.findMainClass
 
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -38,18 +37,19 @@ ktor {
         jreVersion.set(io.ktor.plugin.features.JreVersion.JRE_17)
 //        localImageName.set("sample-docker-image")
 //        imageTag.set("0.0.1-preview")
-        portMappings.set(listOf(
-            io.ktor.plugin.features.DockerPortMapping(
-                8000,
-                8000,
-                io.ktor.plugin.features.DockerPortMappingProtocol.TCP
-            ),
-            io.ktor.plugin.features.DockerPortMapping(
-                8080,
-                8080,
-                io.ktor.plugin.features.DockerPortMappingProtocol.TCP
+        portMappings.set(
+            listOf(
+                io.ktor.plugin.features.DockerPortMapping(
+                    8000,
+                    8000,
+                    io.ktor.plugin.features.DockerPortMappingProtocol.TCP
+                ),
+                io.ktor.plugin.features.DockerPortMapping(
+                    8080,
+                    8080,
+                    io.ktor.plugin.features.DockerPortMappingProtocol.TCP
+                )
             )
-        )
         )
     }
 }
@@ -127,7 +127,7 @@ dependencies {
 
     runtimeOnly("org.komapper:komapper-slf4j:$komapperVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-    implementation("io.github.smiley4:ktor-swagger-ui:2.2.2")
+    implementation("io.github.smiley4:ktor-swagger-ui:2.2.3")
     implementation("io.konform:konform:0.4.0")
     implementation("de.svenkubiak:jBCrypt:0.4.1")
     implementation("com.google.api-client:google-api-client:2.2.0")
