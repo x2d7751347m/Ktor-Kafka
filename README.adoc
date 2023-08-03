@@ -21,8 +21,6 @@ image::.adoc/images/test1.PNG[link="https://youtu.be/izDngUzWbrI",window=_blank]
 
 == Swagger ui (Check out available APIs here!)
 
-
-.Hours of Service: (UTC +9) Monday-Friday: 09:00 - 18:00
 http://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080
 
  http://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080
@@ -37,8 +35,6 @@ http://localhost:8080
 
 . Websocket url without Kafka
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/chat
-
 ... If running on a local server
 
  ws://localhost:8080/v1/api/chat
@@ -47,17 +43,15 @@ http://localhost:8080
 
 . Websocket url Including Kafka
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/messages/{group}
-
 ... If running on a local server
 
 ... ws://localhost:8080/v1/api/messages/{group}
 
 .. e.g)
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/messages/food_topic
+ ws://localhost:8080/v1/api/messages/food_topic
 
- ws://ktor-kafka-alb-dev-1-439855098.ap-northeast-2.elb.amazonaws.com:8080/v1/api/messages/food_topic
+ ws://localhost:8080/v1/api/messages/food_topic
 
 . Note) Swagger does not support WebSockets
 
@@ -68,10 +62,6 @@ http://localhost:8080
 image::.adoc/images/task definition.PNG[]
 
 == Kafka topic console
-
-http://121.172.169.213:9080
-
- http://121.172.169.213:9080
 
 ... If running on a local server
 
